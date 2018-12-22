@@ -3,6 +3,7 @@ from typing import NamedTuple
 
 # TODO
 # - formatting selection
+# - displayable keyboard shortcuts
 # - copy
 # - sort
 
@@ -107,6 +108,7 @@ class Viewer:
         self.top_left = Position(0, 0)
         self.cursor = Position(0, 0)
         self.selecting_from = None
+        self.selecting_to = None
         self.stdscr = stdscr
         self.message = 'Welcome to the spreadsheet!'
         self.layout = None
@@ -197,16 +199,16 @@ class Viewer:
     def get_window_height(self):
         # 1 row for message, 2 for padding
         return self.stdscr.getmaxyx()[0] - 3
-    def get_window_width(self):
-        return self.stdscr.getmaxyx()[1]
     def get_cols_displayed(self):
         """Get the # of columns COMPLETELY displayed."""
-        w = self.get_window_width()
+        w = self.layout.grid.width
         n = 0
         while w > 0:
             w -= self.get_width(self.top_left.col + n)
             n += 1
         return n - 1  # last one was only partially displayed
+    def get_rows_displayed(self):
+        return self.layout.grid.height
     def draw_column(self, col, row_top, row_bottom, y, x):
         # TODO highlight selected cell
         width = min(
@@ -318,7 +320,7 @@ class Viewer:
         min_col = new_cursor.col - self.get_cols_displayed() + 1
         if min_col > new_top_left.col:
             new_top_left = new_top_left._replace(col=min_col)
-        min_row = new_cursor.row - self.get_window_height() + 1
+        min_row = new_cursor.row - self.get_rows_displayed() + 1
         if min_row > new_top_left.row:
             new_top_left = new_top_left._replace(row=min_row)
         self.cursor = new_cursor
