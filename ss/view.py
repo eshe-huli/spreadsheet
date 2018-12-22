@@ -41,6 +41,7 @@ ARROW_KEYS = {
 ENTER_KEYS = {curses.KEY_ENTER, 10, 13}
 BACKSPACE_KEYS = {curses.KEY_BACKSPACE}
 ESCAPE_KEYS = {27}
+KEYNAME_BEGIN_SELECTING = "^@"
 
 class ScreenPosition(NamedTuple):
     y: int
@@ -60,6 +61,20 @@ class Rectangle(NamedTuple):
         return Rectangle(
             ScreenPosition(y, x),
             ScreenPosition(y + h, x + w)
+        )
+class Range(NamedTuple):
+    top_left: Position
+    bottom_right: Position
+    @classmethod
+    def from_denormalized_inclusive(cls, pos1, pos2):
+        return Range(
+            Position(min(pos1.row, pos2.row), min(pos1.col, pos2.col)),
+            Position(max(pos1.row, pos2.row) + 1, max(pos1.col, pos2.col) + 1)
+        )
+    def contains(self, pos):
+        return (
+            self.top_left.col <= pos.col < self.bottom_right.col
+            and self.top_left.row <= pos.row < self.bottom_right.row
         )
 
 class Layout(NamedTuple):
@@ -92,7 +107,7 @@ class Viewer:
         self.spreadsheet = spreadsheet
         self.top_left = Position(0, 0)
         self.cursor = Position(0, 0)
-        self.range = None
+        self.selecting_from = None
         self.stdscr = stdscr
         self.message = 'Welcome to the spreadsheet!'
         self.layout = None
@@ -209,7 +224,19 @@ class Viewer:
         for dy, value in enumerate(values):
             text = _align_right(value, width)
             row = row_top + dy
-            attr = 0 if self.cursor != Position(row, col) else curses.A_REVERSE
+            curpos = Position(row, col)
+            attr = 0
+            if self.selecting_from is None:
+                if self.cursor == curpos:
+                    attr = curses.A_REVERSE
+            else:
+                rect = Range.from_denormalized_inclusive(
+                    self.selecting_from, self.cursor
+                )
+                if rect.contains(curpos):
+                    attr = curses.A_REVERSE
+                if curpos == self.cursor:
+                    attr = attr | curses.A_BOLD | curses.A_UNDERLINE
             self.stdscr.addstr(y + dy, x, text, attr)
     def draw_message(self):
         rect = self.layout.message
@@ -226,7 +253,7 @@ class Viewer:
                 rect.top_left.y, rect.top_left.x + self.edit_box.cursor
             )
     def handle_key_default(self, action):
-        n = curses.keyname(action).decode()
+        name = curses.keyname(action).decode()
         if action in ARROW_KEYS:
             self.move_cursor(ARROW_KEYS[action])
         elif action in ENTER_KEYS:
@@ -234,8 +261,12 @@ class Viewer:
             self.begin_editing(value)
         elif key_begins_edit(action):
             self.begin_editing('')
+        elif name == KEYNAME_BEGIN_SELECTING:
+            self.begin_selecting()
+        elif action in ESCAPE_KEYS:
+            self.finish_selecting()
         else:
-            self.message = f"Unknown shortcut {n}"
+            self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
         self.edit_box = EditBox(
             text=initial_text,
@@ -248,6 +279,10 @@ class Viewer:
             self.spreadsheet.set(_ref(*self.cursor), self.edit_box.text)
         self.edit_box = None
         self.key_handler = self.handle_key_default
+    def begin_selecting(self):
+        self.selecting_from = self.cursor
+    def finish_selecting(self):
+        self.selecting_from = None
     def handle_key_edit(self, action):
         n = curses.keyname(action).decode()
         if action in ENTER_KEYS:
