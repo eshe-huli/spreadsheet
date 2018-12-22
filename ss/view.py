@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple
 
 # TODO
-# - value editing
 # - range highlighting
 # - formatting selection
 # - copy
@@ -39,6 +38,10 @@ ARROW_KEYS = {
     curses.KEY_RIGHT: Position(0, 1),
 }
 
+ENTER_KEYS = {curses.KEY_ENTER, 10, 13}
+BACKSPACE_KEYS = {curses.KEY_BACKSPACE}
+ESCAPE_KEYS = {27}
+
 class ScreenPosition(NamedTuple):
     y: int
     x: int
@@ -66,6 +69,24 @@ class Layout(NamedTuple):
     column_labels: Rectangle
     edit_box: Rectangle
 
+class EditBox(NamedTuple):
+    text: str
+    cursor: int
+    def insert(self, char):
+        return EditBox(
+            text=self.text[:self.cursor] + char + self.text[self.cursor:],
+            cursor=self.cursor + 1
+        )
+    def backspace(self):
+        return EditBox(
+            text=self.text[:self.cursor-1] + self.text[self.cursor:],
+            cursor=self.cursor - 1
+        )
+    def right(self):
+        return self._replace(cursor=min(len(self.text), self.cursor + 1))
+    def left(self):
+        return self._replace(cursor=max(0, self.cursor - 1))
+
 class Viewer:
     def __init__(self, spreadsheet, stdscr):
         self.spreadsheet = spreadsheet
@@ -75,6 +96,10 @@ class Viewer:
         self.stdscr = stdscr
         self.message = 'Welcome to the spreadsheet!'
         self.layout = None
+        self.edit_box = None
+        self.key_handler = self.handle_key_default
+        self.initial_cursor_visibility = curses.curs_set(0)
+
     def measure(self):
         height, width = self.stdscr.getmaxyx()
         # Lay out the top section
@@ -128,6 +153,7 @@ class Viewer:
         self.draw_row_labels()
         self.draw_column_labels()
         self.draw_message()
+        self.draw_editor()
     def draw_row_labels(self):
         nrows = self.layout.grid.height
         (y, x) = self.layout.row_labels.top_left
@@ -189,12 +215,60 @@ class Viewer:
         rect = self.layout.message
         text = _align_center(self.message, rect.width)
         self.stdscr.addstr(*rect.top_left, text)
-    def handle_key(self, action):
+    def draw_editor(self):
+        rect = self.layout.edit_box
+        if self.edit_box is None:
+            curses.curs_set(0)
+        else:
+            curses.curs_set(self.initial_cursor_visibility)
+            self.stdscr.addstr(*rect.top_left, self.edit_box.text)
+            self.stdscr.move(
+                rect.top_left.y, rect.top_left.x + self.edit_box.cursor
+            )
+    def handle_key_default(self, action):
         n = curses.keyname(action).decode()
         if action in ARROW_KEYS:
             self.move_cursor(ARROW_KEYS[action])
+        elif action in ENTER_KEYS:
+            value = self.spreadsheet.get_raw(_ref(*self.cursor))
+            self.begin_editing(value)
+        elif key_begins_edit(action):
+            self.begin_editing('')
         else:
             self.message = f"Unknown shortcut {n}"
+    def begin_editing(self, initial_text):
+        self.edit_box = EditBox(
+            text=initial_text,
+            cursor=len(initial_text)
+        )
+        self.message = "Editing..."
+        self.key_handler = self.handle_key_edit
+    def finish_editing(self, commit):
+        if commit:
+            self.spreadsheet.set(_ref(*self.cursor), self.edit_box.text)
+        self.edit_box = None
+        self.key_handler = self.handle_key_default
+    def handle_key_edit(self, action):
+        n = curses.keyname(action).decode()
+        if action in ENTER_KEYS:
+            self.finish_editing(True)
+            self.move_cursor(Position(1, 0))
+        elif is_character(action):
+            char = get_character(action)
+            self.edit_box = self.edit_box.insert(char)
+        elif action in BACKSPACE_KEYS:
+            self.edit_box = self.edit_box.backspace()
+        elif action == curses.KEY_LEFT:
+            self.edit_box = self.edit_box.left()
+        elif action == curses.KEY_RIGHT:
+            self.edit_box = self.edit_box.right()
+        elif action in ESCAPE_KEYS:
+            self.finish_editing(False)
+        elif should_exit_editing_and_handle(action):
+            self.finish_editing(False)
+            self.handle_key_default(action)
+        else:
+            self.message = f"Unknown key {action} {n}"
     def move_cursor(self, delta):
         new_cursor = self.cursor + delta
         if new_cursor.col < 0:
@@ -224,7 +298,7 @@ class Viewer:
                 action = self.stdscr.getch()
             except KeyboardInterrupt:
                 break # quit
-            self.handle_key(action)
+            self.key_handler(action)
 
 def _align_right(s, width):
     if len(s) > width:
@@ -238,3 +312,18 @@ def _align_center(s, width):
         lpadding = 0
     rpadding = width - len(s) - lpadding
     return ' ' * lpadding + s + ' ' * rpadding
+
+def key_begins_edit(key):
+    return is_character(key)
+
+def is_character(key):
+    return len(curses.keyname(key)) == 1
+
+def get_character(key):
+    return curses.keyname(key).decode()
+
+def should_exit_editing_and_handle(key):
+    return key in {
+        curses.KEY_UP,
+        curses.KEY_DOWN
+    }
