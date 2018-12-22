@@ -11,9 +11,15 @@ from typing import NamedTuple
 # - sort
 
 def _ref(col, row):
+    return _get_column_label(col) + _get_row_label(row)
+
+def _get_column_label(col):
     nreps = (col // 26) + 1
     char = chr(ord('A') + col % 26)
-    return nreps * char + str(row + 1)
+    return nreps * char
+
+def _get_row_label(row):
+    return str(row + 1)
 
 class Position(NamedTuple):
     row: int
@@ -35,6 +41,33 @@ ARROW_KEYS = {
     curses.KEY_RIGHT: Position(0, 1),
 }
 
+class ScreenPosition(NamedTuple):
+    y: int
+    x: int
+
+class Rectangle(NamedTuple):
+    top_left: ScreenPosition
+    bottom_right: ScreenPosition
+    @property
+    def width(self):
+        return self.bottom_right.x - self.top_left.x
+    @property
+    def height(self):
+        return self.bottom_right.y - self.top_left.y
+    @classmethod
+    def fromhw(cls, y, x, h, w):
+        return Rectangle(
+            ScreenPosition(y, x),
+            ScreenPosition(y + h, x + w)
+        )
+
+class Layout(NamedTuple):
+    grid: Rectangle
+    message: Rectangle
+    row_labels: Rectangle
+    column_labels: Rectangle
+    edit_box: Rectangle
+
 class Viewer:
     def __init__(self, spreadsheet, stdscr):
         self.spreadsheet = spreadsheet
@@ -43,17 +76,74 @@ class Viewer:
         self.range = None
         self.stdscr = stdscr
         self.message = 'Welcome to the spreadsheet!'
-    def draw(self):
+        self.layout = None
+    def measure(self):
         height, width = self.stdscr.getmaxyx()
-        nrows = self.get_window_height()
-        x = 0
+        # Lay out the top section
+        topy = 0
+        edit_box = Rectangle.fromhw(topy, 0, 1, width)
+        topy += edit_box.height
+        # Lay out the bottom section
+        bottomy = height - 1
+        message = Rectangle.fromhw(bottomy, 0, 1, width)
+        bottomy -= message.height - 1
+
+        # spreadsheet grid. first figure out the width of the row labels
+        HEADER_HEIGHT = 2
+        nrows = bottomy - topy - HEADER_HEIGHT
+        max_row = self.top_left.row + nrows
+        row_label_width = len(str(max_row)) + 1
+        row_labels = Rectangle.fromhw(
+            topy + HEADER_HEIGHT, 0, nrows, row_label_width
+        )
+        column_labels = Rectangle(
+            ScreenPosition(topy, row_labels.bottom_right.x),
+            ScreenPosition(topy + HEADER_HEIGHT, width)
+        )
+        grid = Rectangle(
+            ScreenPosition(topy + HEADER_HEIGHT, row_labels.bottom_right.x),
+            ScreenPosition(bottomy, width)
+        )
+        self.layout = Layout(
+            grid=grid,
+            message=message,
+            row_labels=row_labels,
+            column_labels=column_labels,
+            edit_box=edit_box
+        )
+    def draw(self):
+        grid = self.layout.grid
+        nrows = grid.height
+        x = grid.top_left.x
         col = self.top_left.col
         row_top = self.top_left.row
-        while x < width:
-            delta = self.draw_column(col, row_top, row_top + nrows, 0, x)
+        while x < grid.width:
+            self.draw_column(
+                col=col,
+                row_top=row_top,
+                row_bottom=row_top + nrows,
+                y=grid.top_left.y,
+                x=x
+            )
             col += 1
-            x += delta
-        self.draw_message(nrows + 1, width)
+            x += self.get_width(col)
+        self.draw_row_labels()
+        self.draw_column_labels()
+        self.draw_message()
+    def draw_row_labels(self):
+        nrows = self.layout.grid.height
+        (y, x) = self.layout.row_labels.top_left
+        row_nums = range(self.top_left.row, self.top_left.row + nrows)
+        for i, row_num in enumerate(row_nums):
+            self.stdscr.addstr(y + i, x, _get_row_label(row_num))
+    def draw_column_labels(self):
+        rect = self.layout.column_labels
+        (y, x) = rect.top_left
+        col = self.top_left.col
+        while x < rect.bottom_right.x:
+            self.stdscr.addstr(y, x, _get_column_label(col))
+            x += self.get_width(col)
+            col += 1
     def get_width(self, col):
         return 15
     def get_window_height(self):
@@ -82,13 +172,13 @@ class Viewer:
             row = row_top + dy
             attr = 0 if self.cursor != Position(row, col) else curses.A_REVERSE
             self.stdscr.addstr(y + dy, x, ' ' + value, attr)
-        return width + 2
-    def draw_message(self, y, width):
-        padding = (width - len(self.message)) // 2
+    def draw_message(self):
+        rect = self.layout.message
+        padding = (rect.width - len(self.message)) // 2
         if padding < 1:
-            self.message = self.message[:width-4] + '..'
+            self.message = self.message[:rect.width-4] + '..'
             padding = 1
-        self.stdscr.addstr(y, 0, ' ' * padding + self.message)
+        self.stdscr.addstr(*rect.top_left, ' ' * padding + self.message)
     def handle_key(self, action):
         n = curses.keyname(action).decode()
         if action in ARROW_KEYS:
@@ -117,6 +207,7 @@ class Viewer:
     def loop(self):
         while True:
             self.stdscr.erase()
+            self.measure()
             self.draw()
             self.message = ''
             try:
