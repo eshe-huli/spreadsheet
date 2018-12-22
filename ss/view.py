@@ -2,8 +2,6 @@ import curses
 from typing import NamedTuple
 
 # TODO
-# - row numbers
-# - column letters
 # - value editing
 # - range highlighting
 # - formatting selection
@@ -171,17 +169,22 @@ class Viewer:
         return n - 1  # last one was only partially displayed
     def draw_column(self, col, row_top, row_bottom, y, x):
         # TODO highlight selected cell
-        width = self.get_width(col) # TODO dynamic width?
+        width = min(
+            self.get_width(col),
+            self.layout.grid.bottom_right.x - x
+        )
+        if width < 2:
+            # give up on drawing anything
+            return
         values = [
             self.spreadsheet.get_formatted(_ref(col, row))
             for row in range(row_top, row_bottom)
         ]
         for dy, value in enumerate(values):
-            if len(value) > width:
-                value = value[:width-2] + '..'
+            text = _align_right(value, width)
             row = row_top + dy
             attr = 0 if self.cursor != Position(row, col) else curses.A_REVERSE
-            self.stdscr.addstr(y + dy, x, ' ' + value, attr)
+            self.stdscr.addstr(y + dy, x, text, attr)
     def draw_message(self):
         rect = self.layout.message
         text = _align_center(self.message, rect.width)
@@ -224,6 +227,8 @@ class Viewer:
             self.handle_key(action)
 
 def _align_right(s, width):
+    if len(s) > width:
+        s = s[:width-2] + '..'
     return ' ' * (width - len(s)) + s
 
 def _align_center(s, width):
