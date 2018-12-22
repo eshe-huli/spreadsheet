@@ -261,6 +261,7 @@ class Viewer:
             self.begin_editing(value)
         elif key_begins_edit(action):
             self.begin_editing('')
+            self.handle_key_edit(action)
         elif name == KEYNAME_BEGIN_SELECTING:
             self.begin_selecting()
         elif action in ESCAPE_KEYS:
