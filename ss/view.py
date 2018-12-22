@@ -85,11 +85,11 @@ class Viewer:
         topy += edit_box.height
         # Lay out the bottom section
         bottomy = height - 1
-        message = Rectangle.fromhw(bottomy, 0, 1, width)
+        message = Rectangle.fromhw(bottomy, 1, 1, width - 2)
         bottomy -= message.height - 1
 
         # spreadsheet grid. first figure out the width of the row labels
-        HEADER_HEIGHT = 2
+        HEADER_HEIGHT = 1
         nrows = bottomy - topy - HEADER_HEIGHT
         max_row = self.top_left.row + nrows
         row_label_width = len(str(max_row)) + 1
@@ -135,17 +135,27 @@ class Viewer:
         (y, x) = self.layout.row_labels.top_left
         row_nums = range(self.top_left.row, self.top_left.row + nrows)
         for i, row_num in enumerate(row_nums):
-            self.stdscr.addstr(y + i, x, _get_row_label(row_num))
+            label = _align_right(
+                _get_row_label(row_num), self.layout.row_labels.width
+            )
+            self.stdscr.addstr(y + i, x, label, curses.A_REVERSE)
     def draw_column_labels(self):
         rect = self.layout.column_labels
         (y, x) = rect.top_left
         col = self.top_left.col
         while x < rect.bottom_right.x:
-            self.stdscr.addstr(y, x, _get_column_label(col))
-            x += self.get_width(col)
+            width = min(
+                self.get_width(col),
+                rect.bottom_right.x - x
+            )
+            label = _align_center(
+                _get_column_label(col), width
+            )
+            self.stdscr.addstr(y, x, label, curses.A_REVERSE)
+            x += width
             col += 1
     def get_width(self, col):
-        return 15
+        return 9
     def get_window_height(self):
         # 1 row for message, 2 for padding
         return self.stdscr.getmaxyx()[0] - 3
@@ -174,11 +184,8 @@ class Viewer:
             self.stdscr.addstr(y + dy, x, ' ' + value, attr)
     def draw_message(self):
         rect = self.layout.message
-        padding = (rect.width - len(self.message)) // 2
-        if padding < 1:
-            self.message = self.message[:rect.width-4] + '..'
-            padding = 1
-        self.stdscr.addstr(*rect.top_left, ' ' * padding + self.message)
+        text = _align_center(self.message, rect.width)
+        self.stdscr.addstr(*rect.top_left, text)
     def handle_key(self, action):
         n = curses.keyname(action).decode()
         if action in ARROW_KEYS:
@@ -215,3 +222,14 @@ class Viewer:
             except KeyboardInterrupt:
                 break # quit
             self.handle_key(action)
+
+def _align_right(s, width):
+    return ' ' * (width - len(s)) + s
+
+def _align_center(s, width):
+    lpadding = (width - len(s)) // 2
+    if lpadding < 0:
+        s = s[:width-2] + '..'
+        lpadding = 0
+    rpadding = width - len(s) - lpadding
+    return ' ' * lpadding + s + ' ' * rpadding
