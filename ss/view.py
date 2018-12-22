@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple
 
 # TODO
-# - range highlighting
 # - formatting selection
 # - copy
 # - sort
