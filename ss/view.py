@@ -4,7 +4,7 @@ from typing import NamedTuple
 # TODO
 # - formatting selection
 # - displayable keyboard shortcuts
-# - copy
+# - colors
 # - sort
 
 def _ref(col, row):
@@ -26,10 +26,8 @@ class Position(NamedTuple):
             self.row + other.row,
             self.col + other.col
         )
-
-class Range(NamedTuple):
-    top_left: Position
-    bottom_right: Position
+    def ref(self):
+        return _ref(*self)
 
 ARROW_KEYS = {
     curses.KEY_UP: Position(-1, 0),
@@ -42,6 +40,9 @@ ENTER_KEYS = {curses.KEY_ENTER, 10, 13}
 BACKSPACE_KEYS = {curses.KEY_BACKSPACE}
 ESCAPE_KEYS = {27}
 KEYNAME_BEGIN_SELECTING = "^@"
+KEYNAME_BEGIN_COPY = "^W"
+KEYNAME_PASTE = "^Y"
+KEYNAME_QUIT = "^C"
 
 class ScreenPosition(NamedTuple):
     y: int
@@ -76,6 +77,9 @@ class Range(NamedTuple):
             self.top_left.col <= pos.col < self.bottom_right.col
             and self.top_left.row <= pos.row < self.bottom_right.row
         )
+    def ref(self):
+        last = self.bottom_right + Position(-1, -1)
+        return f"{self.top_left.ref()}:{last.ref()}"
 
 class Layout(NamedTuple):
     grid: Rectangle
@@ -115,6 +119,7 @@ class Viewer:
         self.edit_box = None
         self.key_handler = self.handle_key_default
         self.initial_cursor_visibility = curses.curs_set(0)
+        self.quit = False
 
     def measure(self):
         height, width = self.stdscr.getmaxyx()
@@ -232,12 +237,12 @@ class Viewer:
                     attr = curses.A_REVERSE
             else:
                 rect = Range.from_denormalized_inclusive(
-                    self.selecting_from, self.cursor
+                    self.selecting_from, self.selecting_to or self.cursor
                 )
                 if rect.contains(curpos):
                     attr = curses.A_REVERSE
                 if curpos == self.cursor:
-                    attr = attr | curses.A_BOLD | curses.A_UNDERLINE
+                    attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
             self.stdscr.addstr(y + dy, x, text, attr)
     def draw_message(self):
         rect = self.layout.message
@@ -255,16 +260,22 @@ class Viewer:
             )
     def handle_key_default(self, action):
         name = curses.keyname(action).decode()
-        if action in ARROW_KEYS:
+        if name == KEYNAME_QUIT:
+            self.quit = True
+        elif action in ARROW_KEYS:
             self.move_cursor(ARROW_KEYS[action])
         elif action in ENTER_KEYS:
-            value = self.spreadsheet.get_raw(_ref(*self.cursor))
+            value = self.spreadsheet.get_raw(self.cursor.ref())
             self.begin_editing(value)
         elif key_begins_edit(action):
             self.begin_editing('')
             self.handle_key_edit(action)
         elif name == KEYNAME_BEGIN_SELECTING:
             self.begin_selecting()
+        elif name == KEYNAME_BEGIN_COPY:
+            self.begin_copy()
+        elif name == KEYNAME_PASTE:
+            self.paste()
         elif action in ESCAPE_KEYS:
             self.finish_selecting()
         else:
@@ -278,11 +289,24 @@ class Viewer:
         self.key_handler = self.handle_key_edit
     def finish_editing(self, commit):
         if commit:
-            self.spreadsheet.set(_ref(*self.cursor), self.edit_box.text)
+            self.spreadsheet.set(self.cursor.ref(), self.edit_box.text)
         self.edit_box = None
         self.key_handler = self.handle_key_default
     def begin_selecting(self):
         self.selecting_from = self.cursor
+    def begin_copy(self):
+        if self.selecting_from is None:
+            self.selecting_from = self.cursor
+        self.selecting_to = self.cursor
+    def paste(self):
+        if self.selecting_to is None:
+            self.message = 'To paste, copy a cell/range with ^-W first'
+        range = Range.from_denormalized_inclusive(
+            self.selecting_from, self.selecting_to
+        )
+        self.spreadsheet.copy(range.ref(), self.cursor.ref())
+        self.selecting_from = None
+        self.selecting_to = None
     def finish_selecting(self):
         self.selecting_from = None
     def handle_key_edit(self, action):
@@ -326,7 +350,7 @@ class Viewer:
         self.cursor = new_cursor
         self.top_left = new_top_left
     def loop(self):
-        while True:
+        while not self.quit:
             self.stdscr.erase()
             self.measure()
             self.draw()
