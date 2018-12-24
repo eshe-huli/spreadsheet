@@ -2,10 +2,9 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - sort
 # - colors
 
-def _ref(col, row):
+def _ref(row, col):
     return _get_column_label(col) + _get_row_label(row)
 
 def _get_column_label(col):
@@ -45,6 +44,7 @@ KEYNAME_BEGIN_COPY = "^W"
 KEYNAME_PASTE = "^Y"
 KEYNAME_QUIT = "^C"
 KEYNAME_FORMATTING = "^F"
+KEYNAME_SORT = "^S"
 
 class ScreenPosition(NamedTuple):
     y: int
@@ -90,6 +90,9 @@ class Range(NamedTuple):
     def ref(self):
         last = self.bottom_right + Position(-1, -1)
         return f"{self.top_left.ref()}:{last.ref()}"
+    @property
+    def column_indices(self):
+        return range(self.top_left.col, self.bottom_right.col)
 
 class Layout(NamedTuple):
     grid: Rectangle
@@ -173,6 +176,13 @@ class Viewer:
             ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
             ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
         ], on_selected=self.select_formatting)
+
+    @property
+    def selection(self):
+        return Range.from_denormalized_inclusive(
+            self.selecting_from,
+            self.selecting_to or self.cursor
+        )
 
     def measure(self):
         """Recompute `self.layout` based on current screen dimensions and
@@ -297,7 +307,7 @@ class Viewer:
             # give up on drawing anything
             return
         values = [
-            self.spreadsheet.get_formatted(_ref(col, row))
+            self.spreadsheet.get_formatted(_ref(row, col))
             for row in range(row_top, row_bottom)
         ]
         for dy, value in enumerate(values):
@@ -309,10 +319,7 @@ class Viewer:
                 if self.cursor == curpos:
                     attr = curses.A_REVERSE
             else:
-                rect = Range.from_denormalized_inclusive(
-                    self.selecting_from, self.selecting_to or self.cursor
-                )
-                if rect.contains(curpos):
+                if self.selection.contains(curpos):
                     attr = curses.A_REVERSE
                 if curpos == self.cursor:
                     attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
@@ -347,16 +354,18 @@ class Viewer:
             shortcut('^G', 'cancel')
             return
         if self.menu is not None:
+            self.stdscr.addstr(self.menu.title + '> ')
             for (key, desc, _) in self.menu.choices:
                 shortcut(key, desc)
             shortcut('^G', 'cancel')
             return
         shortcut('<enter>', 'edit cell')
         shortcut('^[space]', 'select range')
-        shortcut('^F', 'format')
-        shortcut('^W', 'copy')
-        shortcut('^Y', 'paste')
-        shortcut('^C', 'exit')
+        shortcut(KEYNAME_FORMATTING, 'format')
+        shortcut(KEYNAME_BEGIN_COPY, 'copy')
+        shortcut(KEYNAME_PASTE, 'paste')
+        shortcut(KEYNAME_SORT, 'sort')
+        shortcut(KEYNAME_QUIT, 'exit')
         if self.selecting_from:
             shortcut('^G', 'cancel')
 
@@ -383,6 +392,8 @@ class Viewer:
             self.finish_selecting()
         elif name == KEYNAME_FORMATTING:
             self.enter_menu(self.formatting_menu)
+        elif name == KEYNAME_SORT:
+            self.enter_sort_menu()
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
@@ -424,10 +435,7 @@ class Viewer:
         if self.selecting_to is None:
             self.message = 'To paste, copy a cell/range with ^-W first'
             return
-        range = Range.from_denormalized_inclusive(
-            self.selecting_from, self.selecting_to
-        )
-        self.spreadsheet.copy(range.ref(), self.cursor.ref())
+        self.spreadsheet.copy(self.selection.ref(), self.cursor.ref())
         self.finish_selecting()
     def finish_selecting(self):
         """Clears the current selected range."""
@@ -500,11 +508,27 @@ class Viewer:
         self.key_handler = self.handle_key_default
     def select_formatting(self, format):
         (ftype, spec) = format
-        range = Range.from_denormalized_inclusive(
-            self.selecting_from or self.cursor,
-            self.selecting_to or self.cursor
-        )
-        self.spreadsheet.set_format(range.ref(), ftype, spec)
+        self.spreadsheet.set_format(self.selection.ref(), ftype, spec)
+    def enter_sort_menu(self):
+        if self.selecting_from is None:
+            self.message = 'Select a range first with ^-[space]'
+            return
+        selection = self.selection
+        columns = list(selection.column_indices)
+        if len(columns) > 10:
+            self.message = 'Cannot sort more than 10 columns'
+            return
+        choices = [
+            (str(i), _get_column_label(col), col)
+            for i, col in enumerate(columns)
+        ]
+        self.enter_menu(Menu(
+            f'Sort {self.selection.ref()}',
+            choices,
+            self.sort_range
+        ))
+    def sort_range(self, col):
+        self.spreadsheet.sort(self.selection.ref(), _get_column_label(col))
 
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
