@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - backspace
 # - csv import
 # - display full formatted value in edit box
 # - framerate indicator
@@ -99,6 +98,9 @@ class Range(NamedTuple):
     @property
     def column_indices(self):
         return range(self.top_left.col, self.bottom_right.col)
+    @property
+    def row_indices(self):
+        return range(self.top_left.row, self.bottom_right.row)
 
 class Layout(NamedTuple):
     grid: Rectangle
@@ -186,7 +188,7 @@ class Viewer:
     @property
     def selection(self):
         return Range.from_denormalized_inclusive(
-            self.selecting_from,
+            self.selecting_from or self.cursor,
             self.selecting_to or self.cursor
         )
 
@@ -373,8 +375,9 @@ class Viewer:
                 shortcut(key, desc)
             shortcut('^G', 'cancel')
             return
-        shortcut('<enter>', 'edit cell')
-        shortcut('^[space]', 'select range')
+        shortcut('<enter>', 'edit')
+        shortcut('<bksp>', 'clear')
+        shortcut('^[space]', 'select')
         shortcut(KEYNAME_FORMATTING, 'format')
         shortcut(KEYNAME_BEGIN_COPY, 'copy')
         shortcut(KEYNAME_PASTE, 'paste')
@@ -408,6 +411,10 @@ class Viewer:
             self.enter_menu(self.formatting_menu)
         elif name == KEYNAME_SORT:
             self.enter_sort_menu()
+        elif action in BACKSPACE_KEYS:
+            for col in self.selection.column_indices:
+                for row in self.selection.row_indices:
+                    self.spreadsheet.set(Position(row, col).ref(), '')
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
