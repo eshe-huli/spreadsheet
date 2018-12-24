@@ -18,6 +18,7 @@ LEXER = re.compile(r"""
 | (?P<plus>\+)
 | (?P<minus>-)
 | (?P<value>[a-zA-Z0-9:-]+)
+| (?P<quoted>"[^"]+")
 | (?P<times>\*)
 | (?P<divided>/)
 | (?P<comma>,)
@@ -28,6 +29,7 @@ class TokenType(enum.Enum):
     LPAREN = enum.auto()
     RPAREN = enum.auto()
     VALUE = enum.auto()
+    QUOTED = enum.auto()
     PLUS = enum.auto()
     MINUS = enum.auto()
     TIMES = enum.auto()
@@ -113,6 +115,9 @@ class Parser:
                 self.expect(TokenType.RPAREN)
                 return [tm.value] + args
             return tm.value
+        tm = self.consume(TokenType.QUOTED)
+        if tm is not None:
+            return tm.value.strip('"')
         if self.consume(TokenType.LPAREN):
             tm = self.expr()
             self.expect(TokenType.RPAREN)

@@ -3,7 +3,6 @@ from typing import NamedTuple, Callable
 import time
 
 # TODO
-# - quotes in formula
 # - clean up position-manipulation code
 # - View tests?
 
