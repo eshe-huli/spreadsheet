@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - display full formatted value in edit box
 # - framerate indicator
 # - quotes in formula
 # - clean up position-manipulation code
@@ -350,6 +349,8 @@ class Viewer:
         rect = self.layout.edit_box
         if self.edit_box is None:
             curses.curs_set(0)
+            formatted = self.spreadsheet.get_formatted(self.cursor.ref())
+            self.stdscr.addstr(*rect.top_left, formatted)
         else:
             curses.curs_set(self.initial_cursor_visibility)
             self.stdscr.addstr(*rect.top_left, self.edit_box.text)
