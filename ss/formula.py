@@ -11,9 +11,9 @@ def parse(formula):
 LEXER = re.compile(r"""
 (?P<lparen>\()
 | (?P<rparen>\))
-| (?P<value>[a-zA-Z0-9:-]+)
 | (?P<plus>\+)
 | (?P<minus>-)
+| (?P<value>[a-zA-Z0-9:-]+)
 | (?P<times>\*)
 | (?P<divided>/)
 | (?P<comma>,)
@@ -86,7 +86,7 @@ class Parser:
         while True:
             if self.consume(TokenType.PLUS):
                 tm = ["+", tm, self.summand()]
-            elif self.consume(TokenType.PLUS):
+            elif self.consume(TokenType.MINUS):
                 tm = ["-", tm, self.summand()]
             else:
                 break
