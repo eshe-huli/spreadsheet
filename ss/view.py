@@ -1,8 +1,8 @@
 import curses
 from typing import NamedTuple, Callable
+import time
 
 # TODO
-# - framerate indicator
 # - quotes in formula
 # - clean up position-manipulation code
 # - View tests?
@@ -103,6 +103,7 @@ class Range(NamedTuple):
 class Layout(NamedTuple):
     grid: Rectangle
     message: Rectangle
+    framerate: Rectangle
     row_labels: Rectangle
     column_labels: Rectangle
     edit_box: Rectangle
@@ -182,6 +183,8 @@ class Viewer:
             ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
             ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
         ], on_selected=self.select_formatting)
+        # Framerate indicator
+        self.last_frame_time = 0.0
 
     @property
     def selection(self):
@@ -202,7 +205,11 @@ class Viewer:
         topy += edit_box.height
         # Lay out the bottom section
         bottomy = height - 1
-        message = Rectangle.fromhw(bottomy, 1, 1, width - 2)
+        FRAMERATE_WIDTH = 5
+        framerate = Rectangle.fromhw(
+            bottomy, width - FRAMERATE_WIDTH - 1, 1, FRAMERATE_WIDTH
+        )
+        message = Rectangle.fromhw(bottomy, 1, 1, width - framerate.width - 2)
         bottomy -= message.height - 1
 
         # spreadsheet grid. first figure out the width of the row labels
@@ -224,6 +231,7 @@ class Viewer:
         self.layout = Layout(
             grid=grid,
             message=message,
+            framerate=framerate,
             row_labels=row_labels,
             column_labels=column_labels,
             edit_box=edit_box,
@@ -251,6 +259,7 @@ class Viewer:
         self.draw_column_labels()
         self.draw_upper_left_corner()
         self.draw_message()
+        self.draw_framerate()
         self.draw_shortcuts()
         self.draw_editor()
     def draw_row_labels(self):
@@ -341,6 +350,10 @@ class Viewer:
     def draw_message(self):
         rect = self.layout.message
         text = _align_center(self.message, rect.width)
+        self.stdscr.addstr(*rect.top_left, text)
+    def draw_framerate(self):
+        rect = self.layout.framerate
+        text = _align_right('%.2f' % self.last_frame_time, rect.width)
         self.stdscr.addstr(*rect.top_left, text)
     def draw_editor(self):
         """Draws the cell value editor.
@@ -553,15 +566,18 @@ class Viewer:
 
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
+        now = time.perf_counter()
         while not self.quit:
             self.stdscr.erase()
             self.measure()
             self.draw()
             self.message = ''
+            self.last_frame_time = time.perf_counter() - now
             try:
                 action = self.stdscr.getch()
             except KeyboardInterrupt:
                 break # quit
+            now = time.perf_counter()
             self.key_handler(action)
 
 def _align_right(s, width):
