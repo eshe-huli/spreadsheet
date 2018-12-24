@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - displayable keyboard shortcuts
 # - sort
 # - colors
 
@@ -40,7 +39,7 @@ ARROW_KEYS = {
 }
 ENTER_KEYS = {curses.KEY_ENTER, 10, 13}
 BACKSPACE_KEYS = {curses.KEY_BACKSPACE}
-ESCAPE_KEYS = {27}
+ESCAPE_KEYNAMES = {"^G", "^["}
 KEYNAME_BEGIN_SELECTING = "^@"
 KEYNAME_BEGIN_COPY = "^W"
 KEYNAME_PASTE = "^Y"
@@ -344,12 +343,13 @@ class Viewer:
             self.stdscr.addstr(key, curses.A_REVERSE)
             self.stdscr.addstr(' ' + description + ' ')
         if self.edit_box is not None:
-            shortcut('<esc>', 'discard')
-            shortcut('<enter>', 'set value')
+            shortcut('<enter>', 'set')
+            shortcut('^G', 'cancel')
             return
         if self.menu is not None:
             for (key, desc, _) in self.menu.choices:
                 shortcut(key, desc)
+            shortcut('^G', 'cancel')
             return
         shortcut('<enter>', 'edit cell')
         shortcut('^[space]', 'select range')
@@ -357,6 +357,8 @@ class Viewer:
         shortcut('^W', 'copy')
         shortcut('^Y', 'paste')
         shortcut('^C', 'exit')
+        if self.selecting_from:
+            shortcut('^G', 'cancel')
 
     def handle_key_default(self, action):
         """Key dispatcher for when no cell is currently being edited."""
@@ -377,7 +379,7 @@ class Viewer:
             self.begin_copy()
         elif name == KEYNAME_PASTE:
             self.paste()
-        elif action in ESCAPE_KEYS:
+        elif name in ESCAPE_KEYNAMES:
             self.finish_selecting()
         elif name == KEYNAME_FORMATTING:
             self.enter_menu(self.formatting_menu)
@@ -437,7 +439,7 @@ class Viewer:
         Characters, backspace and left/right affect the current editor state.
         Up/down (and other keys in `should_exit_editing_and_handle`) exit the
         current edit, then handle the key in navigation mode."""
-        n = curses.keyname(action).decode()
+        name = curses.keyname(action).decode()
         if action in ENTER_KEYS:
             self.finish_editing(True)
             self.move_cursor(Position(1, 0))
@@ -450,13 +452,13 @@ class Viewer:
             self.edit_box = self.edit_box.left()
         elif action == curses.KEY_RIGHT:
             self.edit_box = self.edit_box.right()
-        elif action in ESCAPE_KEYS:
+        elif name in ESCAPE_KEYNAMES:
             self.finish_editing(False)
         elif should_exit_editing_and_handle(action):
             self.finish_editing(False)
             self.handle_key_default(action)
         else:
-            self.message = f"Unknown key {action} {n}"
+            self.message = f"Unknown key {action} {name}"
     def move_cursor(self, delta):
         """Move the cell cursor.
 
@@ -486,7 +488,7 @@ class Viewer:
         if value is not None:
             self.menu.on_selected(value)
             self.exit_menu()
-        elif action in ESCAPE_KEYS:
+        elif name in ESCAPE_KEYNAMES:
             self.exit_menu()
         else:
             self.message = f"Unknown shortcut {name}"
