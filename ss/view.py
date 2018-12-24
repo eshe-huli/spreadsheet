@@ -2,7 +2,6 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - csv import
 # - display full formatted value in edit box
 # - framerate indicator
 # - quotes in formula
