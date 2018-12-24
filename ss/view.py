@@ -2,7 +2,7 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
-# - colors
+# - clean up position-manipulation code
 
 def _ref(row, col):
     return _get_column_label(col) + _get_row_label(row)
@@ -243,6 +243,7 @@ class Viewer:
             x += self.get_width(col)
         self.draw_row_labels()
         self.draw_column_labels()
+        self.draw_upper_left_corner()
         self.draw_message()
         self.draw_shortcuts()
         self.draw_editor()
@@ -272,6 +273,13 @@ class Viewer:
             self.stdscr.addstr(y, x, label, curses.A_REVERSE)
             x += width
             col += 1
+    def draw_upper_left_corner(self):
+        self.stdscr.addstr(
+            self.layout.column_labels.top_left.y,
+            self.layout.row_labels.top_left.x,
+            ' ' * self.layout.row_labels.width,
+            curses.A_REVERSE
+        )
     def get_width(self, col):
         """Returns the display width of the given column."""
         return 9
@@ -331,8 +339,7 @@ class Viewer:
     def draw_editor(self):
         """Draws the cell value editor.
 
-        Make sure to call this function last, as it moves the cursor to the
-        correct location."""
+        Make sure to call this function last, as it controls cursor display."""
         rect = self.layout.edit_box
         if self.edit_box is None:
             curses.curs_set(0)
@@ -343,6 +350,7 @@ class Viewer:
                 rect.top_left.y, rect.top_left.x + self.edit_box.cursor
             )
     def draw_shortcuts(self):
+        """Draws the shortcut display window."""
         rect = self.layout.shortcuts
         self.stdscr.move(*rect.top_left)
         self.stdscr.addstr('   ')
