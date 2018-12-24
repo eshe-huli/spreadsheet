@@ -4,6 +4,10 @@ import enum
 from typing import NamedTuple
 
 def parse(formula):
+    """Parse a spreadsheet formula.
+
+
+    """
     tokens = tokenize(formula)
     return Parser(tokens).parse()
 

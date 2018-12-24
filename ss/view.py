@@ -2,7 +2,13 @@ import curses
 from typing import NamedTuple, Callable
 
 # TODO
+# - backspace
+# - csv import
+# - display full formatted value in edit box
+# - framerate indicator
+# - quotes in formula
 # - clean up position-manipulation code
+# - View tests?
 
 def _ref(row, col):
     return _get_column_label(col) + _get_row_label(row)
