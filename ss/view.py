@@ -1,11 +1,10 @@
 import curses
-from typing import NamedTuple
+from typing import NamedTuple, Callable
 
 # TODO
-# - formatting selection
 # - displayable keyboard shortcuts
-# - colors
 # - sort
+# - colors
 
 def _ref(col, row):
     return _get_column_label(col) + _get_row_label(row)
@@ -51,6 +50,10 @@ KEYNAME_FORMATTING = "^F"
 class ScreenPosition(NamedTuple):
     y: int
     x: int
+    def __floordiv__(self, dividend):
+        return ScreenPosition(self.y // dividend, self.x // dividend)
+    def __add__(self, other):
+        return ScreenPosition(self.y + other.y, self.x + other.x)
 
 class Rectangle(NamedTuple):
     top_left: ScreenPosition
@@ -67,6 +70,10 @@ class Rectangle(NamedTuple):
             ScreenPosition(y, x),
             ScreenPosition(y + h, x + w)
         )
+    @property
+    def center(self):
+        return (self.top_left + self.bottom_right) // 2
+
 class Range(NamedTuple):
     top_left: Position
     bottom_right: Position
@@ -91,6 +98,7 @@ class Layout(NamedTuple):
     row_labels: Rectangle
     column_labels: Rectangle
     edit_box: Rectangle
+    shortcuts: Rectangle
 
 class EditBox(NamedTuple):
     text: str
@@ -109,6 +117,12 @@ class EditBox(NamedTuple):
         return self._replace(cursor=min(len(self.text), self.cursor + 1))
     def left(self):
         return self._replace(cursor=max(0, self.cursor - 1))
+
+class Menu(NamedTuple):
+    title: str
+    # List of tuples (keyname, description, value)
+    choices: list
+    on_selected: Callable  # called with the 'value' as an argument
 
 class Viewer:
     def __init__(self, spreadsheet, stdscr):
@@ -149,12 +163,26 @@ class Viewer:
         # If True, we will quit at the end of this iteration of the main loop.
         self.quit = False
 
+        # Menu to display, if any
+        self.menu = None
+        self.formatting_menu = Menu('Formatting', [
+            ('^O', 'default', ('default', None)),
+            ('^I', '1', ('number', '%d')),
+            ('^I', '1.23', ('number', '%0.2f')),
+            ('^S', '$1.23', ('number', '$%0.2f')),
+            ('^D', '2018-01-01', ('date', '%Y-%m-%d')),
+            ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
+            ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
+        ], on_selected=self.select_formatting)
+
     def measure(self):
         """Recompute `self.layout` based on current screen dimensions and
         navigation position."""
         height, width = self.stdscr.getmaxyx()
         # Lay out the top section
         topy = 0
+        shortcuts = Rectangle.fromhw(topy, 0, 2, width)
+        topy += shortcuts.height
         edit_box = Rectangle.fromhw(topy, 0, 1, width)
         topy += edit_box.height
         # Lay out the bottom section
@@ -183,7 +211,8 @@ class Viewer:
             message=message,
             row_labels=row_labels,
             column_labels=column_labels,
-            edit_box=edit_box
+            edit_box=edit_box,
+            shortcuts=shortcuts
         )
 
     def draw(self):
@@ -206,6 +235,7 @@ class Viewer:
         self.draw_row_labels()
         self.draw_column_labels()
         self.draw_message()
+        self.draw_shortcuts()
         self.draw_editor()
     def draw_row_labels(self):
         """Draw the numerical labels of the currently displayed rows."""
@@ -306,6 +336,28 @@ class Viewer:
             self.stdscr.move(
                 rect.top_left.y, rect.top_left.x + self.edit_box.cursor
             )
+    def draw_shortcuts(self):
+        rect = self.layout.shortcuts
+        self.stdscr.move(*rect.top_left)
+        self.stdscr.addstr('   ')
+        def shortcut(key, description):
+            self.stdscr.addstr(key, curses.A_REVERSE)
+            self.stdscr.addstr(' ' + description + ' ')
+        if self.edit_box is not None:
+            shortcut('<esc>', 'discard')
+            shortcut('<enter>', 'set value')
+            return
+        if self.menu is not None:
+            for (key, desc, _) in self.menu.choices:
+                shortcut(key, desc)
+            return
+        shortcut('<enter>', 'edit cell')
+        shortcut('^[space]', 'select range')
+        shortcut('^F', 'format')
+        shortcut('^W', 'copy')
+        shortcut('^Y', 'paste')
+        shortcut('^C', 'exit')
+
     def handle_key_default(self, action):
         """Key dispatcher for when no cell is currently being edited."""
         name = curses.keyname(action).decode()
@@ -327,6 +379,8 @@ class Viewer:
             self.paste()
         elif action in ESCAPE_KEYS:
             self.finish_selecting()
+        elif name == KEYNAME_FORMATTING:
+            self.enter_menu(self.formatting_menu)
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
@@ -426,6 +480,30 @@ class Viewer:
             new_top_left = new_top_left._replace(row=min_row)
         self.cursor = new_cursor
         self.top_left = new_top_left
+    def handle_key_menu(self, action):
+        name = curses.keyname(action).decode()
+        value = {key: value for key, _, value in self.menu.choices}.get(name)
+        if value is not None:
+            self.menu.on_selected(value)
+            self.exit_menu()
+        elif action in ESCAPE_KEYS:
+            self.exit_menu()
+        else:
+            self.message = f"Unknown shortcut {name}"
+    def enter_menu(self, menu):
+        self.menu = menu
+        self.key_handler = self.handle_key_menu
+    def exit_menu(self):
+        self.menu = None
+        self.key_handler = self.handle_key_default
+    def select_formatting(self, format):
+        (ftype, spec) = format
+        range = Range.from_denormalized_inclusive(
+            self.selecting_from or self.cursor,
+            self.selecting_to or self.cursor
+        )
+        self.spreadsheet.set_format(range.ref(), ftype, spec)
+
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
         while not self.quit:
