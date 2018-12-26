@@ -306,9 +306,12 @@ class Viewer:
     def draw_shortcuts(self):
         """Draws the shortcut display window."""
         rect = self.layout.shortcuts
-        self.stdscr.move(*rect.top_left)
-        self.stdscr.addstr('   ')
+        INDENT = 4
+        self.stdscr.move(rect.top_left.y, rect.top_left.x + INDENT)
         def shortcut(key, description):
+            (y, x) = self.stdscr.getyx()
+            if x + len(key) + len(description) + 1 >= rect.bottom_right.x:
+                self.stdscr.move(y + 1, INDENT * 2)
             self.stdscr.addstr(key, curses.A_REVERSE)
             self.stdscr.addstr(' ' + description + ' ')
         if self.edit_box is not None:
