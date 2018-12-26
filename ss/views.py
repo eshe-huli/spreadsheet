@@ -15,9 +15,6 @@ def _get_column_label(col):
     char = chr(ord('A') + col % 26)
     return nreps * char
 
-def _get_row_label(row):
-    return str(row + 1)
-
 # Map [arrow key] -> [delta to apply to cursor in grid space]
 ARROW_KEYS = {
     curses.KEY_UP: Index(-1, 0),
@@ -225,10 +222,10 @@ class Viewer:
         """Draw the numerical labels of the currently displayed rows."""
         nrows = self.layout.grid.height
         (y, x) = self.layout.row_labels.top_left
-        row_nums = range(self.top_left.row, self.top_left.row + nrows)
-        for i, row_num in enumerate(row_nums):
+        for i in range(nrows):
             label = _align_right(
-                _get_row_label(row_num), self.layout.row_labels.width
+                (self.top_left + (i, 0)).row_label,
+                self.layout.row_labels.width
             )
             self.stdscr.addstr(y + i, x, label, curses.A_REVERSE)
     def draw_column_labels(self):
