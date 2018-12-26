@@ -10,9 +10,6 @@ from .models import Index, Range
 # - clean up Index-manipulation code
 # - View tests?
 
-def _ref(row, col):
-    return _get_column_label(col) + _get_row_label(row)
-
 def _get_column_label(col):
     nreps = (col // 26) + 1
     char = chr(ord('A') + col % 26)
@@ -208,18 +205,15 @@ class Viewer:
         grid = self.layout.grid
         nrows = grid.height
         x = grid.top_left.x
-        col = self.top_left.col
-        row_top = self.top_left.row
+        col_top_left = self.top_left
         while x < grid.width:
             self.draw_column(
-                col=col,
-                row_top=row_top,
-                row_bottom=row_top + nrows,
+                Range(col_top_left, col_top_left + (nrows, 0)),
                 y=grid.top_left.y,
                 x=x
             )
-            col += 1
-            x += self.get_width(col)
+            col_top_left += (0, 1)
+            x += self.get_width(col_top_left.col)
         self.draw_row_labels()
         self.draw_column_labels()
         self.draw_upper_left_corner()
@@ -274,7 +268,7 @@ class Viewer:
     def get_rows_displayed(self):
         """Returns the # of rows that are visible on the screen."""
         return self.layout.grid.height
-    def draw_column(self, col, row_top, row_bottom, y, x):
+    def draw_column(self, col_range, y, x):
         """Draw the given section of the spreadsheet.
 
         Draws in a rectangle from (y, x) to
@@ -286,7 +280,8 @@ class Viewer:
             row_bottom: the last row to draw (exclusive).
             y: the screen y-Index to start drawing.
         """
-        # TODO highlight selected cell
+        col = col_range.first.col
+        assert col == col_range.last.col
         width = min(
             self.get_width(col),
             self.layout.grid.bottom_right.x - x
@@ -295,21 +290,19 @@ class Viewer:
             # give up on drawing anything
             return
         values = [
-            self.spreadsheet.get_formatted(Index(row=row, col=col))
-            for row in range(row_top, row_bottom)
+            (index, self.spreadsheet.get_formatted(index))
+            for index in col_range.indices
         ]
-        for dy, value in enumerate(values):
+        for dy, (index, value) in enumerate(values):
             text = _align_right(value, width)
-            row = row_top + dy
-            curpos = Index(row, col)
             attr = 0
             if self.selecting_from is None:
-                if self.cursor == curpos:
+                if self.cursor == index:
                     attr = curses.A_REVERSE
             else:
-                if self.selection.contains(curpos):
+                if self.selection.contains(index):
                     attr = curses.A_REVERSE
-                if curpos == self.cursor:
+                if index == self.cursor:
                     attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
             self.stdscr.addstr(y + dy, x, text, attr)
     def draw_message(self):
@@ -390,9 +383,8 @@ class Viewer:
         elif name == KEYNAME_SORT:
             self.enter_sort_menu()
         elif action in BACKSPACE_KEYS:
-            for col in self.selection.column_indices:
-                for row in self.selection.row_indices:
-                    self.spreadsheet.set(Index(row, col), '')
+            for index in self.selection.indices:
+                self.spreadsheet.set(index, '')
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):

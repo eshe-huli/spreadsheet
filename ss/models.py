@@ -112,6 +112,11 @@ class Range(_Range):
     @property
     def row_indices(self):
         return range(self.first.row, self.last.row + 1)
+    @property
+    def indices(self):
+        for col in self.column_indices:
+            for row in self.row_indices:
+                yield Index(row=row, col=col)
     @classmethod
     def parse(cls, desc):
         """Parse a Range from a string like A1:B3.
