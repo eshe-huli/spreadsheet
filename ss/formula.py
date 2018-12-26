@@ -6,9 +6,10 @@ from typing import NamedTuple
 def parse(formula):
     """Parse a spreadsheet formula.
 
-
+    Raises ParseError if the formula is syntactically invalid.
     """
-    tokens = tokenize(formula)
+    tokens = (token for token in tokenize(formula)
+              if token.type != TokenType.WHITESPACE)
     return Parser(tokens).parse()
 
 # If you add a group here, add it to TokenType below also
@@ -25,23 +26,37 @@ LEXER = re.compile(r"""
 | (?P<whitespace>\s+)
 """, re.VERBOSE)
 
+FUNCTION_NAME = re.compile(r"^[a-zA-Z]+$")
+
 class TokenType(enum.Enum):
-    LPAREN = enum.auto()
-    RPAREN = enum.auto()
-    VALUE = enum.auto()
-    QUOTED = enum.auto()
-    PLUS = enum.auto()
-    MINUS = enum.auto()
-    TIMES = enum.auto()
-    DIVIDED = enum.auto()
-    COMMA = enum.auto()
-    EOF = enum.auto()
+    """Enum for different kinds of tokens.
+
+    The enum's 'value' is an English description of the kind of token, for
+    error messaging."""
+    LPAREN = "("
+    RPAREN = ")"
+    VALUE = "a literal value"
+    QUOTED = "a quoted string"
+    PLUS = "+"
+    MINUS = "-"
+    TIMES = "*"
+    DIVIDED = "/"
+    COMMA = ","
+    EOF = "[end of string]"
+    WHITESPACE = "whitespace"
 
 class Token(NamedTuple):
     type: TokenType
-    value: str
+    text: str
 
 def tokenize(text):
+    """Split `text` into a stream of `Token` objects.
+
+    Raises ParseError if an illegal token is encountered.
+
+    Note that we return whitespace tokens (to make it easier to
+    programmatically manipulate formulae, for instance moving cells around).
+    """
     last = 0
     for match in LEXER.finditer(text):
         start, end = match.span()
@@ -64,6 +79,9 @@ class Parser:
     def __init__(self, token_iter):
         self.token_iter = token_iter
         self.cur = next(self.token_iter)
+        # list of the tokens we attempted to consume since the last successful
+        # token-consumption (for error messages)
+        self.attempted_types = []
     def parse(self):
         return self.toplevel()
     def consume(self, type):
@@ -76,11 +94,24 @@ class Parser:
                 self.cur = next(self.token_iter)
             except StopIteration:
                 self.cur = Token(TokenType.EOF, '')
+            self.attempted_types = []
             return cur
+        self.attempted_types.append(type)
         return None
     def expect(self, type):
+        """If the current token is of type `type`, return it; otherwise raise
+        a ParseError."""
         if not self.consume(type):
-            raise ParseError(f"Expected {type}, got {self.cur.type}")
+            self.raise_unexpected_token()
+    def raise_unexpected_token(self):
+        """Raise a ParseError describing all the token types that were allowed
+        to be put here."""
+        types_desc = ', '.join(list(t.value for t in self.attempted_types))
+        if self.cur.type == TokenType.EOF:
+            got = '[end of string]'
+        else:
+            got = repr(self.cur.text)
+        raise ParseError(f"Expected one of: {types_desc}; got {got}")
     def toplevel(self):
         tm = self.expr()
         self.expect(TokenType.EOF)
@@ -111,18 +142,22 @@ class Parser:
         tm = self.consume(TokenType.VALUE)
         if tm is not None:
             if self.consume(TokenType.LPAREN):
+                # check if it's a valid function name
+                name = tm.text
+                if not FUNCTION_NAME.match(name):
+                    raise ParseError(f"{name} is not a valid function name")
                 args = self.arglist()
                 self.expect(TokenType.RPAREN)
-                return [tm.value] + args
-            return tm.value
+                return [name] + args
+            return tm.text
         tm = self.consume(TokenType.QUOTED)
         if tm is not None:
-            return tm.value.strip('"')
+            return tm.text.strip('"')
         if self.consume(TokenType.LPAREN):
             tm = self.expr()
             self.expect(TokenType.RPAREN)
             return tm
-        raise ParseError(f"Expected value or lparen, got {self.cur}")
+        self.raise_unexpected_token()
     def arglist(self):
         tm = [self.expr()]
         while self.consume(TokenType.COMMA):

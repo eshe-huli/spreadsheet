@@ -5,6 +5,8 @@ import time
 from .models import Index, Range
 
 # TODO
+# - handle multiline shortcut lists
+# - sort ascending/descending
 # - clean up Index-manipulation code
 # - View tests?
 

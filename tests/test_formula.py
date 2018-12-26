@@ -37,3 +37,14 @@ def test_associativity(fst, snd):
     """Test that +- and */ have equal precedence"""
     assert formula.parse(f'a {fst} b {snd} c {fst} d') \
         == [fst, [snd, [fst, 'a', 'b'], 'c'], 'd']
+
+
+@pytest.mark.parametrize('code,expected', [
+    ('b + a a', "Expected one of: (, *, /, +, -, [end of string]; got 'a'"),
+    ('b + a1:b2(foo)', "a1:b2 is not a valid function name"),
+    ('b + a +', "Expected one of: a literal value, a quoted string, (; got [end of string]")
+])
+def test_error_messages(code, expected):
+    with pytest.raises(formula.ParseError) as e:
+        formula.parse(code)
+    assert expected in str(e)
