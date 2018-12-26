@@ -1,4 +1,4 @@
-"""Support classes for working with spreadsheet indices.
+"""Support classes for working with a spreadsheet:
 
 `Index` - a class representing a spreadsheet index (e.g. 'A1').
 `Range` - a class representing a contiguous range of indices (e.g. 'A1:B2')

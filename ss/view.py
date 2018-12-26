@@ -2,7 +2,7 @@ import curses
 from typing import NamedTuple, Callable
 import time
 
-from .index import Index, Range
+from .models import Index, Range
 
 # TODO
 # - clean up Index-manipulation code
