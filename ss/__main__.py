@@ -2,7 +2,7 @@ import csv
 import curses
 import sys
 
-from ss import model, view
+from ss import engine, view
 
 def read_csv(fname, sheet):
     with open(fname) as f:
@@ -16,7 +16,7 @@ def read_csv(fname, sheet):
 def main(stdscr):
     curses.raw()
     try:
-        sheet = model.Spreadsheet()
+        sheet = engine.Spreadsheet()
         if len(sys.argv) > 1:
             fname = sys.argv[1]
             read_csv(fname, sheet)

@@ -142,7 +142,7 @@ class Viewer:
         self.stdscr = stdscr
         # A cache of layout information; will be set in `self.measure`
         self.layout = None
-        # the instance of models.Spreadsheet that we are viewing
+        # the instance of engine.Spreadsheet that we are viewing
         self.spreadsheet = spreadsheet
         # the top-left visible cell.
         self.top_left = Position(0, 0)
@@ -458,13 +458,13 @@ class Viewer:
         but the cursor is free to move around independently from this
         selection.
 
-        When `paste` is called, the underlying model's `paste` function is
+        When `paste` is called, the underlying engine's `paste` function is
         called. Any non-`paste` action exits copy mode."""
         if self.selecting_from is None:
             self.selecting_from = self.cursor
         self.selecting_to = self.cursor
     def paste(self):
-        """Tell the model to paste the copied area, then clear the selection."""
+        """Tell the engine to paste the copied area, then clear the selection."""
         if self.selecting_to is None:
             self.message = 'To paste, copy a cell/range with ^-W first'
             return

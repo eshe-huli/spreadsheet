@@ -12,4 +12,4 @@ To run tests, install `pytest`, then run `pytest`.
 
 ## Extension
 
-The spreadsheet class you should extend lives in `ss/model.py`.
+The spreadsheet class you should extend lives in `ss/engine.py`.
