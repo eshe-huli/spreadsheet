@@ -2,8 +2,10 @@ import curses
 from typing import NamedTuple, Callable
 import time
 
+from .index import Index
+
 # TODO
-# - clean up position-manipulation code
+# - clean up Index-manipulation code
 # - View tests?
 
 def _ref(row, col):
@@ -17,26 +19,12 @@ def _get_column_label(col):
 def _get_row_label(row):
     return str(row + 1)
 
-class Position(NamedTuple):
-    """A position in grid space.
-
-    Row and column are both zero-indexed."""
-    row: int
-    col: int
-    def __add__(self, other):
-        return Position(
-            self.row + other.row,
-            self.col + other.col
-        )
-    def ref(self):
-        return _ref(*self)
-
 # Map [arrow key] -> [delta to apply to cursor in grid space]
 ARROW_KEYS = {
-    curses.KEY_UP: Position(-1, 0),
-    curses.KEY_DOWN: Position(1, 0),
-    curses.KEY_LEFT: Position(0, -1),
-    curses.KEY_RIGHT: Position(0, 1),
+    curses.KEY_UP: Index(-1, 0),
+    curses.KEY_DOWN: Index(1, 0),
+    curses.KEY_LEFT: Index(0, -1),
+    curses.KEY_RIGHT: Index(0, 1),
 }
 ENTER_KEYS = {curses.KEY_ENTER, 10, 13}
 BACKSPACE_KEYS = {curses.KEY_BACKSPACE}
@@ -48,17 +36,17 @@ KEYNAME_QUIT = "^C"
 KEYNAME_FORMATTING = "^F"
 KEYNAME_SORT = "^S"
 
-class ScreenPosition(NamedTuple):
+class ScreenIndex(NamedTuple):
     y: int
     x: int
     def __floordiv__(self, dividend):
-        return ScreenPosition(self.y // dividend, self.x // dividend)
+        return ScreenIndex(self.y // dividend, self.x // dividend)
     def __add__(self, other):
-        return ScreenPosition(self.y + other.y, self.x + other.x)
+        return ScreenIndex(self.y + other.y, self.x + other.x)
 
 class Rectangle(NamedTuple):
-    top_left: ScreenPosition
-    bottom_right: ScreenPosition
+    top_left: ScreenIndex
+    bottom_right: ScreenIndex
     @property
     def width(self):
         return self.bottom_right.x - self.top_left.x
@@ -68,21 +56,21 @@ class Rectangle(NamedTuple):
     @classmethod
     def fromhw(cls, y, x, h, w):
         return Rectangle(
-            ScreenPosition(y, x),
-            ScreenPosition(y + h, x + w)
+            ScreenIndex(y, x),
+            ScreenIndex(y + h, x + w)
         )
     @property
     def center(self):
         return (self.top_left + self.bottom_right) // 2
 
 class Range(NamedTuple):
-    top_left: Position
-    bottom_right: Position
+    top_left: Index
+    bottom_right: Index
     @classmethod
     def from_denormalized_inclusive(cls, pos1, pos2):
         return Range(
-            Position(min(pos1.row, pos2.row), min(pos1.col, pos2.col)),
-            Position(max(pos1.row, pos2.row) + 1, max(pos1.col, pos2.col) + 1)
+            Index(min(pos1.row, pos2.row), min(pos1.col, pos2.col)),
+            Index(max(pos1.row, pos2.row) + 1, max(pos1.col, pos2.col) + 1)
         )
     def contains(self, pos):
         return (
@@ -90,8 +78,8 @@ class Range(NamedTuple):
             and self.top_left.row <= pos.row < self.bottom_right.row
         )
     def ref(self):
-        last = self.bottom_right + Position(-1, -1)
-        return f"{self.top_left.ref()}:{last.ref()}"
+        last = self.bottom_right + Index(-1, -1)
+        return f"{self.top_left}:{last}"
     @property
     def column_indices(self):
         return range(self.top_left.col, self.bottom_right.col)
@@ -145,9 +133,9 @@ class Viewer:
         # the instance of engine.Spreadsheet that we are viewing
         self.spreadsheet = spreadsheet
         # the top-left visible cell.
-        self.top_left = Position(0, 0)
+        self.top_left = Index(0, 0)
         # the cell that our cursor is currently on.
-        self.cursor = Position(0, 0)
+        self.cursor = Index(0, 0)
 
         # Highlighting controls to allow the user to select a rectangular
         # range of cells.
@@ -155,7 +143,7 @@ class Viewer:
         #   we started highlighting on. The highlighted range is from
         #   `selecting_from` to `cursor`, inclusive.
         # - When the user starts a copy operation, we need to remember what
-        #   was selected at that point, so we save the cursor position in
+        #   was selected at that point, so we save the cursor Index in
         #   `selecting_to`.
         self.selecting_from = None
         self.selecting_to = None
@@ -194,7 +182,7 @@ class Viewer:
 
     def measure(self):
         """Recompute `self.layout` based on current screen dimensions and
-        navigation position."""
+        navigation Index."""
         height, width = self.stdscr.getmaxyx()
         # Lay out the top section
         topy = 0
@@ -220,12 +208,12 @@ class Viewer:
             topy + HEADER_HEIGHT, 0, nrows, row_label_width
         )
         column_labels = Rectangle(
-            ScreenPosition(topy, row_labels.bottom_right.x),
-            ScreenPosition(topy + HEADER_HEIGHT, width)
+            ScreenIndex(topy, row_labels.bottom_right.x),
+            ScreenIndex(topy + HEADER_HEIGHT, width)
         )
         grid = Rectangle(
-            ScreenPosition(topy + HEADER_HEIGHT, row_labels.bottom_right.x),
-            ScreenPosition(bottomy, width)
+            ScreenIndex(topy + HEADER_HEIGHT, row_labels.bottom_right.x),
+            ScreenIndex(bottomy, width)
         )
         self.layout = Layout(
             grid=grid,
@@ -318,7 +306,7 @@ class Viewer:
             col: the column to draw.
             row_top: the first row to draw
             row_bottom: the last row to draw (exclusive).
-            y: the screen y-position to start drawing.
+            y: the screen y-Index to start drawing.
         """
         # TODO highlight selected cell
         width = min(
@@ -335,7 +323,7 @@ class Viewer:
         for dy, value in enumerate(values):
             text = _align_right(value, width)
             row = row_top + dy
-            curpos = Position(row, col)
+            curpos = Index(row, col)
             attr = 0
             if self.selecting_from is None:
                 if self.cursor == curpos:
@@ -361,7 +349,7 @@ class Viewer:
         rect = self.layout.edit_box
         if self.edit_box is None:
             curses.curs_set(0)
-            formatted = self.spreadsheet.get_formatted(self.cursor.ref())
+            formatted = self.spreadsheet.get_formatted(str(self.cursor))
             self.stdscr.addstr(*rect.top_left, formatted)
         else:
             curses.curs_set(self.initial_cursor_visibility)
@@ -406,7 +394,7 @@ class Viewer:
         elif action in ARROW_KEYS:
             self.move_cursor(ARROW_KEYS[action])
         elif action in ENTER_KEYS:
-            value = self.spreadsheet.get_raw(self.cursor.ref())
+            value = self.spreadsheet.get_raw(str(self.cursor))
             self.begin_editing(value)
         elif key_begins_edit(action):
             self.begin_editing('')
@@ -426,7 +414,7 @@ class Viewer:
         elif action in BACKSPACE_KEYS:
             for col in self.selection.column_indices:
                 for row in self.selection.row_indices:
-                    self.spreadsheet.set(Position(row, col).ref(), '')
+                    self.spreadsheet.set(str(Index(row, col)), '')
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
@@ -443,7 +431,7 @@ class Viewer:
         If `commit` is true, sets the cell value to whatever is in the text
         box; otherwise, discards the text box value."""
         if commit:
-            self.spreadsheet.set(self.cursor.ref(), self.edit_box.text)
+            self.spreadsheet.set(str(self.cursor), self.edit_box.text)
         self.edit_box = None
         self.key_handler = self.handle_key_default
     def begin_selecting(self):
@@ -468,7 +456,7 @@ class Viewer:
         if self.selecting_to is None:
             self.message = 'To paste, copy a cell/range with ^-W first'
             return
-        self.spreadsheet.copy(self.selection.ref(), self.cursor.ref())
+        self.spreadsheet.copy(self.selection.ref(), str(self.cursor))
         self.finish_selecting()
     def finish_selecting(self):
         """Clears the current selected range."""
@@ -483,7 +471,7 @@ class Viewer:
         name = curses.keyname(action).decode()
         if action in ENTER_KEYS:
             self.finish_editing(True)
-            self.move_cursor(Position(1, 0))
+            self.move_cursor(Index(1, 0))
         elif is_character(action):
             char = get_character(action)
             self.edit_box = self.edit_box.insert(char)
