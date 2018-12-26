@@ -2,7 +2,7 @@ import curses
 from typing import NamedTuple, Callable
 import time
 
-from .index import Index
+from .index import Index, Range
 
 # TODO
 # - clean up Index-manipulation code
@@ -62,30 +62,6 @@ class Rectangle(NamedTuple):
     @property
     def center(self):
         return (self.top_left + self.bottom_right) // 2
-
-class Range(NamedTuple):
-    top_left: Index
-    bottom_right: Index
-    @classmethod
-    def from_denormalized_inclusive(cls, pos1, pos2):
-        return Range(
-            Index(min(pos1.row, pos2.row), min(pos1.col, pos2.col)),
-            Index(max(pos1.row, pos2.row) + 1, max(pos1.col, pos2.col) + 1)
-        )
-    def contains(self, pos):
-        return (
-            self.top_left.col <= pos.col < self.bottom_right.col
-            and self.top_left.row <= pos.row < self.bottom_right.row
-        )
-    def ref(self):
-        last = self.bottom_right + Index(-1, -1)
-        return f"{self.top_left}:{last}"
-    @property
-    def column_indices(self):
-        return range(self.top_left.col, self.bottom_right.col)
-    @property
-    def row_indices(self):
-        return range(self.top_left.row, self.bottom_right.row)
 
 class Layout(NamedTuple):
     grid: Rectangle
@@ -175,7 +151,7 @@ class Viewer:
 
     @property
     def selection(self):
-        return Range.from_denormalized_inclusive(
+        return Range(
             self.selecting_from or self.cursor,
             self.selecting_to or self.cursor
         )
@@ -456,7 +432,7 @@ class Viewer:
         if self.selecting_to is None:
             self.message = 'To paste, copy a cell/range with ^-W first'
             return
-        self.spreadsheet.copy(self.selection.ref(), str(self.cursor))
+        self.spreadsheet.copy(str(self.selection), str(self.cursor))
         self.finish_selecting()
     def finish_selecting(self):
         """Clears the current selected range."""
@@ -529,7 +505,7 @@ class Viewer:
         self.key_handler = self.handle_key_default
     def select_formatting(self, format):
         (ftype, spec) = format
-        self.spreadsheet.set_format(self.selection.ref(), ftype, spec)
+        self.spreadsheet.set_format(str(self.selection), ftype, spec)
     def enter_sort_menu(self):
         if self.selecting_from is None:
             self.message = 'Select a range first with ^-[space]'
@@ -544,12 +520,12 @@ class Viewer:
             for i, col in enumerate(columns)
         ]
         self.enter_menu(Menu(
-            f'Sort {self.selection.ref()}',
+            f'Sort {str(self.selection)}',
             choices,
             self.sort_range
         ))
     def sort_range(self, col):
-        self.spreadsheet.sort(self.selection.ref(), _get_column_label(col))
+        self.spreadsheet.sort(str(self.selection), _get_column_label(col), True)
 
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
