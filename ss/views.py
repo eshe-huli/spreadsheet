@@ -64,7 +64,6 @@ class Layout(NamedTuple):
     message: Rectangle
     framerate: Rectangle
     row_labels: Rectangle
-    column_labels: Rectangle
     edit_box: Rectangle
     shortcuts: Rectangle
 
@@ -172,19 +171,14 @@ class Viewer:
         bottomy -= message.height - 1
 
         # spreadsheet grid. first figure out the width of the row labels
-        HEADER_HEIGHT = 1
-        nrows = bottomy - topy - HEADER_HEIGHT
-        max_row = self.top_left.row + nrows
-        row_label_width = len(str(max_row)) + 1
+        nrows = bottomy - topy
+        max_cell = self.top_left + (nrows, 0)
+        row_label_width = len(max_cell.row_label) + 1
         row_labels = Rectangle.fromhw(
-            topy + HEADER_HEIGHT, 0, nrows, row_label_width
-        )
-        column_labels = Rectangle(
-            ScreenIndex(topy, row_labels.bottom_right.x),
-            ScreenIndex(topy + HEADER_HEIGHT, width)
+            topy, 0, nrows, row_label_width
         )
         grid = Rectangle(
-            ScreenIndex(topy + HEADER_HEIGHT, row_labels.bottom_right.x),
+            ScreenIndex(topy, row_labels.bottom_right.x),
             ScreenIndex(bottomy, width)
         )
         self.layout = Layout(
@@ -192,7 +186,6 @@ class Viewer:
             message=message,
             framerate=framerate,
             row_labels=row_labels,
-            column_labels=column_labels,
             edit_box=edit_box,
             shortcuts=shortcuts
         )
@@ -200,40 +193,36 @@ class Viewer:
     def draw(self):
         """Draw the entire view to `self.stdscr`."""
         grid = self.layout.grid
-        nrows = grid.height
+        nrows = self.get_rows_displayed()
         x = grid.top_left.x
         col_top_left = self.top_left
         while x < grid.width:
             self.draw_column(
                 Range(col_top_left, col_top_left + (nrows, 0)),
-                y=grid.top_left.y - 1,
+                y=grid.top_left.y,
                 x=x
             )
             col_top_left += (0, 1)
             x += self.get_width(col_top_left.col)
         self.draw_row_labels()
-        self.draw_upper_left_corner()
         self.draw_message()
         self.draw_framerate()
         self.draw_shortcuts()
         self.draw_editor()
     def draw_row_labels(self):
         """Draw the numerical labels of the currently displayed rows."""
-        nrows = self.layout.grid.height
         (y, x) = self.layout.row_labels.top_left
+        # draw the blank upper-left corner
+        self.stdscr.addstr(
+            y, x, ' ' * self.layout.row_labels.width, curses.A_REVERSE
+        )
+        nrows = self.get_rows_displayed()
         for i in range(nrows):
             label = _align_right(
                 (self.top_left + (i, 0)).row_label,
                 self.layout.row_labels.width
             )
-            self.stdscr.addstr(y + i, x, label, curses.A_REVERSE)
-    def draw_upper_left_corner(self):
-        self.stdscr.addstr(
-            self.layout.column_labels.top_left.y,
-            self.layout.row_labels.top_left.x,
-            ' ' * self.layout.row_labels.width,
-            curses.A_REVERSE
-        )
+            self.stdscr.addstr(y + 1 + i, x, label, curses.A_REVERSE)
     def get_width(self, col):
         """Returns the display width of the given column."""
         return 9
@@ -247,7 +236,7 @@ class Viewer:
         return n - 1  # last one was only partially displayed
     def get_rows_displayed(self):
         """Returns the # of rows that are visible on the screen."""
-        return self.layout.grid.height
+        return self.layout.grid.height - 1
     def draw_column(self, col_range, y, x):
         """Draw the given section of the spreadsheet, including column header.
 
