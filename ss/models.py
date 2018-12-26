@@ -36,6 +36,12 @@ class Index(NamedTuple):
             row=self.row + row,
             col=self.col + col
         )
+    def __sub__(self, other):
+        (row, col) = other
+        return Index(
+            row=self.row - row,
+            col=self.col - col
+        )
     @property
     def column_label(self):
         nreps = (self.col // 26) + 1
