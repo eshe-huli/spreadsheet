@@ -206,13 +206,12 @@ class Viewer:
         while x < grid.width:
             self.draw_column(
                 Range(col_top_left, col_top_left + (nrows, 0)),
-                y=grid.top_left.y,
+                y=grid.top_left.y - 1,
                 x=x
             )
             col_top_left += (0, 1)
             x += self.get_width(col_top_left.col)
         self.draw_row_labels()
-        self.draw_column_labels()
         self.draw_upper_left_corner()
         self.draw_message()
         self.draw_framerate()
@@ -228,22 +227,6 @@ class Viewer:
                 self.layout.row_labels.width
             )
             self.stdscr.addstr(y + i, x, label, curses.A_REVERSE)
-    def draw_column_labels(self):
-        """Draw the letters to label the currently displayed columns."""
-        rect = self.layout.column_labels
-        (y, x) = rect.top_left
-        col = self.top_left.col
-        while x < rect.bottom_right.x:
-            width = min(
-                self.get_width(col),
-                rect.bottom_right.x - x
-            )
-            label = _align_center(
-                _get_column_label(col), width
-            )
-            self.stdscr.addstr(y, x, label, curses.A_REVERSE)
-            x += width
-            col += 1
     def draw_upper_left_corner(self):
         self.stdscr.addstr(
             self.layout.column_labels.top_left.y,
@@ -266,10 +249,10 @@ class Viewer:
         """Returns the # of rows that are visible on the screen."""
         return self.layout.grid.height
     def draw_column(self, col_range, y, x):
-        """Draw the given section of the spreadsheet.
+        """Draw the given section of the spreadsheet, including column header.
 
         Draws in a rectangle from (y, x) to
-            (y + row_bottom - row_top, x + self.get_width(col))
+            (y + col_range.height + 1, x + self.get_width(col))
 
         Arguments:
             col: the column to draw.
@@ -286,6 +269,12 @@ class Viewer:
         if width < 2:
             # give up on drawing anything
             return
+        # draw the header
+        label = _align_center(
+            col_range.first.column_label, width
+        )
+        self.stdscr.addstr(y, x, label, curses.A_REVERSE)
+        # draw the values
         values = [
             (index, self.spreadsheet.get_formatted(index))
             for index in col_range.indices
@@ -301,7 +290,7 @@ class Viewer:
                     attr = curses.A_REVERSE
                 if index == self.cursor:
                     attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
-            self.stdscr.addstr(y + dy, x, text, attr)
+            self.stdscr.addstr(y + dy + 1, x, text, attr)
     def draw_message(self):
         rect = self.layout.message
         text = _align_center(self.message, rect.width)
