@@ -54,7 +54,7 @@ class Index(NamedTuple):
 
         Raises ValueError if the index is not valid.
         """
-        match = INDEX_RE.match
+        match = INDEX_RE.match(label)
         if match is None:
             raise ValueError(f"{label} is not a valid spreadsheet index")
         row = int(match['row']) - 1
