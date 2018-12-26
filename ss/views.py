@@ -295,7 +295,7 @@ class Viewer:
             # give up on drawing anything
             return
         values = [
-            self.spreadsheet.get_formatted(_ref(row, col))
+            self.spreadsheet.get_formatted(Index(row=row, col=col))
             for row in range(row_top, row_bottom)
         ]
         for dy, value in enumerate(values):
@@ -327,7 +327,7 @@ class Viewer:
         rect = self.layout.edit_box
         if self.edit_box is None:
             curses.curs_set(0)
-            formatted = self.spreadsheet.get_formatted(str(self.cursor))
+            formatted = self.spreadsheet.get_formatted(self.cursor)
             self.stdscr.addstr(*rect.top_left, formatted)
         else:
             curses.curs_set(self.initial_cursor_visibility)
@@ -372,7 +372,7 @@ class Viewer:
         elif action in ARROW_KEYS:
             self.move_cursor(ARROW_KEYS[action])
         elif action in ENTER_KEYS:
-            value = self.spreadsheet.get_raw(str(self.cursor))
+            value = self.spreadsheet.get_raw(self.cursor)
             self.begin_editing(value)
         elif key_begins_edit(action):
             self.begin_editing('')
@@ -392,7 +392,7 @@ class Viewer:
         elif action in BACKSPACE_KEYS:
             for col in self.selection.column_indices:
                 for row in self.selection.row_indices:
-                    self.spreadsheet.set(str(Index(row, col)), '')
+                    self.spreadsheet.set(Index(row, col), '')
         else:
             self.message = f"Unknown shortcut {name}"
     def begin_editing(self, initial_text):
@@ -409,7 +409,7 @@ class Viewer:
         If `commit` is true, sets the cell value to whatever is in the text
         box; otherwise, discards the text box value."""
         if commit:
-            self.spreadsheet.set(str(self.cursor), self.edit_box.text)
+            self.spreadsheet.set(self.cursor, self.edit_box.text)
         self.edit_box = None
         self.key_handler = self.handle_key_default
     def begin_selecting(self):
@@ -434,7 +434,7 @@ class Viewer:
         if self.selecting_to is None:
             self.message = 'To paste, copy a cell/range with ^-W first'
             return
-        self.spreadsheet.copy(str(self.selection), str(self.cursor))
+        self.spreadsheet.copy(self.selection, self.cursor)
         self.finish_selecting()
     def finish_selecting(self):
         """Clears the current selected range."""
@@ -507,7 +507,7 @@ class Viewer:
         self.key_handler = self.handle_key_default
     def select_formatting(self, format):
         (ftype, spec) = format
-        self.spreadsheet.set_format(str(self.selection), ftype, spec)
+        self.spreadsheet.set_format(self.selection, ftype, spec)
     def enter_sort_menu(self):
         if self.selecting_from is None:
             self.message = 'Select a range first with ^-[space]'
@@ -527,7 +527,7 @@ class Viewer:
             self.sort_range
         ))
     def sort_range(self, col):
-        self.spreadsheet.sort(str(self.selection), _get_column_label(col), True)
+        self.spreadsheet.sort(self.selection, col, True)
 
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
