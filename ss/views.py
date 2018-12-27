@@ -5,7 +5,6 @@ import time
 from .models import Index, Range
 
 # TODO
-# - sort ascending/descending
 # - View tests?
 
 def _get_column_label(col):
@@ -87,7 +86,9 @@ class Menu(NamedTuple):
     title: str
     # List of tuples (keyname, description, value)
     choices: list
-    on_selected: Callable  # called with the 'value' as an argument
+    # Selection handler; called with the 'value' as an argument. If it returns
+    # another Menu, we enter that menu; if it returns None, we exit this menu.
+    on_selected: Callable
 
 class Viewer:
     def __init__(self, spreadsheet, stdscr):
@@ -461,8 +462,11 @@ class Viewer:
         name = curses.keyname(action).decode()
         value = {key: value for key, _, value in self.menu.choices}.get(name)
         if value is not None:
-            self.menu.on_selected(value)
-            self.exit_menu()
+            new_menu = self.menu.on_selected(value)
+            if new_menu is None:
+                self.exit_menu()
+            else:
+                self.enter_menu(new_menu)
         elif name in ESCAPE_KEYNAMES:
             self.exit_menu()
         else:
@@ -491,12 +495,18 @@ class Viewer:
             for i, col in enumerate(columns)
         ]
         self.enter_menu(Menu(
-            f'Sort {str(self.selection)}',
+            f'Sort {self.selection}',
             choices,
-            self.sort_range
+            lambda col: Menu(
+                f'Sort {self.selection} direction', [
+                    ('a', 'Ascending', (col, True)),
+                    ('d', 'Descending', (col, False)),
+                ], self.sort_range
+            )
         ))
-    def sort_range(self, col):
-        self.spreadsheet.sort(self.selection, col, True)
+    def sort_range(self, col_ascending):
+        (col, ascending) = col_ascending
+        self.spreadsheet.sort(self.selection, col, ascending)
 
     def loop(self):
         """Main loop. Refresh the layout, draw, then interpret a character."""
