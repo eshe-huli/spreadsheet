@@ -475,7 +475,8 @@ class Viewer:
         self.key_handler = self.handle_key_default
     def select_formatting(self, format):
         (ftype, spec) = format
-        self.spreadsheet.set_format(self.selection, ftype, spec)
+        for index in self.selection.indices:
+            self.spreadsheet.set_format(self.selection, ftype, spec)
     def enter_sort_menu(self):
         if self.selecting_from is None:
             self.message = 'Select a range first with ^-[space]'

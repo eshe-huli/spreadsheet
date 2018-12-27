@@ -28,11 +28,11 @@ class Spreadsheet:
             raw (str): the raw string, like '1' or '2018-01-01' or '=A2+A3'
         """
         raise NotImplementedError(f"set {index} = {raw!r}")
-    def set_format(self, range, type, spec):
+    def set_format(self, index, type, spec):
         """Set the format string for a given range.
 
         Arguments:
-            range (Range): the range to format
+            index (Index): the cell to format
             type (str): the type of format--'default', 'number' or 'datetime'
             spec (str): the format string to use on the cell:
                 if `type` is 'default', should be None
@@ -41,7 +41,7 @@ class Spreadsheet:
                 if `type` is 'datetime', a string suitable for passing to
                     `datetime.strftime`
         """
-        raise NotImplementedError(f"set_format {range} {type} {spec}")
+        raise NotImplementedError(f"set_format {index} {type} {spec}")
     def copy(self, src, dest):
         """Copy the cell range `src` to `dest`.
 
