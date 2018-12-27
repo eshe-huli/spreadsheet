@@ -12,15 +12,16 @@ def read_csv(fname, sheet):
                 sheet.set(str(models.Index(row, col)), value)
 
 
-@curses.wrapper
-def main(stdscr):
-    curses.raw()
-    try:
-        sheet = engine.Spreadsheet()
-        if len(sys.argv) > 1:
-            fname = sys.argv[1]
-            read_csv(fname, sheet)
-        viewer = views.Viewer(sheet, stdscr)
-        viewer.loop()
-    finally:
-        curses.noraw()
+if __name__ == '__main__':
+    @curses.wrapper
+    def main(stdscr):
+        curses.raw()
+        try:
+            sheet = engine.Spreadsheet()
+            if len(sys.argv) > 1:
+                fname = sys.argv[1]
+                read_csv(fname, sheet)
+            viewer = views.Viewer(sheet, stdscr)
+            viewer.loop()
+        finally:
+            curses.noraw()

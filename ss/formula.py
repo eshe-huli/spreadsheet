@@ -6,7 +6,48 @@ from typing import NamedTuple
 def parse(formula):
     """Parse a spreadsheet formula.
 
+    Returns:
+        a string for references/literals; for binary operators or function
+        calls, it will return a list whose first element is the operator and
+        whose second and third elements are the operands.
+
     Raises ParseError if the formula is syntactically invalid.
+
+    For example:
+
+    >>> parse('A1')
+    'A1'
+    >>> parse('2018-01-01')
+    '2018-01-01'
+    >>> parse('A1 + A2')
+    ['+', 'A1', 'A2']
+    >>> parse('"string"')
+    'string'
+    >>> parse('sum(A1:A2)')
+    ['sum', 'A1:A2']
+    >>> parse("miscellaneousliteral")
+    'miscellaneousliteral'
+    >>> parse('function((1+1))')
+    ['function', ['+', '1', '1']]
+    >>> parse('a + b(c + d)')
+    ['+', 'a', ['b', ['+', 'c', 'd']]]
+    >>> parse('a * b(c)')
+    ['*', 'a', ['b', 'c']]
+
+    >>> parse("a1:b1(1, 2, 3)")
+    Traceback (most recent call last):
+        ...
+    ss.formula.ParseError: ...
+
+    >>> parse("1 + ")
+    Traceback (most recent call last):
+        ...
+    ss.formula.ParseError: ...
+
+    >>> parse("")
+    Traceback (most recent call last):
+        ...
+    ss.formula.ParseError: ...
     """
     tokens = (token for token in tokenize(formula)
               if token.type != TokenType.WHITESPACE)
@@ -78,10 +119,15 @@ class Parser:
     """Recursive-descent formula parser."""
     def __init__(self, token_iter):
         self.token_iter = token_iter
-        self.cur = next(self.token_iter)
+        self.cur = self._next()
         # list of the tokens we attempted to consume since the last successful
         # token-consumption (for error messages)
         self.attempted_types = []
+    def _next(self):
+        try:
+            return next(self.token_iter)
+        except StopIteration:
+            return Token(TokenType.EOF, '')
     def parse(self):
         return self.toplevel()
     def consume(self, type):
@@ -90,10 +136,7 @@ class Parser:
         Else return None."""
         cur = self.cur
         if cur.type == type:
-            try:
-                self.cur = next(self.token_iter)
-            except StopIteration:
-                self.cur = Token(TokenType.EOF, '')
+            self.cur = self._next()
             self.attempted_types = []
             return cur
         self.attempted_types.append(type)

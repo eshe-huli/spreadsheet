@@ -20,13 +20,18 @@ class Index(NamedTuple):
     Immutable. `row` and `col` are both zero-indexed.
 
     To construct from a string like 'A1', use `Index.parse`:
-        Index.parse("A1")  # Index(0, 0)
+    >>> Index.parse("A1")
+    Index(row=0, col=0)
 
     To render a user-facing label, call `str`:
-        str(Index.parse("A1"))  # "A1"
+    >>> str(Index.parse("A1"))
+    'A1'
 
     To move an index, add another index, or a tuple:
-        str(Index.parse("A1") + (2, 3))  # "D3"
+    >>> Index(0, 0) + (2, 3)
+    Index(row=2, col=3)
+    >>> Index(2, 3) - (1, 2)
+    Index(row=1, col=1)
     """
     row: int
     col: int
@@ -91,7 +96,8 @@ class Range(_Range):
     You may construct a range from indices that are in the "wrong" order, and
     `first` and `last` will be rearranged for you:
 
-    >>> Range(Index(1, 0), Index(0, 1)).first  # (0, 0)
+    >>> Range(Index(1, 0), Index(0, 1)).first
+    Index(row=0, col=0)
     """
     def __new__(cls, pos1, pos2):
         return super().__new__(
