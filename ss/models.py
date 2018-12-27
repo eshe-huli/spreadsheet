@@ -113,16 +113,28 @@ class Range(_Range):
     def __str__(self):
         return f"{self.first}:{self.last}"
     @property
-    def column_indices(self):
-        return range(self.first.col, self.last.col + 1)
+    def height(self):
+        return self.last.row - self.first.row + 1
     @property
-    def row_indices(self):
-        return range(self.first.row, self.last.row + 1)
+    def width(self):
+        return self.last.col - self.first.col + 1
+    def row(self, i):
+        """Iterate over the indices of the i-th row.
+
+        >>> [str(i) for i in Range.parse('A1:C3').row(1)]
+        ['A2', 'B2', 'C2']
+        """
+        assert i < self.height
+        start = self.first + (i, 0)
+        return (start + (0, j) for j in range(self.width))
     @property
     def indices(self):
-        for col in self.column_indices:
-            for row in self.row_indices:
-                yield Index(row=row, col=col)
+        """Iterate over all indices in a range.
+        >>> [str(i) for i in Range.parse('A1:B3').indices]
+        ['A1', 'B1', 'A2', 'B2', 'A3', 'B3']
+        """
+        for i in range(self.height):
+            yield from self.row(i)
     @classmethod
     def parse(cls, desc):
         """Parse a Range from a string like A1:B3.

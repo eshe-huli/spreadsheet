@@ -4,14 +4,6 @@ import time
 
 from .models import Index, Range
 
-# TODO
-# - View tests?
-
-def _get_column_label(col):
-    nreps = (col // 26) + 1
-    char = chr(ord('A') + col % 26)
-    return nreps * char
-
 # Map [arrow key] -> [delta to apply to cursor in grid space]
 ARROW_KEYS = {
     curses.KEY_UP: Index(-1, 0),
@@ -137,7 +129,6 @@ class Viewer:
             ('^I', '1.23', ('number', '%0.2f')),
             ('^S', '$1.23', ('number', '$%0.2f')),
             ('^D', '2018-01-01', ('date', '%Y-%m-%d')),
-            ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
             ('^T', '2018-01-01 13:34:45', ('date', '%Y-%m-%d %H:%M:%S')),
         ], on_selected=self.select_formatting)
         # Framerate indicator
@@ -486,13 +477,13 @@ class Viewer:
             self.message = 'Select a range first with ^-[space]'
             return
         selection = self.selection
-        columns = list(selection.column_indices)
-        if len(columns) > 10:
+        indices = list(selection.row(0))
+        if len(indices) > 10:
             self.message = 'Cannot sort more than 10 columns'
             return
         choices = [
-            (str(i), _get_column_label(col), col)
-            for i, col in enumerate(columns)
+            (str(n), index.column_label, index.col)
+            for n, index in enumerate(indices)
         ]
         self.enter_menu(Menu(
             f'Sort {self.selection}',
