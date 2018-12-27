@@ -519,20 +519,22 @@ def _align_right(s, width):
     """Returns `s` left-padded to `width` with whitespace.
 
     If too long, `s` is elided with two periods."""
-    if len(s) > width:
-        s = s[:width-2] + '..'
+    s = _elide(s, width)
     return ' ' * (width - len(s)) + s
 
 def _align_center(s, width):
     """Returns `s` left+right padded to `width` with whitespace.
 
     If too long, `s` is elided with two periods."""
+    s = _elide(s, width)
     lpadding = (width - len(s)) // 2
-    if lpadding < 0:
-        s = s[:width-2] + '..'
-        lpadding = 0
     rpadding = width - len(s) - lpadding
     return ' ' * lpadding + s + ' ' * rpadding
+
+def _elide(s, width, ellipsis = '..'):
+    if len(s) > width:
+        return s[:width - len(ellipsis)] + ellipsis
+    return s
 
 def key_begins_edit(key):
     """Return True if, in navigation mode, `key` should cause us to begin edit
