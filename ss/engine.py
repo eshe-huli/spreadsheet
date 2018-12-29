@@ -1,5 +1,3 @@
-from .models import Index, Range
-
 class Spreadsheet:
     def get_formatted(self, index):
         """Get the evaluated and formatted value at the given cell ref.
