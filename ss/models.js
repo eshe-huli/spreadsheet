@@ -125,7 +125,7 @@ class Range {
         >>> [str(i) for i in Range.parse('A1:C3').row(1)]
         ['A2', 'B2', 'C2']
      */
-    row = function* (i) {
+    *row(i) {
         if (i >= this.height) { throw Error("Require i < " + this.height); }
         start = this.first.add(new Index(i, 0));
         for (var j = 0; j < this.width; j++) {
@@ -161,3 +161,7 @@ class Range {
         return new Range(Index.parse(first), Index.parse(last));
     }
 }
+
+module.exports = {
+    Index, Range
+};
