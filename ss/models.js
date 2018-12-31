@@ -107,14 +107,8 @@ class Index {
  */
 class Range {
     constructor(pos1, pos2) {
-        this.first = new Index(
-            Math.min(pos1.row, pos2.row),
-            Math.min(pos1.col, pos2.col)
-        );
-        this.last = new Index(
-            Math.max(pos1.row, pos2.row),
-            Math.max(pos1.col, pos2.col)
-        );
+        this.first = pos1.min(pos2);
+        this.last = pos1.max(pos2);
     }
     contains(pos) {
         return (

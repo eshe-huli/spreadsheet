@@ -8,6 +8,50 @@ const KEY_DELTAS = {
     down: {row: 1, col: 0}
 }
 
+class Position {
+    constructor(y, x) {
+        this.y = y;
+        this.x = x;
+    }
+
+    equals(other) {
+        return this.y == other.y && this.x == other.x;
+    }
+    add(other) {
+        return this.binop((a, b) => a + b, other);
+    }
+    sub(other) {
+        return this.binop((a, b) => a - b, other);
+    }
+    max(other) {
+        return this.binop(Math.max, other);
+    }
+    min(other) {
+        return this.binop(Math.min, other);
+    }
+    /** Apply a binary operator to both `y` and `x`, producing a new Position.
+     */
+    binop(f, other) {
+        return new Index(f(this.y, other.y), f(this.x, other.x));
+    }
+}
+
+class Rectangle {
+    constructor(pos1, pos2) {
+        this.topLeft = pos1.min(pos2);
+        this.bottomRight = pos1.max(pos2);
+    }
+    static fromDimensions(pos, dims) {
+        return new Rectangle(pos, pos.add(dims));
+    }
+    get width() {
+        return this.bottomRight.x - this.topLeft.x;
+    }
+    get height() {
+        return this.bottomRight.y - this.topLeft.y;
+    }
+}
+
 /** TODO
  * - Cell editing
  * - Selection
@@ -30,49 +74,67 @@ const KEY_DELTAS = {
  * manually draw the table by setting `box.content`; etc.
  */
 class SpreadsheetView {
-    constructor(engine, screen) {
+    constructor(engine, program) {
         this.engine = engine;
-        this.screen = screen;
+        this.program = program;
         this.topLeft = this.cursor = new Index(0, 0);
-        this.shortcuts = blessed.box({
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: 2,
-            content: 'Shortcuts\nbox'
-        });
-        this.screen.append(this.shortcuts);
-        this.input = blessed.textbox({
-            top: 2,
-            left: 0,
-            width: '100%',
-            height: 1,
-        });
-        this.screen.append(this.input);
-        this.input.setValue('A value');
-        this.input.focus();
-        let HEADER_HEIGHT = this.shortcuts.height + this.input.height;
-        // footer - message area
-        this.footer = blessed.box({
-            top: '100%-1',
-            left: 0,
-            width: '100%',
-            height: 1,
-            content: 'Welcome to the spreadsheet!'
-        });
-        this.screen.append(this.footer);
-        let FOOTER_HEIGHT = this.footer.height;
-        this.grid = blessed.box({
-            top: HEADER_HEIGHT,
-            left: 0,
-            width: '100%',
-            height: `100%-${HEADER_HEIGHT+FOOTER_HEIGHT}`,
-            tags: true
-        });
-        this.screen.append(this.grid);
-        // key bindings
-        this.screen.on('keypress', (ch, key) => this.handleInput(ch, key));
-        this.refresh();
+        this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
+        this.redraw();
+    }
+    measure() {
+        let height = this.program.rows, width = this.program.cols;
+        let gridTop = new Position(0, 0);
+        let gridBottom = new Position(width, height);
+        let maxRow = this.topLeft.add(new Index(
+            /* TODO */ height, 0));
+        let rowLabelWidth = maxRow.rowLabel.length + 1;
+
+        let rowLabels = Rectangle.fromDimensions(
+            gridTop, {y: height, x: rowLabelWidth})
+        let grid = new Rectangle(
+            rowLabels.bottomRight, gridTop.add({x: width, y: 0})
+        );
+        this.layout = {
+            grid, rowLabels
+        };
+        /*
+        height, width = self.stdscr.getmaxyx()
+        # Lay out the top section
+        topy = 0
+        shortcuts = Rectangle.fromhw(topy, 0, 2, width)
+        topy += shortcuts.height
+        edit_box = Rectangle.fromhw(topy, 0, 1, width)
+        topy += edit_box.height
+        # Lay out the bottom section
+        bottomy = height - 1
+        FRAMERATE_WIDTH = 5
+        framerate = Rectangle.fromhw(
+            bottomy, width - FRAMERATE_WIDTH - 1, 1, FRAMERATE_WIDTH
+        )
+        message = Rectangle.fromhw(bottomy, 1, 1, width - framerate.width - 2)
+        bottomy -= message.height - 1
+
+        # spreadsheet grid. first figure out the width of the row labels
+        nrows = bottomy - topy - 2
+        # 1 for column header, 1 bc last row isn't drawn
+        max_cell = self.top_left + (nrows, 0)
+        row_label_width = len(max_cell.row_label) + 1 # 1 for padding
+        row_labels = Rectangle.fromhw(
+            topy, 0, nrows, row_label_width
+        )
+        grid = Rectangle(
+            ScreenIndex(topy, row_labels.bottom_right.x),
+            ScreenIndex(bottomy, width)
+        )
+        self.layout = Layout(
+            grid=grid,
+            message=message,
+            framerate=framerate,
+            row_labels=row_labels,
+            edit_box=edit_box,
+            shortcuts=shortcuts
+        )
+        */
     }
     handleInput(ch, key) {
         if (['escape', 'C-c'].includes(key.full)) {
@@ -86,11 +148,41 @@ class SpreadsheetView {
                 this.footer.setText(this.input.getValue());
             });
         }
-        this.refresh();
+        this.redraw();
     }
     /** Refill self.grid with the currently-visible cells.
      */
-    refresh() {
+    redraw() {
+        this.measure();
+        this.draw();
+    }
+    putStr(pos, str, attr) {
+        if (pos != null) {
+            this.program.setx(pos.x);
+            this.program.sety(pos.y);
+        }
+        this.program.write(this.program.text(str, attr));
+    }
+    draw() {
+        let grid = this.layout.grid;
+        let nRows = this.numRowsDisplayed;
+        var x = 0, topLeft = this.topLeft;
+        while (x < grid.width) {
+            this.drawColumn(
+                new Range(topLeft, topLeft.add({row: nRows, col: 0})),
+                grid.topLeft.add({y: 0, x: x})
+            );
+            x += this.getColumnWidth(topLeft.col);
+            topLeft = topLeft.add({col: 1, row: 0});
+        }
+        drawRowLabels();
+
+        /*
+        self.draw_row_labels()
+        self.draw_message()
+        self.draw_framerate()
+        self.draw_shortcuts()
+        self.draw_editor()
         let rowLabelWidth = this.rowLabelWidth;
         var content = '{inverse}' + ' '.repeat(rowLabelWidth);
         // displayed range
@@ -137,14 +229,17 @@ class SpreadsheetView {
                 return text;
             });
         }
-        this.grid.setContent(content);
-        this.screen.render();
+        */
+    }
+    drawRowLabels() {
+
+    }
+    drawColumn() {
+
     }
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
-        var maxRow = this.topLeft.add(new Index(
-            this.grid.height, 0));
-        return maxRow.rowLabel.length + 1;
+        return this.layout.rowLabels.width;
     }
     get numColumnsDisplayed() {
         var w = this.grid.width
@@ -172,7 +267,7 @@ class SpreadsheetView {
             row: this.numRowsDisplayed - 1,
             col: this.numColumnsDisplayed - 2 // minus 2 bc last col is partial
         }));
-        this.refresh();
+        this.redraw();
     }
 }
 

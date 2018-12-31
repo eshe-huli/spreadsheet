@@ -3,10 +3,15 @@ var views = require('./views.js');
 var {Spreadsheet} = require('./engine.js')
 
 // Create a screen object.
-var screen = blessed.screen({
-  smartCSR: true
-});
+var program = blessed.program();
 
 var engine = new Spreadsheet();
 
-new views.SpreadsheetView(engine, screen);
+program.alternateBuffer();
+program.hideCursor();
+program.clear();
+process.on('exit', () => {
+  program.showCursor();
+  program.normalBuffer();
+})
+new views.SpreadsheetView(engine, program);
