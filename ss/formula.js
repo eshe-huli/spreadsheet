@@ -22,13 +22,13 @@ const TOKEN_TYPES = {
     rparen: ')',
     plus: '+',
     minus: '-',
-    value: 'literal value',
-    quoted: 'quoted literal',
+    value: 'a literal value',
+    quoted: 'a quoted string',
     times: '*',
     divided: '/',
     comma: ',',
     whitespace: 'whitespace',
-    eof: '[end of file]'
+    eof: '[end of string]'
 }
 
 /** Split up a text stream into tokens.
@@ -69,7 +69,7 @@ function* tokenize(code) {
 class Parser {
     constructor(tokenIter) {
         this.tokenIter = tokenIter;
-        this.attemptedTypes = [];
+        this.attemptedTypes = new Set();
         this.advance();
     }
     parse() {
@@ -78,6 +78,7 @@ class Parser {
     // Move `self.cur` to the next token
     advance() {
         var next = this.tokenIter.next();
+        this.attemptedTypes = new Set();
         if (next.done) {
             this.cur = { type: 'eof', text: '' };
         } else {
@@ -91,7 +92,7 @@ class Parser {
             this.advance();
             return cur;
         }
-        this.attemptedTypes.push(type);
+        this.attemptedTypes.add(type);
         return null;
     }
     expect(type) {
@@ -100,7 +101,7 @@ class Parser {
         }
     }
     throwUnexpectedToken() {
-        let desc = (this.attemptedTypes.map(
+        let desc = ([...this.attemptedTypes.values()].map(
             (type) => TOKEN_TYPES[type])).join(', ');
         var got;
         if (this.cur.type == 'eof') {

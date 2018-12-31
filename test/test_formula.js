@@ -56,7 +56,10 @@ describe('parse', () => {
             ['b + a +', "Expected one of: a literal value, a quoted string, (; got [end of string]"],
         ]) {
             it(`has correct text for ${code}`, () => {
-                assert.throws(() => parse(code), Error, expected);
+                assert.throws(() => { parse(code) }, {
+                    name: 'Error',
+                    message: expected
+                });
             });
         }
     });
