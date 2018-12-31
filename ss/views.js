@@ -8,6 +8,27 @@ const KEY_DELTAS = {
     down: {row: 1, col: 0}
 }
 
+/** TODO
+ * - Cell editing
+ * - Selection
+ * - Menu system
+ * - Formatting
+ * - Copy/paste
+ * - Shortcut display
+ * - Framerate counter
+ */
+
+/** Spreadsheet viewer.
+ *
+ * Architectural notes:
+ *
+ * - Because this is a port of a Python program that did not have `blessed`
+ * available, we kind of ignore all the nice features of `blessed` and just use
+ * it as an ncurses replacement. We split the screen up into a few `box`
+ * elements but otherwise manage everything ourselves--meaning we listen for
+ * every key event from `screen` instead of relying the focus method; we
+ * manually draw the table by setting `box.content`; etc.
+ */
 class SpreadsheetView {
     constructor(engine, screen) {
         this.engine = engine;
@@ -50,12 +71,21 @@ class SpreadsheetView {
         });
         this.screen.append(this.grid);
         // key bindings
-        this.screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+        this.screen.on('keypress', (ch, key) => this.handleInput(ch, key));
+        this.refresh();
+    }
+    handleInput(ch, key) {
+        if (['escape', 'C-c'].includes(key.full)) {
             return process.exit(0);
-        });
-        this.screen.key(['left', 'right', 'up', 'down'], (ch, key) => {
-            this.moveCursorBy(KEY_DELTAS[key.name]);
-        });
+        }
+        if (['left', 'right', 'up', 'down'].includes(key.full)) {
+            this.moveCursorBy(KEY_DELTAS[key.full]);
+        }
+        if (key.full.length == 1) {
+            this.input.readInput(() => {
+                this.footer.setText(this.input.getValue());
+            });
+        }
         this.refresh();
     }
     /** Refill self.grid with the currently-visible cells.
