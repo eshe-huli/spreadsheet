@@ -27,7 +27,7 @@ class ScreenIndex(NamedTuple):
     def __floordiv__(self, dividend):
         return ScreenIndex(self.y // dividend, self.x // dividend)
     def __add__(self, other):
-        return ScreenIndex(self.y + other.y, self.x + other.x)
+        return ScreenIndex(self.y + other[0], self.x + other[1])
 
 class Rectangle(NamedTuple):
     top_left: ScreenIndex
@@ -161,9 +161,10 @@ class Viewer:
         bottomy -= message.height - 1
 
         # spreadsheet grid. first figure out the width of the row labels
-        nrows = bottomy - topy
+        nrows = bottomy - topy - 2
+        # 1 for column header, 1 bc last row isn't drawn
         max_cell = self.top_left + (nrows, 0)
-        row_label_width = len(max_cell.row_label) + 1
+        row_label_width = len(max_cell.row_label) + 1 # 1 for padding
         row_labels = Rectangle.fromhw(
             topy, 0, nrows, row_label_width
         )
@@ -184,13 +185,12 @@ class Viewer:
         """Draw the entire view to `self.stdscr`."""
         grid = self.layout.grid
         nrows = self.get_rows_displayed()
-        x = grid.top_left.x
+        x = 0
         col_top_left = self.top_left
-        while x < grid.width:
+        while x <= grid.width:
             self.draw_column(
-                Range(col_top_left, col_top_left + (nrows, 0)),
-                y=grid.top_left.y,
-                x=x
+                Range(col_top_left, col_top_left + (nrows - 1, 0)),
+                pos=grid.top_left + (0, x),
             )
             col_top_left += (0, 1)
             x += self.get_width(col_top_left.col)
@@ -227,32 +227,31 @@ class Viewer:
     def get_rows_displayed(self):
         """Returns the # of rows that are visible on the screen."""
         return self.layout.grid.height - 1
-    def draw_column(self, col_range, y, x):
+    def draw_column(self, col_range, pos):
         """Draw the given section of the spreadsheet, including column header.
 
         Draws in a rectangle from (y, x) to
             (y + col_range.height + 1, x + self.get_width(col))
 
         Arguments:
-            col: the column to draw.
-            row_top: the first row to draw
-            row_bottom: the last row to draw (exclusive).
-            y: the screen y-Index to start drawing.
+            col_range: the column to draw.
+            pos: the screen position to start drawing
         """
         col = col_range.first.col
         assert col == col_range.last.col
         width = min(
             self.get_width(col),
-            self.layout.grid.bottom_right.x - x - 1
+            self.layout.grid.bottom_right.x - pos.x
         )
         if width < 3: # one for padding, 2 for ellipsis
-            # give up on drawing anything
+            # just finish the column header
+            self.stdscr.addstr(*pos, ' ' * width, curses.A_REVERSE)
             return
         # draw the header
         label = ' ' + _align_center(
             col_range.first.column_label, width - 1
         )
-        self.stdscr.addstr(y, x, label, curses.A_REVERSE)
+        self.stdscr.addstr(*pos, label, curses.A_REVERSE)
         # draw the values
         values = [
             (index, self.spreadsheet.get_formatted(index))
@@ -269,7 +268,8 @@ class Viewer:
                     attr = curses.A_REVERSE
                 if index == self.cursor:
                     attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
-            self.stdscr.addstr(y + dy + 1, x, text, attr)
+            cellpos = pos + (dy + 1, 0)
+            self.stdscr.addstr(*cellpos, text, attr)
     def draw_message(self):
         rect = self.layout.message
         text = _align_center(self.message, rect.width)
