@@ -243,14 +243,14 @@ class Viewer:
         assert col == col_range.last.col
         width = min(
             self.get_width(col),
-            self.layout.grid.bottom_right.x - x
+            self.layout.grid.bottom_right.x - x - 1
         )
-        if width < 2:
+        if width < 3: # one for padding, 2 for ellipsis
             # give up on drawing anything
             return
         # draw the header
-        label = _align_center(
-            col_range.first.column_label, width
+        label = ' ' + _align_center(
+            col_range.first.column_label, width - 1
         )
         self.stdscr.addstr(y, x, label, curses.A_REVERSE)
         # draw the values
@@ -259,7 +259,7 @@ class Viewer:
             for index in col_range.indices
         ]
         for dy, (index, value) in enumerate(values):
-            text = _align_right(value, width)
+            text = ' ' + _align_right(value, width - 1)
             attr = 0
             if self.selecting_from is None:
                 if self.cursor == index:

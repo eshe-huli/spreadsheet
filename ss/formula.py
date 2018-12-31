@@ -204,7 +204,7 @@ class Parser:
     def arglist(self):
         tm = [self.expr()]
         while self.consume(TokenType.COMMA):
-            tm = tm + self.arglist()
+            tm = tm + self.expr()
         return tm
 
 class ParseError(Exception):
