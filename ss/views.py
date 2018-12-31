@@ -67,7 +67,7 @@ class EditBox(NamedTuple):
     def backspace(self):
         return EditBox(
             text=self.text[:self.cursor-1] + self.text[self.cursor:],
-            cursor=self.cursor - 1
+            cursor=max(0, self.cursor - 1)
         )
     def right(self):
         return self._replace(cursor=min(len(self.text), self.cursor + 1))
@@ -327,7 +327,7 @@ class Viewer:
 
     def handle_key_default(self, action):
         """Key dispatcher for when no cell is currently being edited."""
-        name = curses.keyname(action).decode()
+        name = get_keyname(action)
         if name == KEYNAME_QUIT:
             self.quit = True
         elif action in ARROW_KEYS:
@@ -406,7 +406,7 @@ class Viewer:
         Characters, backspace and left/right affect the current editor state.
         Up/down (and other keys in `should_exit_editing_and_handle`) exit the
         current edit, then handle the key in navigation mode."""
-        name = curses.keyname(action).decode()
+        name = get_keyname(action)
         if action in ENTER_KEYS:
             self.finish_editing(True)
             self.move_cursor(Index(1, 0))
@@ -450,7 +450,7 @@ class Viewer:
         self.cursor = new_cursor
         self.top_left = new_top_left
     def handle_key_menu(self, action):
-        name = curses.keyname(action).decode()
+        name = get_keyname(action)
         value = {key: value for key, _, value in self.menu.choices}.get(name)
         if value is not None:
             new_menu = self.menu.on_selected(value)
@@ -513,7 +513,8 @@ class Viewer:
             except KeyboardInterrupt:
                 break # quit
             now = time.perf_counter()
-            self.key_handler(action)
+            if action != curses.ERR:
+                self.key_handler(action)
 
 def _align_right(s, width):
     """Returns `s` left-padded to `width` with whitespace.
@@ -555,3 +556,6 @@ def should_exit_editing_and_handle(key):
         curses.KEY_UP,
         curses.KEY_DOWN
     }
+
+def get_keyname(action):
+    return curses.keyname(action).decode()
