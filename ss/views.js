@@ -1,6 +1,13 @@
 var blessed = require('blessed');
 var {Index, Range} = require('./models.js')
 
+const KEY_DELTAS = {
+    left: {row: 0, col: -1},
+    right: {row: 0, col: 1},
+    up: {row: -1, col: 0},
+    down: {row: 1, col: 0}
+}
+
 class SpreadsheetView {
     constructor(engine, screen) {
         this.engine = engine;
@@ -42,11 +49,14 @@ class SpreadsheetView {
             tags: true
         });
         this.screen.append(this.grid);
+        // key bindings
         this.screen.key(['escape', 'q', 'C-c'], function(ch, key) {
             return process.exit(0);
         });
+        this.screen.key(['left', 'right', 'up', 'down'], (ch, key) => {
+            this.moveCursorBy(KEY_DELTAS[key.name]);
+        });
         this.refresh();
-        this.screen.render();
     }
     /** Refill self.grid with the currently-visible cells.
      */
@@ -90,10 +100,15 @@ class SpreadsheetView {
             let label = alignRight(row[0].rowLabel, this.rowLabelWidth);
             content += `{inverse}${label}{/inverse}`;
             drawRow(row, (ix, width) => {
-                return alignRight(this.engine.getFormatted(ix), width);
+                var text = alignRight(this.engine.getFormatted(ix), width);
+                if (ix.equals(this.cursor)) {
+                    text = `{inverse}${text}{/inverse}`
+                }
+                return text;
             });
         }
         this.grid.setContent(content);
+        this.screen.render();
     }
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
@@ -111,8 +126,23 @@ class SpreadsheetView {
         }
         return curColumn - this.topLeft.col - 1;
     }
+    get numRowsDisplayed() {
+        return this.grid.height - 1;
+    }
     getColumnWidth(column) {
         return 9;
+    }
+    moveCursorBy(delta) {
+        this.cursor = this.cursor.add(delta).max({row: 0, col: 0});
+        // Ensure cursor is visibnle: top left can't be greater than the
+        // cursor...
+        this.topLeft = this.topLeft.min(this.cursor);
+        // or less than the cursor minus the displayed region.
+        this.topLeft = this.topLeft.max(this.cursor.sub({
+            row: this.numRowsDisplayed - 1,
+            col: this.numColumnsDisplayed - 2 // minus 2 bc last col is partial
+        }));
+        this.refresh();
     }
 }
 

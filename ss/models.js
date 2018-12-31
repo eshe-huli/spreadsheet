@@ -32,14 +32,26 @@ class Index {
         this.col = col;
     }
 
+    equals(other) {
+        return this.row == other.row && this.col == other.col;
+    }
     add(other) {
-        return new Index(this.row + other.row, this.col + other.col);
+        return this.binop((a, b) => a + b, other);
     }
-
     sub(other) {
-        return new Index(this.row - other.row, this.col - other.col);
+        return this.binop((a, b) => a - b, other);
     }
-
+    max(other) {
+        return this.binop(Math.max, other);
+    }
+    min(other) {
+        return this.binop(Math.min, other);
+    }
+    /** Apply a binary operator to both `row` and `col`, producing a new Index.
+     */
+    binop(f, other) {
+        return new Index(f(this.row, other.row), f(this.col, other.col));
+    }
     get columnLabel() {
         var nreps = Math.floor(this.col / 26) + 1;
         var char = String.fromCharCode(
