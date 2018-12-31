@@ -127,7 +127,7 @@ class Range {
      */
     *row(i) {
         if (i >= this.height) { throw Error("Require i < " + this.height); }
-        start = this.first.add(new Index(i, 0));
+        var start = this.first.add(new Index(i, 0));
         for (var j = 0; j < this.width; j++) {
             yield start.add(new Index(0, j));
         }

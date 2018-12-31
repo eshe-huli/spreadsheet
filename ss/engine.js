@@ -60,3 +60,5 @@ class Spreadsheet {
         throw Error(`sort ${range.label} ${column} ${ascending}`)
     }
 }
+
+module.exports = { Spreadsheet };
