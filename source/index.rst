@@ -3,4 +3,5 @@
    :caption: Contents:
 
    python.rst
+   js.rst
 

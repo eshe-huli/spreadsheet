@@ -38,9 +38,12 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_js',
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
 ]
+
+js_source_path = '../js/ss'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
