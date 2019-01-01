@@ -1,8 +1,6 @@
 /** TODO
- * - Selection
  * - Menu system
  * - Formatting
- * - Copy/paste
  * - Shortcut display
  * - Framerate counter
  */
@@ -18,6 +16,8 @@ const KEY_DELTAS = {
 }
 const attrs = {
     INVERSE: 'inverse',
+    BOLD: 'bold',
+    UNDERLINE: 'UNDERLINE',
     NORMAL: null
 }
 
@@ -124,11 +124,13 @@ class SpreadsheetView {
         this.message = 'Welcome to the spreadsheet!'
         this.editBox = null;
         this.menu = null;
+        this.selectingFrom = null;
+        this.selectingTo = null;
         this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
         this.handleKey = this.handleKeyDefault;
         this.DEFAULT_SHORTCUTS = {
             'return': { name: 'edit', handle: this.editCurrent },
-            'C-w': { name: 'copy', handle: this.copy },
+            'C-w': { name: 'copy', handle: this.beginCopy },
             'C-y': { name: 'paste', handle: this.paste },
             'C-c': { name: 'quit', handle: this.quit },
             'C-f': { name: 'format', handle: this.selectFormat },
@@ -219,6 +221,12 @@ class SpreadsheetView {
             this.beginEditing('');
             this.handleKeyEdit(key);
         }
+        else if (key.full == 'C-`') {
+            this.beginSelecting();
+        }
+        else if (ESCAPE_KEYS.includes(key.full)) {
+            this.finishSelecting();
+        }
         else if (key.full in this.DEFAULT_SHORTCUTS) {
             this.DEFAULT_SHORTCUTS[key.full].handle.apply(this);
         }
@@ -230,12 +238,31 @@ class SpreadsheetView {
         let value = this.engine.getRaw(this.cursor);
         this.beginEditing(value);
     }
+    beginCopy() {
+        this.selectingFrom = this.selectingFrom || this.cursor;
+        this.selectingTo = this.cursor;
+    }
+    paste() {
+        if (this.selectingTo == null) {
+            this.message = 'Copy a cell or range with C-w first';
+            return;
+        }
+        this.engine.copy(this.selection, this.cursor);
+        this.finishSelecting();
+    }
     //// Selection
     beginSelecting() {
-
+        this.selectingFrom = this.cursor;
     }
     finishSelecting() {
-
+        this.selectingFrom = null;
+        this.selectingTo = null;
+    }
+    get selection() {
+        return new Range(
+            this.selectingFrom || this.cursor,
+            this.selectingTo || this.cursor
+        );
     }
     //// Editing
     beginEditing(text) {
@@ -392,9 +419,22 @@ class SpreadsheetView {
             let value = this.engine.getFormatted(index);
             let text = ' ' + alignRight(value, width - 1);
             var attr = attrs.NORMAL;
-            // TODO(ben) selection attrs
-            if (this.cursor.equals(index)) {
-                attr = attrs.INVERSE;
+            if (this.selectingFrom == null) {
+                // TODO(ben) selection attrs
+                if (this.cursor.equals(index)) {
+                    attr = attrs.INVERSE;
+                }
+            } else {
+                let isSelected = this.selection.contains(index)
+                , isCursor = this.cursor.equals(index);
+                if (isSelected || isCursor) {
+                    if (isSelected && isCursor) {
+                        // For some reason 'gray fg' makes the bg gray :(
+                        attr = [attrs.INVERSE, attrs.BOLD, 'gray fg'];
+                    } else {
+                        attr = attrs.INVERSE;
+                    }
+                }
             }
             this.write(pos.add({y: dy+1, x: 0}), text, attr);
         })
