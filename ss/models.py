@@ -1,8 +1,4 @@
-"""Support classes for working with a spreadsheet:
-
-`Index` - a class representing a spreadsheet index (e.g. 'A1').
-`Range` - a class representing a contiguous range of indices (e.g. 'A1:B2')
-"""
+"""Support classes for working with a spreadsheet."""
 
 from typing import NamedTuple
 import re
@@ -26,14 +22,17 @@ class Index(NamedTuple):
     Immutable. `row` and `col` are both zero-indexed.
 
     To construct from a string like 'A1', use `Index.parse`:
+
     >>> Index.parse("A1")
     Index(row=0, col=0)
 
     To render a user-facing label, call `str`:
+
     >>> str(Index.parse("A1"))
     'A1'
 
     To move an index, add another index, or a tuple:
+
     >>> Index(0, 0) + (2, 3)
     Index(row=2, col=3)
     >>> Index(2, 3) - (1, 2)
@@ -41,7 +40,9 @@ class Index(NamedTuple):
     """
 
     row: int
+    """The row (y-coordinate)"""
     col: int
+    """The column (x-coordinate)"""
 
     def __add__(self, other):
         (row, col) = other

@@ -1,4 +1,7 @@
+__all__ = ['Spreadsheet']
+
 class Spreadsheet:
+    """The spreadsheet engine. This is your job to implement!"""
     def get_formatted(self, index):
         """Get the evaluated and formatted value at the given cell ref.
 
@@ -36,11 +39,12 @@ class Spreadsheet:
             index (Index): the cell to format
             type (str): the type of format--'default', 'number' or 'datetime'
             spec (str): the format string to use on the cell:
-                if `type` is 'default', should be None
-                if `type` is 'number', a string suitable for passing to
-                    `str.format`
-                if `type` is 'datetime', a string suitable for passing to
-                    `datetime.strftime`
+
+                - if `type` is 'default', should be None
+                - if `type` is 'number', a string suitable for passing to
+                  `str.format`
+                - if `type` is 'datetime', a string suitable for passing to
+                  `datetime.strftime`
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")
 
