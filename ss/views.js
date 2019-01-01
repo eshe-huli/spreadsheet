@@ -1,7 +1,6 @@
 /** TODO
  * - Menu system
  * - Formatting
- * - Shortcut display
  * - Framerate counter
  */
 
@@ -124,12 +123,14 @@ class SpreadsheetView {
         this.message = 'Welcome to the spreadsheet!'
         this.editBox = null;
         this.menu = null;
+        // menu is {title:, options: [{key:, name:, value:}], onSelected}
         this.selectingFrom = null;
         this.selectingTo = null;
         this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
         this.handleKey = this.handleKeyDefault;
         this.DEFAULT_SHORTCUTS = {
             'return': { name: 'edit', handle: this.editCurrent },
+            'backspace': { name: 'clear', handle: this.clearCurrent },
             'C-w': { name: 'copy', handle: this.beginCopy },
             'C-y': { name: 'paste', handle: this.paste },
             'C-c': { name: 'quit', handle: this.quit },
@@ -199,6 +200,11 @@ class SpreadsheetView {
     editCurrent() {
         let value = this.engine.getRaw(this.cursor);
         this.beginEditing(value);
+    }
+    clearCurrent() {
+        for (let index of this.selection.indices) {
+            this.engine.set(index, '');
+        }
     }
     beginCopy() {
         this.selectingFrom = this.selectingFrom || this.cursor;
@@ -300,7 +306,8 @@ class SpreadsheetView {
         }
         this.drawRowLabels();
         this.drawMessage();
-        this.drawEditor()
+        this.drawShortcuts();
+        this.drawEditor();
         this.program.flush();
         /*
         self.draw_framerate()
@@ -372,7 +379,72 @@ class SpreadsheetView {
         this.write(this.layout.message.topLeft, label);
     }
     drawShortcuts() {
+        var title, shortcuts;
+        if (this.editBox != null) {
+            title = '';
+            shortcuts = [
+                ['<enter>', 'set'],
+                ['C-g', 'cancel'],
+            ];
+        }
+        else if (this.menu != null) {
+            title = this.menu.title + '>';
+            shortcuts = this.menu.choices.map(
+                (choice) => [choice.key, choice.name]);
+        } else {
+            title = '';
+            shortcuts = [];
+            for (var key in this.DEFAULT_SHORTCUTS) {
+                let shortcut = this.DEFAULT_SHORTCUTS[key];
+                if (shortcut.name.length > 0) {
+                    shortcuts.push([key, shortcut.name]);
+                }
+            }
+            if (this.selectingFrom) {
+                shortcuts.push(['C-g', 'cancel']);
+            } else {
+                shortcuts.push(['C-<space>', 'select']);
+            }
+        }
+        let rect = this.layout.shortcuts;
+        let INDENT = 4;
+        var pos = rect.topLeft.add({x: INDENT, y: 0});
+        if (title.length > 0) {
+            this.write(pos, title);
+            pos = pos.add({y: 0, x: title.length + 1});
+        }
+        shortcuts.forEach(([keyname, text]) => {
+            if (pos.x + keyname.length + text.length + 2 >= rect.width) {
+                pos = rect.topLeft.add({y: pos.y + 1, x: INDENT * 2});
+            }
+            this.write(pos, keyname, attrs.INVERSE);
+            pos = pos.add({x: keyname.length + 1, y: 0});
+            this.write(pos, text);
+            pos = pos.add({x: text.length + 1, y: 0});
+        });
+        /*
+                if self.edit_box is not None:
+            shortcut('<enter>', 'set')
+            shortcut('^G', 'cancel')
+            return
+        if self.menu is not None:
+            self.stdscr.addstr(self.menu.title + '> ')
+            for (key, desc, _) in self.menu.choices:
+                shortcut(key, desc)
+            shortcut('^G', 'cancel')
+            return
+        shortcut('<enter>', 'edit')
+        shortcut('<bksp>', 'clear')
+        shortcut('^[space]', 'select')
+        shortcut(KEYNAME_FORMATTING, 'format')
+        shortcut(KEYNAME_BEGIN_COPY, 'copy')
+        shortcut(KEYNAME_PASTE, 'paste')
+        shortcut(KEYNAME_SORT, 'sort')
+        shortcut(KEYNAME_QUIT, 'exit')
+        if self.selecting_from:
+            shortcut('^G', 'cancel')
 
+        */
     }
     drawEditor() {
         if (this.editBox == null) {
