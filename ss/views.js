@@ -1,5 +1,4 @@
 /** TODO
- * - Formatting
  * - Framerate counter
  */
 
@@ -245,6 +244,24 @@ class SpreadsheetView {
                     this.engine.sort(selection, col, asc);
                 }
             }}
+        })
+    }
+    selectFormat() {
+        this.enterMenu({
+            title: `Format ${this.selection.label}`,
+            choices: [
+                {key: 'C-o', name: 'default', value: ['default', null]},
+                {key: 'C-i', name: '1', value: ['number', '%d']},
+                {key: 'C-i', name: '1.23', value: ['number', '%0.2f']},
+                {key: 'C-s', name: '$1.23', value: ['number', '$%0.2f']},
+                {key: 'C-d', name: '2018-01-01', value: ['date', '%Y-%m-%d']},
+                {key: 'C-t', name: '2018-01-01 13:34:45', value: ['date', '%Y-%m-%d %H:%M:%S']},
+            ],
+            onSelected: ([type, spec]) => {
+                for (var index of this.selection.indices) {
+                    this.engine.setFormat(index, type, spec);
+                }
+            }
         })
     }
     //// Selection
