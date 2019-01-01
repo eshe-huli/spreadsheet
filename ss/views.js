@@ -51,12 +51,23 @@ class Rectangle {
     static fromDimensions(pos, dims) {
         return new Rectangle(pos, pos.add(dims));
     }
+    static fromSides({top, bottom, left, right}) {
+        return new Rectangle(
+            new Position(top, left), new Position(bottom, right));
+    }
     get width() {
         return this.bottomRight.x - this.topLeft.x;
     }
     get height() {
         return this.bottomRight.y - this.topLeft.y;
     }
+    get top() { return this.topLeft.y; }
+    get bottom() { return this.bottomRight.y; }
+    get left() { return this.topLeft.x; }
+    get right() { return this.bottomRight.x; }
+    get bottomLeft() { return new Position(this.bottom, this.left); }
+    get topRight() { return new Position(this.top, this.right); }
+    toString() { return `${this.topLeft} -> ${this.bottomRight}` }
 }
 
 /** TODO
@@ -85,24 +96,37 @@ class SpreadsheetView {
         this.engine = engine;
         this.program = program;
         this.topLeft = this.cursor = new Index(0, 0);
+        this.message = 'Welcome to the spreadsheet!'
         this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
         this.redraw();
     }
     measure() {
         let height = this.program.rows, width = this.program.cols;
-        let gridTop = new Position(0, 0);
-        let gridBottom = new Position(width, height);
-        let maxRow = this.topLeft.add(new Index(
-            /* TODO */ height, 0));
-        let rowLabelWidth = maxRow.rowLabel.length + 1;
+        let screen = Rectangle.fromSides({
+            top: 0, left: 0, bottom: height, right: width
+        })
 
-        let rowLabels = Rectangle.fromDimensions(
-            gridTop, {y: height, x: rowLabelWidth})
-        let grid = new Rectangle(
-            rowLabels.bottomRight, gridTop.add({x: width, y: 0})
+        // Header
+        let shortcuts = Rectangle.fromDimensions(
+            screen.topLeft, {y: 2, x: width});
+        let editBox = Rectangle.fromDimensions(
+            shortcuts.bottomLeft, {y: 1, x: width});
+        // Footer
+        let message = new Rectangle(
+            screen.bottomLeft.sub({y: 1, x: 0}),
+            screen.bottomRight,
         );
+        // Grid
+        let gridAndLabels = new Rectangle(
+            editBox.bottomRight, message.topLeft);
+        let maxRow = this.topLeft.add({y: gridAndLabels.height - 1, x: 0});
+        let rowLabelWidth = maxRow.rowLabel.length + 1;
+        let rowLabels = Rectangle.fromDimensions(
+            gridAndLabels.topLeft, {y: gridAndLabels.height, x: rowLabelWidth});
+        let grid = new Rectangle(
+            rowLabels.topRight, gridAndLabels.bottomRight);
         this.layout = {
-            grid, rowLabels
+            grid, rowLabels, message, editBox, shortcuts
         };
         /*
         height, width = self.stdscr.getmaxyx()
@@ -144,6 +168,7 @@ class SpreadsheetView {
         */
     }
     handleInput(ch, key) {
+        this.message = '';
         if (['escape', 'C-c'].includes(key.full)) {
             return process.exit(0);
         }
@@ -177,17 +202,16 @@ class SpreadsheetView {
         var x = 0, topLeft = this.topLeft;
         while (x < grid.width) {
             this.drawColumn(
-                new Range(topLeft, topLeft.add({row: nRows, col: 0})),
+                new Range(topLeft, topLeft.add({row: nRows - 1, col: 0})),
                 grid.topLeft.add({y: 0, x: x})
             );
             x += this.getColumnWidth(topLeft.col);
             topLeft = topLeft.add({col: 1, row: 0});
         }
         this.drawRowLabels();
+        this.drawMessage();
         this.program.flush();
         /*
-        self.draw_row_labels()
-        self.draw_message()
         self.draw_framerate()
         self.draw_shortcuts()
         self.draw_editor()
@@ -283,6 +307,10 @@ class SpreadsheetView {
             if index == self.cursor:
                 attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
         */
+    }
+    drawMessage() {
+        let label = alignCenter(this.message, this.layout.message.width);
+        this.write(this.layout.message.topLeft, label);
     }
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
