@@ -23,6 +23,12 @@ class ParseError extends Error {
  * To render a user-facing label, use the `label` property.
  */
 class Index {
+    /**
+     * Constructor.
+     *
+     * @param {number} row
+     * @param {number} col
+     */
     constructor(row, col) {
         this.row = row;
         this.col = col;
@@ -47,6 +53,7 @@ class Index {
      * Return a new Index with the sum of the rows/columns.
      *
      * @param {Index} other
+     * @return {Index}
      *
      * @example
      *   new Index(1, 2).add({row: 3, col: 4})
@@ -58,6 +65,9 @@ class Index {
     /**
      * Return a new Index with the difference of the rows/columns.
      *
+     * @param {Index} other
+     * @return {Index}
+     *
      * @example
      *   new Index(1, 2).sub({row: 1, col: 2})
      *   // => new Index(0, 0)
@@ -67,6 +77,9 @@ class Index {
     }
     /**
      * Return a new Index with the greater of each row/column.
+     *
+     * @param {Index} other
+     * @return {Index}
      *
      * @example
      *   new Index(1, 2).max(new Index(2, 1))
@@ -78,6 +91,9 @@ class Index {
     /**
      * Return a new Index with the smaller of each row/column.
      *
+     * @param {Index} other
+     * @return {Index}
+     *
      * @example
      *   new Index(1, 2).min(new Index(2, 1))
      *   // => new Index(1, 1)
@@ -87,6 +103,8 @@ class Index {
     }
     /**
      * The human readable column label.
+     *
+     * @return {string}
      *
      * @example
      *   new Index(57, 1).columnLabel // => 'B'
@@ -103,6 +121,8 @@ class Index {
     /**
      * The human readable row label.
      *
+     * @return {string}
+     *
      * @example
      *   new Index(1, 1).rowLabel // => '2'
      */
@@ -111,7 +131,9 @@ class Index {
     }
 
     /**
-     * The human readable label.
+     * The human readable row/column label.
+     *
+     * @return {string}
      *
      * @example
      *   new Index(9, 27).label // => 'BB10'
@@ -127,18 +149,22 @@ class Index {
      *
      * Throws ParseError if the index is not valid.
      *
+     * @param {string} label
+     * @return {Index}
+     * @throws {ParseError} if the string is not a valid index.
+     *
      * @example
      *   Index.parse("A1") // => new Index(0, 0)
-     *   Index.parse("BB10") // => new Index(9, 27)
+     *   Index.parse("bb10") // => new Index(9, 27)
      */
     static parse(label) {
         INDEX_RE.lastIndex = 0;
         var match = INDEX_RE.exec(label);
         if (match == null) {
-            throw new Error(label + " is not a valid index");
+            throw new ParseError(label + " is not a valid index");
         }
         var row = Number.parseInt(match.groups.row) - 1;
-        var charCode = match.groups.char.charCodeAt(0);
+        var charCode = match.groups.char.toUpperCase().charCodeAt(0);
         var numChars = match.groups.col.length;
         var col = (charCode - A_CHAR_CODE) + 26 * (numChars - 1);
         return new Index(row, col);
@@ -185,6 +211,7 @@ class Range {
      * Returns true if the range contains the given position.
      *
      * @param {Index} pos
+     * @return {boolean}
      *
      * @example
      *   Range.parse('B2:C3').contains(Index.parse('C3')) // => true
@@ -200,6 +227,8 @@ class Range {
     /**
      * Human readable description of the range, like `'A1:B3'`.
      *
+     * @return {string}
+     *
      * @example
      *   new Range(Index.parse('A1'), Index.parse('B2')).label
      *   // => "A1:B2"
@@ -210,6 +239,8 @@ class Range {
     /**
      * Number of rows contained in the range.
      *
+     * @return {number}
+     *
      * @example
      *   Range.parse('A1:B3').height // => 3
      */
@@ -218,6 +249,8 @@ class Range {
     }
     /**
      * Number of columns contained in the range.
+     *
+     * @return {number}
      *
      * @example
      *   Range.parse('A1:B3').width // => 2
@@ -228,12 +261,14 @@ class Range {
     /**
      * Iterator over the indices of the i-th row.
      *
+     * @return {Generator}
+     *
      * @example
      *   [...Range.parse('A1:C4').row(1)].map(it => it.label)
      *   // => ['A2', 'B2', 'C2']
      */
     *row(i) {
-        if (i >= this.height) { throw Error("Require i < " + this.height); }
+        if (i >= this.height) { throw new ValueError("Require i < " + this.height); }
         var start = this.first.add(new Index(i, 0));
         for (var j = 0; j < this.width; j++) {
             yield start.add(new Index(0, j));
@@ -241,6 +276,8 @@ class Range {
     }
     /**
      * Iterator over all indices in a range.
+     *
+     * @return {Generator}
      *
      * @example
      *   [...Range.parse('A1:B3').indices].map(it => it.label)
@@ -259,10 +296,10 @@ class Range {
     /**
      * Parse a Range from a string like A1:B3.
      *
-     * Raises a `ParseError` if the string is not a valid range.
+     * @throws {ParseError} if the string is not a valid range.
      *
      * @example
-     *   Range.parse('A1', 'B3').label // => 'A1:B3'
+     *   Range.parse('A1:B3').label // => 'A1:B3'
      */
     static parse(text) {
         let split = text.split(':');
