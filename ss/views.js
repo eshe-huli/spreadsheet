@@ -423,7 +423,8 @@ class SpreadsheetView {
         if (this.editBox != null) {
             title = '';
             shortcuts = [
-                ['<enter>', 'set'],
+                ['enter', 'set+down'],
+                ['tab', 'set+right'],
                 ['C-g', 'cancel'],
             ];
         }
