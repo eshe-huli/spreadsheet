@@ -9,6 +9,7 @@ class Spreadsheet:
             according to the format set with `set_format`.
         """
         return str(index)  # no evaluation/formatting for now
+
     def get_raw(self, index):
         """Get the raw text that the user entered into the given cell.
 
@@ -18,6 +19,7 @@ class Spreadsheet:
         Returns (str): the `raw` most recently set with set(ref, raw).
         """
         return f"={str(index)!r}"
+
     def set(self, index, raw):
         """Set the value at the given cell.
 
@@ -26,6 +28,7 @@ class Spreadsheet:
             raw (str): the raw string, like '1' or '2018-01-01' or '=A2+A3'
         """
         raise NotImplementedError(f"set {index} = {raw!r}")
+
     def set_format(self, index, type, spec):
         """Set the format string for a given range.
 
@@ -40,6 +43,7 @@ class Spreadsheet:
                     `datetime.strftime`
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")
+
     def copy(self, src, dest):
         """Copy the cell range `src` to `dest`.
 
@@ -48,6 +52,7 @@ class Spreadsheet:
             dest (Index): the cell into which the upper-left of `src` should go
         """
         raise NotImplementedError(f"copy {src} {dest}")
+
     def sort(self, range, column, ascending):
         """Sort the given range by the given column.
 

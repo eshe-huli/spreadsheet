@@ -7,12 +7,16 @@
 from typing import NamedTuple
 import re
 
-INDEX_RE = re.compile(r"""
+INDEX_RE = re.compile(
+    r"""
 ^
 (?P<col>(?P<char>[A-Z])(?P=char)*)
 (?P<row>[0-9]+)
 $
-""", re.VERBOSE | re.IGNORECASE)
+""",
+    re.VERBOSE | re.IGNORECASE,
+)
+
 
 class Index(NamedTuple):
     """A spreadsheet index, like 'A1' or 'ZZZ123'.
@@ -33,30 +37,31 @@ class Index(NamedTuple):
     >>> Index(2, 3) - (1, 2)
     Index(row=1, col=1)
     """
+
     row: int
     col: int
+
     def __add__(self, other):
         (row, col) = other
-        return Index(
-            row=self.row + row,
-            col=self.col + col
-        )
+        return Index(row=self.row + row, col=self.col + col)
+
     def __sub__(self, other):
         (row, col) = other
-        return Index(
-            row=self.row - row,
-            col=self.col - col
-        )
+        return Index(row=self.row - row, col=self.col - col)
+
     @property
     def column_label(self):
         nreps = (self.col // 26) + 1
-        char = chr(ord('A') + self.col % 26)
+        char = chr(ord("A") + self.col % 26)
         return nreps * char
+
     @property
     def row_label(self):
         return str(self.row + 1)
+
     def __str__(self):
         return f"{self.column_label}{self.row_label}"
+
     @classmethod
     def parse(cls, label):
         """Construct an Index from a string like 'A1'.
@@ -68,17 +73,19 @@ class Index(NamedTuple):
         match = INDEX_RE.match(label)
         if match is None:
             raise ValueError(f"{label} is not a valid spreadsheet index")
-        row = int(match['row']) - 1
-        char = match['char']
-        num_chars = len(match['col'])
-        col = 26 * (num_chars - 1) + ord(char) - ord('A')
+        row = int(match["row"]) - 1
+        char = match["char"]
+        num_chars = len(match["col"])
+        col = 26 * (num_chars - 1) + ord(char) - ord("A")
         return Index(row=row, col=col)
+
 
 class _Range(NamedTuple):
     # Private base class for `Range`, which needs to override __new__. See
     # `Range` for docs.
     first: Index
     last: Index
+
 
 class Range(_Range):
     """Represents a range of cells like 'A1:B3'.
@@ -99,25 +106,31 @@ class Range(_Range):
     >>> Range(Index(1, 0), Index(0, 1)).first
     Index(row=0, col=0)
     """
+
     def __new__(cls, pos1, pos2):
         return super().__new__(
             cls,
             Index(min(pos1.row, pos2.row), min(pos1.col, pos2.col)),
-            Index(max(pos1.row, pos2.row), max(pos1.col, pos2.col))
+            Index(max(pos1.row, pos2.row), max(pos1.col, pos2.col)),
         )
+
     def contains(self, pos):
         return (
             self.first.col <= pos.col <= self.last.col
             and self.first.row <= pos.row <= self.last.row
         )
+
     def __str__(self):
         return f"{self.first}:{self.last}"
+
     @property
     def height(self):
         return self.last.row - self.first.row + 1
+
     @property
     def width(self):
         return self.last.col - self.first.col + 1
+
     def row(self, i):
         """Iterate over the indices of the i-th row.
 
@@ -127,6 +140,7 @@ class Range(_Range):
         assert i < self.height
         start = self.first + (i, 0)
         return (start + (0, j) for j in range(self.width))
+
     @property
     def indices(self):
         """Iterate over all indices in a range.
@@ -135,6 +149,7 @@ class Range(_Range):
         """
         for i in range(self.height):
             yield from self.row(i)
+
     @classmethod
     def parse(cls, desc):
         """Parse a Range from a string like A1:B3.
@@ -142,7 +157,7 @@ class Range(_Range):
         Raises a ValueError if the string is not a valid range.
         """
         try:
-            first, last = desc.split(':')
+            first, last = desc.split(":")
         except ValueError:
             raise ValueError(f"{desc} is not a valid range")
         return Range(Index.parse(first), Index.parse(last))

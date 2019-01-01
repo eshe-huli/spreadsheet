@@ -4,6 +4,7 @@ import sys
 
 from ss import engine, views, models
 
+
 def read_csv(fname, sheet):
     with open(fname) as f:
         reader = csv.reader(f)
@@ -12,7 +13,8 @@ def read_csv(fname, sheet):
                 sheet.set(str(models.Index(row, col)), value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+
     @curses.wrapper
     def main(stdscr):
         curses.raw()

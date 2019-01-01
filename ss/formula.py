@@ -3,6 +3,7 @@ import re
 import enum
 from typing import NamedTuple
 
+
 def parse(formula):
     """Parse a spreadsheet formula.
 
@@ -49,12 +50,15 @@ def parse(formula):
         ...
     ss.formula.ParseError: ...
     """
-    tokens = (token for token in tokenize(formula)
-              if token.type != TokenType.WHITESPACE)
+    tokens = (
+        token for token in tokenize(formula) if token.type != TokenType.WHITESPACE
+    )
     return Parser(tokens).parse()
 
+
 # If you add a group here, add it to TokenType below also
-LEXER = re.compile(r"""
+LEXER = re.compile(
+    r"""
 (?P<lparen>\()
 | (?P<rparen>\))
 | (?P<plus>\+)
@@ -65,15 +69,19 @@ LEXER = re.compile(r"""
 | (?P<divided>/)
 | (?P<comma>,)
 | (?P<whitespace>\s+)
-""", re.VERBOSE)
+""",
+    re.VERBOSE,
+)
 
 FUNCTION_NAME = re.compile(r"^[a-zA-Z]+$")
+
 
 class TokenType(enum.Enum):
     """Enum for different kinds of tokens.
 
     The enum's 'value' is an English description of the kind of token, for
     error messaging."""
+
     LPAREN = "("
     RPAREN = ")"
     VALUE = "a literal value"
@@ -86,9 +94,11 @@ class TokenType(enum.Enum):
     EOF = "[end of string]"
     WHITESPACE = "whitespace"
 
+
 class Token(NamedTuple):
     type: TokenType
     text: str
+
 
 def tokenize(text):
     """Split `text` into a stream of `Token` objects.
@@ -105,31 +115,32 @@ def tokenize(text):
             bad_token = text[last:start]
             raise ParseError(f"Unknown token {bad_token!r}")
         last = end
-        values = [
-            (k, v)
-            for k, v in match.groupdict().items()
-            if v
-        ]
+        values = [(k, v) for k, v in match.groupdict().items() if v]
         assert len(values) == 1
         (groupname, value) = values[0]
-        if groupname != 'whitespace':
+        if groupname != "whitespace":
             yield Token(getattr(TokenType, groupname.upper()), value)
+
 
 class Parser:
     """Recursive-descent formula parser."""
+
     def __init__(self, token_iter):
         self.token_iter = token_iter
         self.cur = self._next()
         # list of the tokens we attempted to consume since the last successful
         # token-consumption (for error messages)
         self.attempted_types = []
+
     def _next(self):
         try:
             return next(self.token_iter)
         except StopIteration:
-            return Token(TokenType.EOF, '')
+            return Token(TokenType.EOF, "")
+
     def parse(self):
         return self.toplevel()
+
     def consume(self, type):
         """If the current token is of the given type, consume and return it.
 
@@ -141,26 +152,31 @@ class Parser:
             return cur
         self.attempted_types.append(type)
         return None
+
     def expect(self, type):
         """If the current token is of type `type`, return it; otherwise raise
         a ParseError."""
         if not self.consume(type):
             self.raise_unexpected_token()
+
     def raise_unexpected_token(self):
         """Raise a ParseError describing all the token types that were allowed
         to be put here."""
-        types_desc = ', '.join(list(t.value for t in self.attempted_types))
+        types_desc = ", ".join(list(t.value for t in self.attempted_types))
         if self.cur.type == TokenType.EOF:
-            got = '[end of string]'
+            got = "[end of string]"
         else:
             got = repr(self.cur.text)
         raise ParseError(f"Expected one of: {types_desc}; got {got}")
+
     def toplevel(self):
         tm = self.expr()
         self.expect(TokenType.EOF)
         return tm
+
     def expr(self):
         return self.sum()
+
     def sum(self):
         tm = self.summand()
         while True:
@@ -171,6 +187,7 @@ class Parser:
             else:
                 break
         return tm
+
     def summand(self):
         tm = self.factor()
         while True:
@@ -181,6 +198,7 @@ class Parser:
             else:
                 break
         return tm
+
     def factor(self):
         tm = self.consume(TokenType.VALUE)
         if tm is not None:
@@ -201,11 +219,13 @@ class Parser:
             self.expect(TokenType.RPAREN)
             return tm
         self.raise_unexpected_token()
+
     def arglist(self):
         tm = [self.expr()]
         while self.consume(TokenType.COMMA):
             tm = tm + self.expr()
         return tm
+
 
 class ParseError(Exception):
     pass
