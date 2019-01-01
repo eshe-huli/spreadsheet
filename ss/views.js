@@ -1,3 +1,12 @@
+/** TODO
+ * - Selection
+ * - Menu system
+ * - Formatting
+ * - Copy/paste
+ * - Shortcut display
+ * - Framerate counter
+ */
+
 var blessed = require('blessed');
 var {Index, Range} = require('./models.js')
 
@@ -11,6 +20,8 @@ const attrs = {
     INVERSE: 'inverse',
     NORMAL: null
 }
+
+const ESCAPE_KEYS = ['escape', 'C-g'];
 
 class Position {
     constructor(y, x) {
@@ -70,15 +81,29 @@ class Rectangle {
     toString() { return `${this.topLeft} -> ${this.bottomRight}` }
 }
 
-/** TODO
- * - Cell editing
- * - Selection
- * - Menu system
- * - Formatting
- * - Copy/paste
- * - Shortcut display
- * - Framerate counter
- */
+class EditBox {
+    constructor(text) {
+        this.text = text;
+        this.cursor = text.length;
+    }
+    insert(ch) {
+        this.text = (
+            this.text.slice(0, this.cursor)
+            + ch
+            + this.text.slice(this.cursor)
+        );
+        this.cursor += ch.length;
+    }
+    backspace() {
+        this.cursor -= 1;
+        this.text =
+            this.text.slice(0, this.cursor) + this.text.slice(this.cursor + 1);
+    }
+    moveCursor(delta) {
+        this.cursor = Math.min(
+            Math.max(this.cursor + delta, 0), this.text.length);
+    }
+}
 
 /** Spreadsheet viewer.
  *
@@ -97,6 +122,8 @@ class SpreadsheetView {
         this.program = program;
         this.topLeft = this.cursor = new Index(0, 0);
         this.message = 'Welcome to the spreadsheet!'
+        this.editBox = null;
+        this.menu = null;
         this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
         this.handleKey = this.handleKeyDefault;
         this.DEFAULT_SHORTCUTS = {
@@ -203,6 +230,59 @@ class SpreadsheetView {
         let value = this.engine.getRaw(this.cursor);
         this.beginEditing(value);
     }
+    //// Selection
+    beginSelecting() {
+
+    }
+    finishSelecting() {
+
+    }
+    //// Editing
+    beginEditing(text) {
+        this.editBox = new EditBox(text);
+        this.handleKey = this.handleKeyEdit;
+    }
+    finishEditing(commit) {
+        if (commit) {
+            this.engine.set(this.cursor, this.editBox.text);
+        }
+        this.editBox = null;
+        this.handleKey = this.handleKeyDefault;
+    }
+    handleKeyEdit(ch, key) {
+        let FINISH_KEYS = {
+            return: {y: 1, x: 0},
+            tab: {x: 1, y: 0}
+        }
+        let MOVEMENT_KEYS = {
+            left: -1, right: 1
+        }
+        let ABORT_KEYS = ['up', 'down'];
+        let BACKSPACE_KEYS = ['backspace', 'C-h'];
+        if (key.full in FINISH_KEYS) {
+            this.finishEditing(true);
+            this.moveCursorBy(FINISH_KEYS[key.full]);
+        }
+        else if (isCharacter(key)) {
+            this.editBox.insert(getCharacter(key));
+        }
+        else if (BACKSPACE_KEYS.includes(key.full)) {
+            this.editBox.backspace();
+        }
+        else if (key.full in MOVEMENT_KEYS) {
+            this.editBox.moveCursor(MOVEMENT_KEYS[key.full])
+        }
+        else if (ESCAPE_KEYS.includes(key.full)) {
+            this.finishEditing(false);
+        }
+        else if (ABORT_KEYS.includes(key.full)) {
+            this.finishEditing(false);
+            this.handleKeyDefault(ch, key);
+        }
+        else {
+            this.message = `Unknown key ${key.full}`;
+        }
+    }
     /** Refill self.grid with the currently-visible cells.
      */
     redraw() {
@@ -231,11 +311,11 @@ class SpreadsheetView {
         }
         this.drawRowLabels();
         this.drawMessage();
+        this.drawEditor()
         this.program.flush();
         /*
         self.draw_framerate()
         self.draw_shortcuts()
-        self.draw_editor()
         let rowLabelWidth = this.rowLabelWidth;
         var content = '{inverse}' + ' '.repeat(rowLabelWidth);
         // displayed range
@@ -333,9 +413,18 @@ class SpreadsheetView {
         let label = alignCenter(this.message, this.layout.message.width);
         this.write(this.layout.message.topLeft, label);
     }
-    /*drawShortcuts() {
+    drawShortcuts() {
 
-    }*/
+    }
+    drawEditor() {
+        if (this.editBox == null) {
+            this.program.hideCursor();
+        } else {
+            this.write(this.layout.editBox.topLeft, this.editBox.text);
+            this.program.setx(this.layout.editBox.left + this.editBox.cursor);
+            this.program.showCursor();
+        }
+    }
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
         return this.layout.rowLabels.width;
@@ -387,8 +476,15 @@ function alignCenter(str, width) {
     return ' '.repeat(pLeft) + str + ' '.repeat(pRight);
 }
 
+const CHARACTERS = {
+    space: ' '
+}
+function getCharacter(key) {
+    if (key.full.length == 1) return key.full;
+    return CHARACTERS[key.full];
+}
 function isCharacter(key) {
-    return key.full.length == 1;
+    return getCharacter(key) != null;
 }
 
 module.exports = {
