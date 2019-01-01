@@ -7,6 +7,8 @@
 from typing import NamedTuple
 import re
 
+__all__ = ['Index', 'Range']
+
 INDEX_RE = re.compile(
     r"""
 ^
