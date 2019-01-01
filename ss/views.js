@@ -14,7 +14,7 @@ const KEY_DELTAS = {
 const attrs = {
     INVERSE: 'inverse',
     BOLD: 'bold',
-    UNDERLINE: 'UNDERLINE',
+    UNDERLINE: 'underline',
     NORMAL: null
 }
 
