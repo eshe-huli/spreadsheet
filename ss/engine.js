@@ -1,3 +1,4 @@
+/** Spreadsheet engine. */
 class Spreadsheet {
     /** Get the evaluated and formatted value at the given cell index.
      *

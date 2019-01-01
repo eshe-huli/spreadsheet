@@ -4,17 +4,18 @@
   "description": "Text mode spreadsheet interview project",
   "main": "ss/main.js",
   "dependencies": {
-    "blessed": "^0.1.81"
+    "blessed": "^0.1.81",
   },
   "devDependencies": {
     "jsdoc": "^3.5.5",
+    "jsdoc-sphinx": "0.0.6",
     "jsdoctest": "^1.7.1",
     "mocha": "^5.2.0"
   },
   "scripts": {
     "test": "mocha --require jsdoctest && npm run jsdoctest",
     "jsdoctest": "mocha --require jsdoctest `find ss -name \"*.js\"`",
-    "jsdoc": "jsdoc ss/engine.js ss/models.js"
+    "jsdoc": "jsdoc -t node_modules/jsdoc-sphinx/template ss/engine.js -d rst ss/*.js"
   },
   "author": "",
   "license": "ISC"

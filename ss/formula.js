@@ -1,3 +1,4 @@
+/** Parse a formula. */
 function parse(code) {
     return new Parser(tokenize(code)).parse();
 }
