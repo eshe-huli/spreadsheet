@@ -1,10 +1,16 @@
-Wave spreadsheet programming interview
-======================================
-
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Contents:
 
+   spec.md
+
+.. contents::
+
+.. include:: spec.rst
+
+Appendix: interfaces
+====================
 
 The engine interface
 --------------------

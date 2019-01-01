@@ -40,17 +40,14 @@ release = ''
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'recommonmark',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-
-# The suffix(es) of source filenames.
-# You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+source_parsers = {
+   '.md': 'recommonmark.parser.CommonMarkParser',
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -176,3 +173,10 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
+
+def setup(app):
+    from recommonmark.transform import AutoStructify
+    app.add_config_value('recommonmark_config', {
+            'auto_toc_tree_section': 'Contents',
+            }, True)
+    app.add_transform(AutoStructify)

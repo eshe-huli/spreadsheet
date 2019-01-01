@@ -1,14 +1,15 @@
-# Spreadsheet interview spec
+How the interview works
+=======================
 
-## How the interview works
-
-**Prep:**
+Prep
+----
 
 1. Read through the spec below.
 2. Set up a fresh Python 3.7 virtualenv and install `pytest` in it.
 3. Think through your major design choices and any questions you want to ask your interviewer before you start coding.
 
-**During the interview:**
+During the interview:
+---------------------
 
 1. We'll start with a quick call where you can ask your interviewer any UX questions, talk through your plan, and make sure you can run `ss` usefully.
 2. For the first 2.5 hours you'll work largely on your own to implement the spreadsheet engine. Your interviewer will check in with you after 1h30m to see how things are going.
@@ -16,12 +17,14 @@
 4. From 3h30m to 4h, you'll wrap up by sketching out the design of whatever work you didn't finish implementing.
 5. At 4h your interviewer will read the design doc and ask any final clarifying questions.
 
-# Spec
+Spec
+====
 
 We're building a text-UI spreadsheet app named `ss`. Here's what it looks like so far:
 [Image: image.png]We've built the user interface (you'll get access right before the project starts)—your task is to supply the spreadsheet engine based on the spec below.
 
-## The spreadsheet data model
+The spreadsheet data model
+--------------------------
 
 A spreadsheet is (displayed as) a 2-dimensional grid of cells. The rows of the grid are lettered `A, B, ... Z, AA, BB, ..., AAA, ...`. The columns of the grid are numbered `1, 2, ...`. There is no limit to the number of rows or columns of the spreadsheet.
 
@@ -41,7 +44,8 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 * A **date format** using the syntax of `strftime` (e.g. `%Y-%m-%d`)
 * The **default format** which displays numbers and dates however you want.
 
-## Formulae
+Formulae
+--------
 
 A **formula** is a cell value starting with `=`, followed by an expression which can either be:
 
@@ -57,7 +61,8 @@ When printed, a cell with a formula should display the result of evaluating the 
 
 
 
-## Your tasks
+Your tasks
+----------
 
 Here's the order you should do things in:
 
@@ -71,7 +76,8 @@ Here's the order you should do things in:
     2. Make `importcsv` download a file from the Internet, if given a URL.
     3. Evaluate formulae *asynchronously* (i.e., on a different thread from the thread on which `get_formatted` is called, so that the UI stays responsive even if you've opened a large spreadsheet with lots of computation).
 
-## How you will be evaluated
+How you will be evaluated
+-------------------------
 
 Here are our criteria for evaluating the project.
 
