@@ -98,6 +98,15 @@ class SpreadsheetView {
         this.topLeft = this.cursor = new Index(0, 0);
         this.message = 'Welcome to the spreadsheet!'
         this.program.on('keypress', (ch, key) => this.handleInput(ch, key));
+        this.handleKey = this.handleKeyDefault;
+        this.DEFAULT_SHORTCUTS = {
+            'return': { name: 'edit', handle: this.editCurrent },
+            'C-w': { name: 'copy', handle: this.copy },
+            'C-y': { name: 'paste', handle: this.paste },
+            'C-c': { name: 'quit', handle: this.quit },
+            'C-f': { name: 'format', handle: this.selectFormat },
+            'C-s': { name: 'sort', handle: this.sort },
+        }
         this.redraw();
     }
     measure() {
@@ -169,18 +178,30 @@ class SpreadsheetView {
     }
     handleInput(ch, key) {
         this.message = '';
+        this.handleKey(ch, key);
+        this.redraw();
+    }
+    handleKeyDefault(ch, key) {
         if (['escape', 'C-c'].includes(key.full)) {
             return process.exit(0);
         }
-        if (['left', 'right', 'up', 'down'].includes(key.full)) {
+        else if (['left', 'right', 'up', 'down'].includes(key.full)) {
             this.moveCursorBy(KEY_DELTAS[key.full]);
         }
-        if (key.full.length == 1) {
-            this.input.readInput(() => {
-                this.footer.setText(this.input.getValue());
-            });
+        else if (isCharacter(key)) {
+            this.beginEditing('');
+            this.handleKeyEdit(key);
         }
-        this.redraw();
+        else if (key.full in this.DEFAULT_SHORTCUTS) {
+            this.DEFAULT_SHORTCUTS[key.full].handle.apply(this);
+        }
+        else {
+            this.message = `Unknown key ${key.full}`;
+        }
+    }
+    editCurrent() {
+        let value = this.engine.getRaw(this.cursor);
+        this.beginEditing(value);
     }
     /** Refill self.grid with the currently-visible cells.
      */
@@ -312,6 +333,9 @@ class SpreadsheetView {
         let label = alignCenter(this.message, this.layout.message.width);
         this.write(this.layout.message.topLeft, label);
     }
+    /*drawShortcuts() {
+
+    }*/
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
         return this.layout.rowLabels.width;
@@ -361,6 +385,10 @@ function alignCenter(str, width) {
     , pLeft = Math.floor(padding / 2)
     , pRight = padding - pLeft;
     return ' '.repeat(pLeft) + str + ' '.repeat(pRight);
+}
+
+function isCharacter(key) {
+    return key.full.length == 1;
 }
 
 module.exports = {
