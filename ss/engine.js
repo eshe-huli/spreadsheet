@@ -7,7 +7,7 @@ class Spreadsheet {
      * according to the format set with `set_format`.
      */
     getFormatted(index) {
-        return index.label;
+        return index;
     }
     /** Get the raw text that the user entered into the given cell.
      *
@@ -15,7 +15,7 @@ class Spreadsheet {
      * @returns {String} the `raw` most recently set with set(ref, raw).
      */
     getRaw(index) {
-        return `="${index.label}"`;
+        return `="${index}"`;
     }
     /** Set the value at the given cell.
      *
@@ -23,7 +23,7 @@ class Spreadsheet {
      * @param {String} raw the value of the cell
      */
     set(index, raw) {
-        throw Error(`set ${index.label} = ${raw}`);
+        throw Error(`set ${index} = ${raw}`);
     }
     /** Set the format string for a given index.
      *
@@ -38,7 +38,7 @@ class Spreadsheet {
      *          `datetime.strftime`
      */
     setFormat(index, type, spec) {
-        throw Error(`setFormat ${index.label} ${type} ${spec}`);
+        throw Error(`setFormat ${index} ${type} ${spec}`);
     }
     /**
      *
@@ -46,7 +46,7 @@ class Spreadsheet {
      * @param {Range} dest the cell into which the upper-left of `src` should go
      */
     copy(src, dest) {
-        throw Error(`copy ${src.label} ${dest.label}`)
+        throw Error(`copy ${src} ${dest}`)
     }
     /**
      *
@@ -57,7 +57,7 @@ class Spreadsheet {
      * descending (3, 2, 1) order.
      */
     sort(range, column, ascending) {
-        throw Error(`sort ${range.label} ${column} ${ascending}`)
+        throw Error(`sort ${range} ${column} ${ascending}`)
     }
 }
 
