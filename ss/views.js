@@ -7,6 +7,10 @@ const KEY_DELTAS = {
     up: {row: -1, col: 0},
     down: {row: 1, col: 0}
 }
+const attrs = {
+    INVERSE: 'inverse',
+    NORMAL: null
+}
 
 class Position {
     constructor(y, x) {
@@ -32,7 +36,10 @@ class Position {
     /** Apply a binary operator to both `y` and `x`, producing a new Position.
      */
     binop(f, other) {
-        return new Index(f(this.y, other.y), f(this.x, other.x));
+        return new Position(f(this.y, other.y), f(this.x, other.x));
+    }
+    toString() {
+        return `(${this.y}, ${this.x})`
     }
 }
 
@@ -156,14 +163,15 @@ class SpreadsheetView {
         this.measure();
         this.draw();
     }
-    putStr(pos, str, attr) {
+    write(pos, str, attr) {
         if (pos != null) {
             this.program.setx(pos.x);
             this.program.sety(pos.y);
         }
-        this.program.write(this.program.text(str, attr));
+        this.program._write(this.program.text(str, attr));
     }
     draw() {
+        this.program.clear();
         let grid = this.layout.grid;
         let nRows = this.numRowsDisplayed;
         var x = 0, topLeft = this.topLeft;
@@ -175,8 +183,8 @@ class SpreadsheetView {
             x += this.getColumnWidth(topLeft.col);
             topLeft = topLeft.add({col: 1, row: 0});
         }
-        drawRowLabels();
-
+        this.drawRowLabels();
+        this.program.flush();
         /*
         self.draw_row_labels()
         self.draw_message()
@@ -232,18 +240,57 @@ class SpreadsheetView {
         */
     }
     drawRowLabels() {
-
+        let rect = this.layout.rowLabels;
+        this.write(rect.topLeft, ' '.repeat(rect.width), attrs.INVERSE);
+        for (var i = 0; i < this.numRowsDisplayed; i++) {
+            let label = alignRight(
+                this.topLeft.add({row: i, col: 0}).rowLabel, rect.width)
+            this.write(rect.topLeft.add({x: 0, y: i+1}), label, attrs.INVERSE);
+        }
     }
-    drawColumn() {
-
+    drawColumn(range, pos) {
+        // header
+        let col = range.first.col;
+        let width = Math.min(
+            this.getColumnWidth(col),
+            this.layout.grid.bottomRight.x - pos.x
+        );
+        if (width < 3) {
+            // just finish the column header
+            this.write(pos, ' '.repeat(width), attrs.INVERSE);
+            return;
+        }
+        let label = ' ' + alignCenter(range.first.columnLabel, width - 1);
+        this.write(pos, label, attrs.INVERSE);
+        // draw the values
+        [...range.indices].map((index, dy) => {
+            let value = this.engine.getFormatted(index);
+            let text = ' ' + alignRight(value, width - 1);
+            var attr = attrs.NORMAL;
+            // TODO(ben) selection attrs
+            if (this.cursor.equals(index)) {
+                attr = attrs.INVERSE;
+            }
+            this.write(pos.add({y: dy+1, x: 0}), text, attr);
+        })
+        /*
+        if self.selecting_from is None:
+            if self.cursor == index:
+                attr = curses.A_REVERSE
+        else:
+            if self.selection.contains(index):
+                attr = curses.A_REVERSE
+            if index == self.cursor:
+                attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
+        */
     }
     // Return the width of the row-label section (including padding).
     get rowLabelWidth() {
         return this.layout.rowLabels.width;
     }
     get numColumnsDisplayed() {
-        var w = this.grid.width
-        , x = this.rowLabelWidth
+        var w = this.layout.grid.width
+        , x = 0
         , curColumn = this.topLeft.col;
         while (x < w) {
             x += this.getColumnWidth(curColumn);
@@ -252,7 +299,7 @@ class SpreadsheetView {
         return curColumn - this.topLeft.col - 1;
     }
     get numRowsDisplayed() {
-        return this.grid.height - 1;
+        return this.layout.rowLabels.height - 1;
     }
     getColumnWidth(column) {
         return 9;

@@ -151,7 +151,7 @@ class Range {
                     yield ix;
                 }
             }
-        })()
+        }).apply(this);
     }
     /**
      * Parse a Range from a string like A1:B3.
