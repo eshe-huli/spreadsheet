@@ -166,44 +166,6 @@ class SpreadsheetView {
         this.layout = {
             grid, rowLabels, message, editBox, shortcuts
         };
-        /*
-        height, width = self.stdscr.getmaxyx()
-        # Lay out the top section
-        topy = 0
-        shortcuts = Rectangle.fromhw(topy, 0, 2, width)
-        topy += shortcuts.height
-        edit_box = Rectangle.fromhw(topy, 0, 1, width)
-        topy += edit_box.height
-        # Lay out the bottom section
-        bottomy = height - 1
-        FRAMERATE_WIDTH = 5
-        framerate = Rectangle.fromhw(
-            bottomy, width - FRAMERATE_WIDTH - 1, 1, FRAMERATE_WIDTH
-        )
-        message = Rectangle.fromhw(bottomy, 1, 1, width - framerate.width - 2)
-        bottomy -= message.height - 1
-
-        # spreadsheet grid. first figure out the width of the row labels
-        nrows = bottomy - topy - 2
-        # 1 for column header, 1 bc last row isn't drawn
-        max_cell = self.top_left + (nrows, 0)
-        row_label_width = len(max_cell.row_label) + 1 # 1 for padding
-        row_labels = Rectangle.fromhw(
-            topy, 0, nrows, row_label_width
-        )
-        grid = Rectangle(
-            ScreenIndex(topy, row_labels.bottom_right.x),
-            ScreenIndex(bottomy, width)
-        )
-        self.layout = Layout(
-            grid=grid,
-            message=message,
-            framerate=framerate,
-            row_labels=row_labels,
-            edit_box=edit_box,
-            shortcuts=shortcuts
-        )
-        */
     }
     handleInput(ch, key) {
         this.message = '';
@@ -345,50 +307,6 @@ class SpreadsheetView {
         self.draw_shortcuts()
         let rowLabelWidth = this.rowLabelWidth;
         var content = '{inverse}' + ' '.repeat(rowLabelWidth);
-        // displayed range
-        let range = new Range(
-            this.topLeft,
-            this.topLeft.add({
-                row: this.grid.height - 1,
-                col: this.numColumnsDisplayed
-            })
-        )
-        let drawRow = (row, callback) => {
-            // Draw a row. Assumes the current line of `content` starts with
-            // `rowLabelWidth` characters. `callback` is called with (index,
-            // width) and must return a string of length `width`
-            var x = rowLabelWidth;
-            for (let index of row) {
-                let width = Math.min(
-                    this.getColumnWidth(index.column),
-                    this.grid.width - x - 1
-                );
-                if (width > 2) {
-                    content += callback(index, width);
-                }
-                x += width;
-            }
-        }
-        // column labels
-        drawRow(range.row(0), (ix, width) => {
-            return alignCenter(ix.columnLabel, width);
-        });
-        content += '{/inverse}';
-        // rows
-        for (var offset = 0; offset < this.grid.height - 1; offset++) {
-            content += '\n';
-            // row label
-            let row = [...range.row(offset)];
-            let label = alignRight(row[0].rowLabel, this.rowLabelWidth);
-            content += `{inverse}${label}{/inverse}`;
-            drawRow(row, (ix, width) => {
-                var text = alignRight(this.engine.getFormatted(ix), width);
-                if (ix.equals(this.cursor)) {
-                    text = `{inverse}${text}{/inverse}`
-                }
-                return text;
-            });
-        }
         */
     }
     drawRowLabels() {
