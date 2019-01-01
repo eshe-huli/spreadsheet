@@ -485,7 +485,7 @@ class SpreadsheetView {
             x += this.getColumnWidth(curColumn);
             curColumn += 1;
         }
-        return curColumn - this.topLeft.col - 1;
+        return curColumn - this.topLeft.col - 1; // last only partly displayed
     }
     get numRowsDisplayed() {
         return this.layout.rowLabels.height - 1;
@@ -501,7 +501,7 @@ class SpreadsheetView {
         // or less than the cursor minus the displayed region.
         this.topLeft = this.topLeft.max(this.cursor.sub({
             row: this.numRowsDisplayed - 1,
-            col: this.numColumnsDisplayed - 2 // minus 2 bc last col is partial
+            col: this.numColumnsDisplayed - 1
         }));
         this.redraw();
     }
