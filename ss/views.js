@@ -232,10 +232,10 @@ class SpreadsheetView {
             value: index.col
         }});
         this.enterMenu({
-            title: `Sort ${selection}`,
+            title: `Sort ${selection.label}`,
             choices,
             onSelected: (col) => { return {
-                title: `Sort ${selection} direction`,
+                title: `Sort ${selection.label} direction`,
                 choices: [
                     {key: 'a', name: 'Ascending', value: [col, true]},
                     {key: 'd', name: 'Descending', value: [col, false]}
@@ -248,7 +248,7 @@ class SpreadsheetView {
     }
     selectFormat() {
         this.enterMenu({
-            title: `Format ${this.selection}`,
+            title: `Format ${this.selection.label}`,
             choices: [
                 {key: 'C-o', name: 'default', value: ['default', null]},
                 {key: 'C-i', name: '1', value: ['number', '%d']},

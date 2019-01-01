@@ -63,7 +63,7 @@ class Index {
         return (this.row + 1).toString();
     }
 
-    toString() {
+    get label() {
         return this.columnLabel + this.rowLabel;
     }
 
@@ -116,8 +116,8 @@ class Range {
             && this.first.col <= pos.col && pos.col <= this.last.col
         );
     }
-    toString() {
-        return `${this.first}:${this.last}`;
+    get label() {
+        return this.first.label + ":" + this.last.label;
     }
     get height() {
         return this.last.row - this.first.row + 1;
