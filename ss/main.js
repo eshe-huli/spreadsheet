@@ -1,19 +1,22 @@
-var blessed = require('blessed');
-var views = require('./views.js');
-var {Spreadsheet} = require('./engine.js')
+if (require.main === module) {
 
-// Create a screen object.
-var program = blessed.program({buffer: true, tput: true, zero: true});
+  var blessed = require('blessed');
+  var views = require('./views.js');
+  var {Spreadsheet} = require('./engine.js')
 
-var engine = new Spreadsheet();
+  // Create a screen object.
+  var program = blessed.program({buffer: true, tput: true, zero: true});
 
-program.alternateBuffer();
-program.hideCursor();
-program.csr(0, program.height - 1);
-program.cup(0, 0);
-program.clear();
-process.on('exit', () => {
-  program.showCursor();
-  program.normalBuffer();
-})
-new views.SpreadsheetView(engine, program);
+  var engine = new Spreadsheet();
+
+  program.alternateBuffer();
+  program.hideCursor();
+  program.csr(0, program.height - 1);
+  program.cup(0, 0);
+  program.clear();
+  process.on('exit', () => {
+    program.showCursor();
+    program.normalBuffer();
+  })
+  new views.SpreadsheetView(engine, program);
+}
