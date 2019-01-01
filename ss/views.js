@@ -1,10 +1,8 @@
 /** TODO
- * - Menu system
  * - Formatting
  * - Framerate counter
  */
 
-var blessed = require('blessed');
 var {Index, Range} = require('./models.js')
 
 const KEY_DELTAS = {
@@ -135,7 +133,7 @@ class SpreadsheetView {
             'C-y': { name: 'paste', handle: this.paste },
             'C-c': { name: 'quit', handle: this.quit },
             'C-f': { name: 'format', handle: this.selectFormat },
-            'C-s': { name: 'sort', handle: this.sort },
+            'C-s': { name: 'sort', handle: this.enterSortMenu },
         }
         this.redraw();
     }
@@ -218,6 +216,37 @@ class SpreadsheetView {
         this.engine.copy(this.selection, this.cursor);
         this.finishSelecting();
     }
+    enterSortMenu() {
+        if (this.selectingFrom == null) {
+            this.message = 'Select a range first with C-[space]';
+            return;
+        }
+        let selection = this.selection;
+        let indices = [...selection.row(0)];
+        if (indices.length > 10) {
+            this.message = 'Cannot sort more than 10 columns';
+            return;
+        }
+        let choices = indices.map((index, i) => { return {
+            key: i.toString(),
+            name: index.columnLabel,
+            value: index.col
+        }});
+        this.enterMenu({
+            title: `Sort ${selection.label}`,
+            choices,
+            onSelected: (col) => { return {
+                title: `Sort ${selection.label} direction`,
+                choices: [
+                    {key: 'a', name: 'Ascending', value: [col, true]},
+                    {key: 'd', name: 'Descending', value: [col, false]}
+                ],
+                onSelected: ([col, asc]) => {
+                    this.engine.sort(selection, col, asc);
+                }
+            }}
+        })
+    }
     //// Selection
     beginSelecting() {
         this.selectingFrom = this.cursor;
@@ -278,6 +307,31 @@ class SpreadsheetView {
             this.message = `Unknown key ${key.full}`;
         }
     }
+    //// Menus
+    enterMenu(menu) {
+        this.menu = menu;
+        this.handleKey = this.handleKeyMenu;
+    }
+    exitMenu() {
+        this.menu = null;
+        this.handleKey = this.handleKeyDefault;
+    }
+    handleKeyMenu(ch, key) {
+        let chosen = this.menu.choices.find(choice => choice.key == key.full);
+        if (chosen != null) {
+            let newMenu = this.menu.onSelected(chosen.value);
+            if (newMenu == null) {
+                this.exitMenu();
+            } else {
+                this.enterMenu(newMenu);
+            }
+        } else if (ESCAPE_KEYS.includes(key.full)) {
+            this.exitMenu();
+        } else {
+            this.message = `Unknown key ${key.full}`;
+        }
+    }
+    //// Drawing
     /** Refill self.grid with the currently-visible cells.
      */
     redraw() {
@@ -311,9 +365,6 @@ class SpreadsheetView {
         this.program.flush();
         /*
         self.draw_framerate()
-        self.draw_shortcuts()
-        let rowLabelWidth = this.rowLabelWidth;
-        var content = '{inverse}' + ' '.repeat(rowLabelWidth);
         */
     }
     drawRowLabels() {
@@ -345,7 +396,6 @@ class SpreadsheetView {
             let text = ' ' + alignRight(value, width - 1);
             var attr = attrs.NORMAL;
             if (this.selectingFrom == null) {
-                // TODO(ben) selection attrs
                 if (this.cursor.equals(index)) {
                     attr = attrs.INVERSE;
                 }
@@ -363,16 +413,6 @@ class SpreadsheetView {
             }
             this.write(pos.add({y: dy+1, x: 0}), text, attr);
         })
-        /*
-        if self.selecting_from is None:
-            if self.cursor == index:
-                attr = curses.A_REVERSE
-        else:
-            if self.selection.contains(index):
-                attr = curses.A_REVERSE
-            if index == self.cursor:
-                attr = curses.A_REVERSE | curses.A_BOLD | curses.A_UNDERLINE
-        */
     }
     drawMessage() {
         let label = alignCenter(this.message, this.layout.message.width);
@@ -422,29 +462,6 @@ class SpreadsheetView {
             this.write(pos, text);
             pos = pos.add({x: text.length + 1, y: 0});
         });
-        /*
-                if self.edit_box is not None:
-            shortcut('<enter>', 'set')
-            shortcut('^G', 'cancel')
-            return
-        if self.menu is not None:
-            self.stdscr.addstr(self.menu.title + '> ')
-            for (key, desc, _) in self.menu.choices:
-                shortcut(key, desc)
-            shortcut('^G', 'cancel')
-            return
-        shortcut('<enter>', 'edit')
-        shortcut('<bksp>', 'clear')
-        shortcut('^[space]', 'select')
-        shortcut(KEYNAME_FORMATTING, 'format')
-        shortcut(KEYNAME_BEGIN_COPY, 'copy')
-        shortcut(KEYNAME_PASTE, 'paste')
-        shortcut(KEYNAME_SORT, 'sort')
-        shortcut(KEYNAME_QUIT, 'exit')
-        if self.selecting_from:
-            shortcut('^G', 'cancel')
-
-        */
     }
     drawEditor() {
         if (this.editBox == null) {
