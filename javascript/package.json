@@ -10,8 +10,8 @@
   "devDependencies": {
     "jsdoc": "^3.5.5",
     "jsdoc-sphinx": "0.0.6",
-    "jsdoctest": "^1.7.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "jsdoctest": "github:benkuhn/jsdoctest#patch-1"
   },
   "scripts": {
     "ss": "ss/main.js",
