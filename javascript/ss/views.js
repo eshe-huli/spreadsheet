@@ -143,6 +143,7 @@ class SpreadsheetView {
       "C-f": { name: "format", handle: this.selectFormat },
       "C-s": { name: "sort", handle: this.enterSortMenu }
     };
+    this.frameStartTime = new Date().getTime();
     this.redraw();
   }
   measure() {
@@ -165,10 +166,11 @@ class SpreadsheetView {
       x: width
     });
     // Footer
-    const message = new Rectangle(
-      screen.bottomLeft.sub({ y: 1, x: 0 }),
+    const framerate = new Rectangle(
+      screen.bottomRight.sub({ y: 1, x: 5 }),
       screen.bottomRight
     );
+    const message = new Rectangle(screen.bottomLeft, framerate.topRight);
     // Grid
     const gridAndLabels = new Rectangle(editBox.bottomRight, message.topLeft);
     const maxRow = this.topLeft.add({ y: gridAndLabels.height - 1, x: 0 });
@@ -182,12 +184,14 @@ class SpreadsheetView {
       grid,
       rowLabels,
       message,
+      framerate,
       editBox,
       shortcuts
     };
   }
   handleInput(ch, key) {
     this.message = "";
+    this.frameStartTime = new Date().getTime();
     this.handleKey(ch, key);
     this.redraw();
   }
@@ -397,11 +401,9 @@ class SpreadsheetView {
     this.drawRowLabels();
     this.drawMessage();
     this.drawShortcuts();
+    this.drawFramerate();
     this.drawEditor();
     this.program.flush();
-    /*
-        self.draw_framerate()
-        */
   }
   drawRowLabels() {
     let rect = this.layout.rowLabels;
@@ -500,6 +502,11 @@ class SpreadsheetView {
       pos = pos.add({ x: text.length + 1, y: 0 });
     });
   }
+  drawFramerate() {
+    const time = (new Date().getTime() - this.frameStartTime) / 1000;
+    const text = time.toFixed(2);
+    this.write(this.layout.framerate.topLeft, text);
+  }
   drawEditor() {
     if (this.editBox == null) {
       this.program.hideCursor();
@@ -541,7 +548,6 @@ class SpreadsheetView {
         col: this.numColumnsDisplayed - 1
       })
     );
-    this.redraw();
   }
 }
 
