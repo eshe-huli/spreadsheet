@@ -1,17 +1,24 @@
 .. default-role:: code
 
-How the interview works
-=======================
+We're building a text-UI spreadsheet app named `ss`. Here's what it looks like so far:
+
+.. image:: screenshot.png
+   :width: 674
+   :height: 447
+
+We've built the user interface (you'll get access right before the project starts)—your task is to supply the spreadsheet engine based on the spec below.
+
+.. contents::
 
 Prep
 ----
 
 1. Read through the spec below.
-2. Set up a fresh Python 3.7 virtualenv and install `pytest` in it.
+2. Set up a fresh environment of Python 3.7 (if using Python) or Node 10.x (if using Javascript).
 3. Think through your major design choices and any questions you want to ask your interviewer before you start coding.
 
-During the interview:
----------------------
+Interview structure
+-------------------
 
 1. We'll start with a quick call where you can ask your interviewer any UX questions, talk through your plan, and make sure you can run `ss` usefully.
 2. For the first 2.5 hours you'll work largely on your own to implement the spreadsheet engine. Your interviewer will check in with you after 1h30m to see how things are going.
@@ -19,11 +26,24 @@ During the interview:
 4. From 3h30m to 4h, you'll wrap up by sketching out the design of whatever work you didn't finish implementing.
 5. At 4h your interviewer will read the design doc and ask any final clarifying questions.
 
+How you will be evaluated
+-------------------------
+
+Here are our criteria for evaluating the project.
+
+They're stack ranked, so please prioritize them accordingly—in particular, it's better to get through less of the project, but with a better design and better edge-case coverage.
+
+1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
+2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
+3. **Completeness**, to the extent possible (you're not necessarily expected to finish every step, especially if you're a less experienced candidate).
+4. **Don't worry at all about:**
+    1. security
+    2. small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round :)
+    3. performance, unless it takes you over 1 second to execute a simple command
+    4. actually writing unit tests (do worry about making it testable though!)
+
 Spec
 ====
-
-We're building a text-UI spreadsheet app named `ss`. Here's what it looks like so far:
-[Image: image.png]We've built the user interface (you'll get access right before the project starts)—your task is to supply the spreadsheet engine based on the spec below.
 
 The spreadsheet data model
 --------------------------
@@ -62,7 +82,6 @@ When printed, a cell with a formula should display the result of evaluating the 
 **We will give you a pre-written `parse` function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See below for details.
 
 
-
 Your tasks
 ----------
 
@@ -77,20 +96,4 @@ Here's the order you should do things in:
     1. Get `set_format` working and make `get_formatted` apply the format string.
     2. Make `importcsv` download a file from the Internet, if given a URL.
     3. Evaluate formulae *asynchronously* (i.e., on a different thread from the thread on which `get_formatted` is called, so that the UI stays responsive even if you've opened a large spreadsheet with lots of computation).
-
-How you will be evaluated
--------------------------
-
-Here are our criteria for evaluating the project.
-
-They're stack ranked, so please prioritize them accordingly—in particular, it's better to get through less of the project, but with a better design and better edge-case coverage.
-
-1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
-2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
-3. **Completeness**, to the extent possible (you're not necessarily expected to finish every step, especially if you're a less experienced candidate).
-4. **Don't worry at all about:**
-    1. security
-    2. small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round :)
-    3. performance, unless it takes you over 1 second to execute a simple command
-    4. actually writing unit tests (do worry about making it testable though!)
 

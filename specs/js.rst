@@ -3,8 +3,6 @@ Spreadsheet interview - Javascript
 
 .. default-domain:: js
 
-.. contents::
-
 .. include:: spec.rst
 
 .. default-role:: any

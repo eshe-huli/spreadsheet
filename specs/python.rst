@@ -1,8 +1,6 @@
 Spreadsheet interview - Python
 ==============================
 
-.. contents::
-
 .. include:: spec.rst
 
 .. default-role:: any
