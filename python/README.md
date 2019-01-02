@@ -9,8 +9,16 @@ Note that you must have implemented the `set` function in order for this to
 work. Check out the CSVs in the `examples/` directory for some possibly useful
 test files.
 
-To run tests, install `pytest`, then run `pytest`.
-
 ## Extension
 
 The spreadsheet class you should extend lives in `ss/engine.py`.
+
+## For interviewers (not candidates)
+
+Dev setup:
+
+```
+python -m venv .venv
+pip install -r requirements-dev.txt
+pytest
+```
