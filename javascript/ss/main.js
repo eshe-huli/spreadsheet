@@ -6,10 +6,8 @@ if (require.main === module) {
   const models = require('./models.js');
   const {Spreadsheet} = require('./engine.js');
 
-  // Create a screen object.
-  var program = blessed.program({buffer: true, tput: true, zero: true});
-
-  var engine = new Spreadsheet();
+  const program = blessed.program({buffer: true, tput: true, zero: true});
+  const engine = new Spreadsheet();
 
   if (process.argv.length > 2) {
     const parse = require('csv-parse/lib/sync');

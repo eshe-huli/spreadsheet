@@ -114,8 +114,8 @@ class Index {
      * new Index(57, 53).columnLabel // => 'BBB'
      */
     get columnLabel() {
-        var nreps = Math.floor(this.col / 26) + 1;
-        var char = String.fromCharCode(
+        const nreps = Math.floor(this.col / 26) + 1;
+        const char = String.fromCharCode(
             A_CHAR_CODE + (this.col % 26));
         return char.repeat(nreps);
     }
@@ -160,14 +160,14 @@ class Index {
      */
     static parse(label) {
         INDEX_RE.lastIndex = 0;
-        var match = INDEX_RE.exec(label);
+        const match = INDEX_RE.exec(label);
         if (match == null) {
             throw new ValueError(label + " is not a valid index");
         }
-        var row = Number.parseInt(match.groups.row) - 1;
-        var charCode = match.groups.char.toUpperCase().charCodeAt(0);
-        var numChars = match.groups.col.length;
-        var col = (charCode - A_CHAR_CODE) + 26 * (numChars - 1);
+        const row = Number.parseInt(match.groups.row) - 1;
+        const charCode = match.groups.char.toUpperCase().charCodeAt(0);
+        const numChars = match.groups.col.length;
+        const col = (charCode - A_CHAR_CODE) + 26 * (numChars - 1);
         return new Index(row, col);
     }
 
@@ -269,11 +269,12 @@ class Range {
      */
     *row(i) {
         if (i >= this.height) { throw new ValueError("Require i < " + this.height); }
-        var start = this.first.add(new Index(i, 0));
-        for (var j = 0; j < this.width; j++) {
+        const start = this.first.add(new Index(i, 0));
+        for (let j = 0; j < this.width; j++) {
             yield start.add(new Index(0, j));
         }
     }
+
     /**
      * Iterator over all indices in a range.
      *
@@ -285,9 +286,9 @@ class Range {
      */
     get indices() {
         return (function* () {
-            for (var i = 0; i < this.height; i++) {
-                var row = this.row(i);
-                for (let ix of row) {
+            for (let i = 0; i < this.height; i++) {
+                const row = this.row(i);
+                for (const ix of row) {
                     yield ix;
                 }
             }
@@ -302,11 +303,11 @@ class Range {
      * Range.parse('A1:B3').label // => 'A1:B3'
      */
     static parse(text) {
-        let split = text.split(':');
+        const split = text.split(':');
         if (split.length != 2) {
             throw Error(text + " is not a valid range");
         }
-        var [first, last] = split;
+        const [first, last] = split;
         return new Range(Index.parse(first), Index.parse(last));
     }
 }

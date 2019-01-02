@@ -70,15 +70,15 @@ const TOKEN_TYPES = {
  * @param {String} code the code to tokenize
  */
 function* tokenize(code) {
-    var m;
-    var expectedNextToken = 0;
+    let m;
+    let expectedNextToken = 0;
     LEXER.lastIndex = 0; // UGH this is terrible.
     while ((m = LEXER.exec(code)) != null) {
         if (m.index != expectedNextToken) {
             throw Error("Unexpected token " + code.charAt(expectedNextToken));
         }
         // Return a token for the non-empty matching group
-        var type, text;
+        let type, text;
         for (let groupname in m.groups) {
             if (m.groups[groupname] != null) {
                 type = groupname;
@@ -108,7 +108,7 @@ class Parser {
     }
     // Move `self.cur` to the next token
     advance() {
-        var next = this.tokenIter.next();
+        const next = this.tokenIter.next();
         this.attemptedTypes = new Set();
         if (next.done) {
             this.cur = { type: 'eof', text: '' };
@@ -134,7 +134,7 @@ class Parser {
     throwUnexpectedToken() {
         let desc = ([...this.attemptedTypes.values()].map(
             (type) => TOKEN_TYPES[type])).join(', ');
-        var got;
+        let got;
         if (this.cur.type == 'eof') {
             got = TOKEN_TYPES.eof;
         } else {
@@ -151,7 +151,7 @@ class Parser {
         return this.sum();
     }
     sum() {
-        var tm = this.summand();
+        let tm = this.summand();
         while (true) {
             if (this.consume('plus')) {
                 tm = ['+', tm, this.summand()];
@@ -166,7 +166,7 @@ class Parser {
         return tm;
     }
     summand() {
-        var tm = this.factor();
+        let tm = this.factor();
         while (true) {
             if (this.consume('times')) {
                 tm = ['*', tm, this.factor()];
@@ -181,7 +181,7 @@ class Parser {
         return tm;
     }
     factor() {
-        var tm = this.consume('value');
+        let tm = this.consume('value');
         if (tm != null) {
             // could be a function call
             if (this.consume('lparen')) {
@@ -208,7 +208,7 @@ class Parser {
         this.throwUnexpectedToken();
     }
     arglist() {
-        var tm = [this.expr()];
+        let tm = [this.expr()];
         while (this.consume('comma')) {
             tm.push(this.consume(expr));
         }

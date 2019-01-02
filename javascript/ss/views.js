@@ -2,7 +2,7 @@
  * - Framerate counter
  */
 
-var {Index, Range} = require('./models.js')
+const {Index, Range} = require('./models.js')
 
 const KEY_DELTAS = {
     left: {row: 0, col: -1},
@@ -137,29 +137,29 @@ class SpreadsheetView {
         this.redraw();
     }
     measure() {
-        let height = this.program.rows, width = this.program.cols;
-        let screen = Rectangle.fromSides({
+        const height = this.program.rows, width = this.program.cols;
+        const screen = Rectangle.fromSides({
             top: 0, left: 0, bottom: height, right: width
         })
 
         // Header
-        let shortcuts = Rectangle.fromDimensions(
+        const shortcuts = Rectangle.fromDimensions(
             screen.topLeft, {y: 2, x: width});
-        let editBox = Rectangle.fromDimensions(
+        const editBox = Rectangle.fromDimensions(
             shortcuts.bottomLeft, {y: 1, x: width});
         // Footer
-        let message = new Rectangle(
+        const message = new Rectangle(
             screen.bottomLeft.sub({y: 1, x: 0}),
             screen.bottomRight,
         );
         // Grid
-        let gridAndLabels = new Rectangle(
+        const gridAndLabels = new Rectangle(
             editBox.bottomRight, message.topLeft);
-        let maxRow = this.topLeft.add({y: gridAndLabels.height - 1, x: 0});
-        let rowLabelWidth = maxRow.rowLabel.length + 1;
-        let rowLabels = Rectangle.fromDimensions(
+        const maxRow = this.topLeft.add({y: gridAndLabels.height - 1, x: 0});
+        const rowLabelWidth = maxRow.rowLabel.length + 1;
+        const rowLabels = Rectangle.fromDimensions(
             gridAndLabels.topLeft, {y: gridAndLabels.height, x: rowLabelWidth});
-        let grid = new Rectangle(
+        const grid = new Rectangle(
             rowLabels.topRight, gridAndLabels.bottomRight);
         this.layout = {
             grid, rowLabels, message, editBox, shortcuts
@@ -179,7 +179,7 @@ class SpreadsheetView {
         }
         else if (isCharacter(key)) {
             this.beginEditing('');
-            this.handleKeyEdit(key);
+            this.handleKeyEdit(ch, key);
         }
         else if (key.full == 'C-`') {
             this.beginSelecting();
@@ -195,11 +195,11 @@ class SpreadsheetView {
         }
     }
     editCurrent() {
-        let value = this.engine.getRaw(this.cursor);
+        const value = this.engine.getRaw(this.cursor);
         this.beginEditing(value);
     }
     clearCurrent() {
-        for (let index of this.selection.indices) {
+        for (const index of this.selection.indices) {
             this.engine.set(index, '');
         }
     }
@@ -220,13 +220,13 @@ class SpreadsheetView {
             this.message = 'Select a range first with C-[space]';
             return;
         }
-        let selection = this.selection;
-        let indices = [...selection.row(0)];
+        const selection = this.selection;
+        const indices = [...selection.row(0)];
         if (indices.length > 10) {
             this.message = 'Cannot sort more than 10 columns';
             return;
         }
-        let choices = indices.map((index, i) => { return {
+        const choices = indices.map((index, i) => { return {
             key: i.toString(),
             name: index.columnLabel,
             value: index.col
@@ -258,7 +258,7 @@ class SpreadsheetView {
                 {key: 'C-t', name: '2018-01-01 13:34:45', value: ['date', '%Y-%m-%d %H:%M:%S']},
             ],
             onSelected: ([type, spec]) => {
-                for (var index of this.selection.indices) {
+                for (const index of this.selection.indices) {
                     this.engine.setFormat(index, type, spec);
                 }
             }
@@ -291,15 +291,15 @@ class SpreadsheetView {
         this.handleKey = this.handleKeyDefault;
     }
     handleKeyEdit(ch, key) {
-        let FINISH_KEYS = {
+        const FINISH_KEYS = {
             return: {y: 1, x: 0},
             tab: {x: 1, y: 0}
         }
-        let MOVEMENT_KEYS = {
+        const MOVEMENT_KEYS = {
             left: -1, right: 1
         }
-        let ABORT_KEYS = ['up', 'down'];
-        let BACKSPACE_KEYS = ['backspace', 'C-h'];
+        const ABORT_KEYS = ['up', 'down'];
+        const BACKSPACE_KEYS = ['backspace', 'C-h'];
         if (key.full in FINISH_KEYS) {
             this.finishEditing(true);
             this.moveCursorBy(FINISH_KEYS[key.full]);
@@ -334,9 +334,9 @@ class SpreadsheetView {
         this.handleKey = this.handleKeyDefault;
     }
     handleKeyMenu(ch, key) {
-        let chosen = this.menu.choices.find(choice => choice.key == key.full);
+        const chosen = this.menu.choices.find(choice => choice.key == key.full);
         if (chosen != null) {
-            let newMenu = this.menu.onSelected(chosen.value);
+            const newMenu = this.menu.onSelected(chosen.value);
             if (newMenu == null) {
                 this.exitMenu();
             } else {
@@ -364,9 +364,10 @@ class SpreadsheetView {
     }
     draw() {
         this.program.clear();
-        let grid = this.layout.grid;
-        let nRows = this.numRowsDisplayed;
-        var x = 0, topLeft = this.topLeft;
+        const grid = this.layout.grid;
+        const nRows = this.numRowsDisplayed;
+        let topLeft = this.topLeft;
+        let x = 0;
         while (x < grid.width) {
             this.drawColumn(
                 new Range(topLeft, topLeft.add({row: nRows - 1, col: 0})),
@@ -387,7 +388,7 @@ class SpreadsheetView {
     drawRowLabels() {
         let rect = this.layout.rowLabels;
         this.write(rect.topLeft, ' '.repeat(rect.width), attrs.INVERSE);
-        for (var i = 0; i < this.numRowsDisplayed; i++) {
+        for (let i = 0; i < this.numRowsDisplayed; i++) {
             let label = alignRight(
                 this.topLeft.add({row: i, col: 0}).rowLabel, rect.width)
             this.write(rect.topLeft.add({x: 0, y: i+1}), label, attrs.INVERSE);
@@ -395,8 +396,8 @@ class SpreadsheetView {
     }
     drawColumn(range, pos) {
         // header
-        let col = range.first.col;
-        let width = Math.min(
+        const col = range.first.col;
+        const width = Math.min(
             this.getColumnWidth(col),
             this.layout.grid.bottomRight.x - pos.x
         );
@@ -405,19 +406,19 @@ class SpreadsheetView {
             this.write(pos, ' '.repeat(width), attrs.INVERSE);
             return;
         }
-        let label = ' ' + alignCenter(range.first.columnLabel, width - 1);
+        const label = ' ' + alignCenter(range.first.columnLabel, width - 1);
         this.write(pos, label, attrs.INVERSE);
         // draw the values
         [...range.indices].map((index, dy) => {
-            let value = this.engine.getFormatted(index);
-            let text = ' ' + alignRight(value, width - 1);
-            var attr = attrs.NORMAL;
+            const value = this.engine.getFormatted(index);
+            const text = ' ' + alignRight(value, width - 1);
+            let attr = attrs.NORMAL;
             if (this.selectingFrom == null) {
                 if (this.cursor.equals(index)) {
                     attr = attrs.INVERSE;
                 }
             } else {
-                let isSelected = this.selection.contains(index)
+                const isSelected = this.selection.contains(index)
                 , isCursor = this.cursor.equals(index);
                 if (isSelected || isCursor) {
                     if (isSelected && isCursor) {
@@ -432,11 +433,11 @@ class SpreadsheetView {
         })
     }
     drawMessage() {
-        let label = alignCenter(this.message, this.layout.message.width);
+        const label = alignCenter(this.message, this.layout.message.width);
         this.write(this.layout.message.topLeft, label);
     }
     drawShortcuts() {
-        var title, shortcuts;
+        let title, shortcuts;
         if (this.editBox != null) {
             title = '';
             shortcuts = [
@@ -452,7 +453,7 @@ class SpreadsheetView {
         } else {
             title = '';
             shortcuts = [];
-            for (var key in this.DEFAULT_SHORTCUTS) {
+            for (const key in this.DEFAULT_SHORTCUTS) {
                 let shortcut = this.DEFAULT_SHORTCUTS[key];
                 if (shortcut.name.length > 0) {
                     shortcuts.push([key, shortcut.name]);
@@ -464,9 +465,9 @@ class SpreadsheetView {
                 shortcuts.push(['C-<space>', 'select']);
             }
         }
-        let rect = this.layout.shortcuts;
-        let INDENT = 4;
-        var pos = rect.topLeft.add({x: INDENT, y: 0});
+        const rect = this.layout.shortcuts;
+        const INDENT = 4;
+        let pos = rect.topLeft.add({x: INDENT, y: 0});
         if (title.length > 0) {
             this.write(pos, title);
             pos = pos.add({y: 0, x: title.length + 1});
@@ -495,8 +496,8 @@ class SpreadsheetView {
         return this.layout.rowLabels.width;
     }
     get numColumnsDisplayed() {
-        var w = this.layout.grid.width
-        , x = 0
+        const w = this.layout.grid.width;
+        let x = 0
         , curColumn = this.topLeft.col;
         while (x < w) {
             x += this.getColumnWidth(curColumn);
@@ -535,7 +536,7 @@ function alignCenter(str, width) {
     if (str.length > width) {
         return str.slice(0, width - 2) + '..';
     }
-    var padding = width - str.length
+    const padding = width - str.length
     , pLeft = Math.floor(padding / 2)
     , pRight = padding - pLeft;
     return ' '.repeat(pLeft) + str + ' '.repeat(pRight);
