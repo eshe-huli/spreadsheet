@@ -43,14 +43,11 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-js_source_path = '../js/ss'
+js_source_path = '../javascript/ss'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-source_suffix = ['.rst', '.md']
-source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
-}
+source_suffix = ['.rst']
 
 # The master toctree document.
 master_doc = 'index'
@@ -101,10 +98,3 @@ html_static_path = ['_static']
 
 
 # -- Extension configuration -------------------------------------------------
-
-def setup(app):
-    from recommonmark.transform import AutoStructify
-    app.add_config_value('recommonmark_config', {
-            'auto_toc_tree_section': 'Contents',
-            }, True)
-    app.add_transform(AutoStructify)
