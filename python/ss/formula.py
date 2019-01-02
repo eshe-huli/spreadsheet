@@ -3,7 +3,8 @@ import re
 import enum
 from typing import NamedTuple
 
-__all__ = ['parse', 'ParseError']
+__all__ = ["parse", "ParseError"]
+
 
 def parse(formula):
     """Parse a spreadsheet formula.

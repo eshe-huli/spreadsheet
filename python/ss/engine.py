@@ -1,7 +1,9 @@
-__all__ = ['Spreadsheet']
+__all__ = ["Spreadsheet"]
+
 
 class Spreadsheet:
     """The spreadsheet engine. This is your job to implement!"""
+
     def get_formatted(self, index):
         """Get the evaluated and formatted value at the given cell ref.
 

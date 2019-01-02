@@ -450,24 +450,11 @@ class Viewer:
 
         If necessary, update `self.top_left` to ensure that the cell cursor is
         visible."""
-        new_cursor = self.cursor + delta
-        if new_cursor.col < 0:
-            new_cursor = new_cursor._replace(col=0)
-        if new_cursor.row < 0:
-            new_cursor = new_cursor._replace(row=0)
-        new_top_left = self.top_left
-        if new_top_left.col > new_cursor.col:
-            new_top_left = new_top_left._replace(col=new_cursor.col)
-        if new_top_left.row > new_cursor.row:
-            new_top_left = new_top_left._replace(row=new_cursor.row)
-        min_col = new_cursor.col - self.get_cols_displayed() + 1
-        if min_col > new_top_left.col:
-            new_top_left = new_top_left._replace(col=min_col)
-        min_row = new_cursor.row - self.get_rows_displayed() + 1
-        if min_row > new_top_left.row:
-            new_top_left = new_top_left._replace(row=min_row)
-        self.cursor = new_cursor
-        self.top_left = new_top_left
+        self.cursor = (self.cursor + delta).max((0, 0))
+        self.top_left = self.top_left.min(self.cursor)
+        self.top_left = self.top_left.max(
+            self.cursor - (self.get_rows_displayed() - 1, self.get_cols_displayed() - 1)
+        )
 
     def handle_key_menu(self, action):
         name = get_keyname(action)
