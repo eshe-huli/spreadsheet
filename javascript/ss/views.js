@@ -1,7 +1,3 @@
-/** TODO
- * - Framerate counter
- */
-
 const { Index, Range } = require("./models.js");
 
 const KEY_DELTAS = {
