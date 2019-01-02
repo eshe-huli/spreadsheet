@@ -12,7 +12,6 @@ To build the docs (assuming you've already followed the Python dev setup):
 
 ```
 npm install -g jsdoc
-cd python
-source .venv/bin/activate
+source python/.venv/bin/activate
 make html
 ```
