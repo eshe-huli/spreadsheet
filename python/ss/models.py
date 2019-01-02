@@ -17,26 +17,13 @@ $
 
 
 class Index(NamedTuple):
-    """A spreadsheet index, like 'A1' or 'ZZZ123'.
+    """A spreadsheet index, like ``'A1'`` or ``'ZZZ123'``.
 
     Immutable. `row` and `col` are both zero-indexed.
 
-    To construct from a string like 'A1', use `Index.parse`:
+    To construct from a string like ``'A1'``, use `Index.parse`.
 
-    >>> Index.parse("A1")
-    Index(row=0, col=0)
-
-    To render a user-facing label, call `str`:
-
-    >>> str(Index.parse("A1"))
-    'A1'
-
-    To move an index, add another index, or a tuple:
-
-    >>> Index(0, 0) + (2, 3)
-    Index(row=2, col=3)
-    >>> Index(2, 3) - (1, 2)
-    Index(row=1, col=1)
+    To render a user-facing label, call `str` (see `Index.__str__`).
     """
 
     row: int
@@ -45,39 +32,114 @@ class Index(NamedTuple):
     """The column (x-coordinate)"""
 
     def __add__(self, other):
-        (row, col) = other
-        return Index(row=self.row + row, col=self.col + col)
+        """Return a new Index summing the `row` and `col` attrs.
+
+        >>> Index(0, 0) + Index(2, 3)
+        Index(row=2, col=3)
+        >>> Index(0, 0) + (2, 3)
+        Index(row=2, col=3)
+
+        Args:
+            other (Index)
+        Returns:
+            Index:
+        """
+        return self._binop(int.__add__, other)
 
     def __sub__(self, other):
-        (row, col) = other
-        return Index(row=self.row - row, col=self.col - col)
+        """Return a new Index with the difference of the `row` and `col`
+        attrs.
+
+        >>> Index(2, 3) - (1, 2)
+        Index(row=1, col=1)
+
+        Args:
+            other (Index):
+        Returns:
+            Index:
+        """
+        return self._binop(int.__sub__, other)
+
+    def min(self, other):
+        """Return a new Index with the smaller of each `row` and `col` attr.
+
+        >>> Index(1, 2).min((2, 1))
+        Index(row=1, col=1)
+
+        Args:
+            other (Index):
+        Returns:
+            Index:
+        """
+        return self._binop(min, other)
+
+    def max(self, other):
+        """Return a new Index with the greater of each `row` and `col` attr.
+
+        >>> Index(1, 2).min((2, 1))
+        Index(row=1, col=1)
+
+        Args:
+            other (Index):
+        Returns:
+            Index:
+        """
+        return self._binop(max, other)
+
+    def _binop(self, f, other):
+        return Index(f(self.row, other[0]), f(self.col, other[1]))
 
     @property
     def column_label(self):
+        """The human readable column label.
+
+        >>> Index(57, 1).column_label
+        'B'
+        >>> Index(57, 27).column_label
+        'BB'
+        >>> Index(57, 53).column_label
+        'BBB'
+
+        """
         nreps = (self.col // 26) + 1
         char = chr(ord("A") + self.col % 26)
         return nreps * char
 
     @property
     def row_label(self):
+        """The human readable row label.
+
+        >>> Index(1, 1).row_label
+        '2'
+        """
         return str(self.row + 1)
 
     def __str__(self):
+        """The human readable cell label.
+
+        >>> str(Index(9, 27))
+        'BB10'
+        """
         return f"{self.column_label}{self.row_label}"
 
     @classmethod
     def parse(cls, label):
-        """Construct an Index from a string like 'A1'.
+        """Construct an Index from a string like ``'A1'``.
 
         Case-insensitive.
 
         Raises ValueError if the index is not valid.
+
+        >>> Index.parse("A1")
+        Index(row=0, col=0)
+        >>> Index.parse("bb10")
+        Index(row=9, col=27)
         """
         match = INDEX_RE.match(label)
         if match is None:
             raise ValueError(f"{label} is not a valid spreadsheet index")
         row = int(match["row"]) - 1
-        char = match["char"]
+        char = match["char"].upper()
         num_chars = len(match["col"])
         col = 26 * (num_chars - 1) + ord(char) - ord("A")
         return Index(row=row, col=col)
@@ -91,7 +153,7 @@ class _Range(NamedTuple):
 
 
 class Range(_Range):
-    """Represents a range of cells like 'A1:B3'.
+    """Represents a range of cells like ``'A1:B3'``.
 
     `first` and `last` are both *inclusive*, contrary to the usual convention.
     This is because:
@@ -108,6 +170,16 @@ class Range(_Range):
 
     >>> Range(Index(1, 0), Index(0, 1)).first
     Index(row=0, col=0)
+
+    Args:
+        pos1 (Index):
+        pos2 (Index):
+
+    Attributes:
+        first (Index): The top-left cell of the range.
+
+        last (Index): The bottom-right cell that is still included in the range.
+
     """
 
     def __new__(cls, pos1, pos2):
@@ -118,20 +190,56 @@ class Range(_Range):
         )
 
     def contains(self, pos):
+        """Returns true if the range contains the given position.
+
+        >>> Range.parse('B2:C3').contains(Index.parse('C3'))
+        True
+        >>> Range.parse('B2:C3').contains(Index.parse('C4'))
+        False
+        >>> Range.parse('B2:C3').contains(Index.parse('D3'))
+        False
+
+        Args:
+            pos (Index):
+
+        Returns:
+            bool:
+        """
         return (
             self.first.col <= pos.col <= self.last.col
             and self.first.row <= pos.row <= self.last.row
         )
 
     def __str__(self):
+        """The human readable syntax for the range.
+
+        >>> str(Range(Index.parse('A1'), Index.parse('B2')))
+        'A1:B2'
+        """
         return f"{self.first}:{self.last}"
 
     @property
     def height(self):
+        """Number of rows contained in the range.
+
+        >>> Range.parse('A1:B3').height
+        3
+
+        Returns:
+            int:
+        """
         return self.last.row - self.first.row + 1
 
     @property
     def width(self):
+        """Number of columns contained in the range.
+
+        >>> Range.parse('A1:B3').width
+        2
+
+        Returns:
+            int:
+        """
         return self.last.col - self.first.col + 1
 
     def row(self, i):
@@ -147,8 +255,12 @@ class Range(_Range):
     @property
     def indices(self):
         """Iterate over all indices in a range.
+
         >>> [str(i) for i in Range.parse('A1:B3').indices]
         ['A1', 'B1', 'A2', 'B2', 'A3', 'B3']
+
+        Returns:
+            Iterator(int):
         """
         for i in range(self.height):
             yield from self.row(i)
@@ -158,6 +270,9 @@ class Range(_Range):
         """Parse a Range from a string like A1:B3.
 
         Raises a ValueError if the string is not a valid range.
+
+        >>> Range.parse('A1:B3')
+        Range(first=Index(row=0, col=0), last=Index(row=2, col=1))
         """
         try:
             first, last = desc.split(":")

@@ -67,6 +67,7 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+default_role = 'any'
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -98,3 +99,13 @@ html_static_path = ['_static']
 
 
 # -- Extension configuration -------------------------------------------------
+
+def on_missing_reference(app, env, node, contnode):
+    """Do not warn for missing references if reftype is `any`"""
+    if node['reftype'] == 'any':
+        return contnode
+    else:
+        return None
+
+def setup(app):
+    app.connect('missing-reference', on_missing_reference)

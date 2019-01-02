@@ -25,3 +25,4 @@ The index/range library
 
 .. automodule:: ss.models
    :members:
+   :special-members: __add__, __str__
