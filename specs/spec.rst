@@ -1,3 +1,5 @@
+.. default-role:: code
+
 How the interview works
 =======================
 
@@ -91,5 +93,4 @@ They're stack ranked, so please prioritize them accordingly—in particular, it'
     2. small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round :)
     3. performance, unless it takes you over 1 second to execute a simple command
     4. actually writing unit tests (do worry about making it testable though!)
-
 

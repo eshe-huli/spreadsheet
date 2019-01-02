@@ -5,6 +5,8 @@ Spreadsheet interview - Python
 
 .. include:: spec.rst
 
+.. default-role:: any
+
 Appendix: interfaces
 ====================
 

@@ -38,7 +38,7 @@ class Index {
     /**
      * Return true if `row` and `col` are equal to those of `other`.
      *
-     * @param {Index} other
+     * @param {models.Index} other
      *
      * @example
      *   new Index(0, 0).equals(new Index(0, 0)) // => true
@@ -52,8 +52,8 @@ class Index {
     /**
      * Return a new Index with the sum of the rows/columns.
      *
-     * @param {Index} other
-     * @return {Index}
+     * @param {models.Index} other
+     * @return {models.Index}
      *
      * @example
      *   new Index(1, 2).add({row: 3, col: 4})
@@ -65,8 +65,8 @@ class Index {
     /**
      * Return a new Index with the difference of the rows/columns.
      *
-     * @param {Index} other
-     * @return {Index}
+     * @param {models.Index} other
+     * @return {models.Index}
      *
      * @example
      *   new Index(1, 2).sub({row: 1, col: 2})
@@ -78,8 +78,8 @@ class Index {
     /**
      * Return a new Index with the greater of each row/column.
      *
-     * @param {Index} other
-     * @return {Index}
+     * @param {models.Index} other
+     * @return {models.Index}
      *
      * @example
      *   new Index(1, 2).max(new Index(2, 1))
@@ -91,8 +91,8 @@ class Index {
     /**
      * Return a new Index with the smaller of each row/column.
      *
-     * @param {Index} other
-     * @return {Index}
+     * @param {models.Index} other
+     * @return {models.Index}
      *
      * @example
      *   new Index(1, 2).min(new Index(2, 1))
@@ -150,7 +150,7 @@ class Index {
      * Throws ParseError if the index is not valid.
      *
      * @param {string} label
-     * @return {Index}
+     * @return {models.Index}
      * @throws {ParseError} if the string is not a valid index.
      *
      * @example
@@ -196,8 +196,8 @@ class Range {
      * You may construct a range from indices that are in the "wrong" order,
      * and `first` and `last` will be rearranged for you:
      *
-     * @param {Index} pos1
-     * @param {Index} pos2
+     * @param {models.Index} pos1
+     * @param {models.Index} pos2
      *
      * @example
      *   new Range(new Index(1, 0), new Index(0, 1)).first
@@ -210,7 +210,7 @@ class Range {
     /**
      * Returns true if the range contains the given position.
      *
-     * @param {Index} pos
+     * @param {models.Index} pos
      * @return {boolean}
      *
      * @example

@@ -1,4 +1,22 @@
-/** Parse a formula. */
+/**
+ * Parse a formula.
+ *
+ * @returns
+ *     a string for references/literals; for binary operators or function
+ *     calls, it will return a list whose first element is the operator and
+ *     whose second and third elements are the operands.
+ *
+ * @example
+ * parse('A1') // => 'A1'
+ * parse('2018-01-01') // => '2018-01-01'
+ * parse('A1 + A2') // => ['+', 'A1', 'A2']
+ * parse('"string"') // => 'string'
+ * parse('sum(A1:A2)') // => ['sum', 'A1:A2']
+ * parse("miscellaneousliteral") // => 'miscellaneousliteral'
+ * parse('function((1+1))') // => ['function', ['+', '1', '1']]
+ * parse('a + b(c + d)') // => ['+', 'a', ['b', ['+', 'c', 'd']]]
+ * parse('a * b(c)') // => ['*', 'a', ['b', 'c']]
+ */
 function parse(code) {
     return new Parser(tokenize(code)).parse();
 }

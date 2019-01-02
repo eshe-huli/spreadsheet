@@ -97,7 +97,6 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
-
 # -- Extension configuration -------------------------------------------------
 
 def on_missing_reference(app, env, node, contnode):
