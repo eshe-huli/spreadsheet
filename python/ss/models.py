@@ -171,6 +171,8 @@ class Range(_Range):
     >>> Range(Index(1, 0), Index(0, 1)).first
     Index(row=0, col=0)
 
+    To parse a range from human syntax, use `Range.parse`.
+
     Args:
         pos1 (Index):
         pos2 (Index):

@@ -8,7 +8,8 @@ class Spreadsheet:
         Arguments:
             index (Index): the cell to evaluate
 
-        Returns (str): the cell value, evaluated (if a formula) and formatted
+        Returns:
+            str: the cell value, evaluated (if a formula) and formatted
             according to the format set with `set_format`.
         """
         return str(index)  # no evaluation/formatting for now
@@ -19,7 +20,8 @@ class Spreadsheet:
         Arguments:
             index (Index): the cell to fetch
 
-        Returns (str): the `raw` most recently set with set(ref, raw).
+        Returns:
+            str: the `raw` most recently set with `set`.
         """
         return f"={str(index)!r}"
 
@@ -28,7 +30,7 @@ class Spreadsheet:
 
         Arguments:
             index (Index): the cell to update
-            raw (str): the raw string, like '1' or '2018-01-01' or '=A2+A3'
+            raw (str): the raw string, like ``'1'`` or ``'2018-01-01'`` or ``'=A2+A3'``
         """
         raise NotImplementedError(f"set {index} = {raw!r}")
 
@@ -37,13 +39,13 @@ class Spreadsheet:
 
         Arguments:
             index (Index): the cell to format
-            type (str): the type of format--'default', 'number' or 'datetime'
+            type (str): the type of format--``'default'``, ``'number'`` or ``'datetime'``
             spec (str): the format string to use on the cell:
 
-                - if `type` is 'default', should be None
-                - if `type` is 'number', a string suitable for passing to
+                - if `type` is ``'default'``, should be None
+                - if `type` is ``'number'``, a string suitable for passing to
                   `str.format`
-                - if `type` is 'datetime', a string suitable for passing to
+                - if `type` is ``'datetime'``, a string suitable for passing to
                   `datetime.strftime`
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")

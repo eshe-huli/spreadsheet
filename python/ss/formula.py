@@ -3,7 +3,7 @@ import re
 import enum
 from typing import NamedTuple
 
-__all__ = ['parse']
+__all__ = ['parse', 'ParseError']
 
 def parse(formula):
     """Parse a spreadsheet formula.
@@ -13,7 +13,8 @@ def parse(formula):
         calls, it will return a list whose first element is the operator and
         whose second and third elements are the operands.
 
-    Raises ParseError if the formula is syntactically invalid.
+    Raises:
+        ParseError: if the formula is syntactically invalid.
 
     For example:
 
