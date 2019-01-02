@@ -14,7 +14,7 @@ class Spreadsheet:
             str: the cell value, evaluated (if a formula) and formatted
             according to the format set with `set_format`.
         """
-        return str(index)  # no evaluation/formatting for now
+        return self.get_formatted(index)  # no eval/format for now
 
     def get_raw(self, index):
         """Get the raw text that the user entered into the given cell.
@@ -25,7 +25,7 @@ class Spreadsheet:
         Returns:
             str: the `raw` most recently set with `set`.
         """
-        return f"={str(index)!r}"
+        return str(index)  # fake data
 
     def set(self, index, raw):
         """Set the value at the given cell.

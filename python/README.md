@@ -2,12 +2,12 @@
 
 Run in a python 3.7 virtualenv.
 
-To open a new spreadsheet, run `python -m ss`.
+To open a new spreadsheet, run `python -m ss` from this directory.
 
-To open a CSV (useful as a shortcut for testing), run `python -m ss test.csv`.
-Note that you must have implemented the `set` function in order for this to
-work. Check out the CSVs in the `examples/` directory for some possibly useful
-test files.
+To open a CSV file (useful as a shortcut for testing), run `python -m ss
+../examples/1-basic.csv`. Note that you must have implemented the `set` and
+`get_raw` functions in order for this to do anything useful. Check out the other
+CSVs in the `../examples/` directory for some possibly useful test files.
 
 ## Extension
 

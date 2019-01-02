@@ -8,7 +8,7 @@ class Spreadsheet {
    * according to the format set with `setFormat`.
    */
   getFormatted(index) {
-    return index.label;
+    return this.getRaw(index); // no eval/format for now
   }
   /** Get the raw text that the user entered into the given cell.
    *
@@ -16,7 +16,7 @@ class Spreadsheet {
    * @returns {String} the `raw` most recently set with `set`.
    */
   getRaw(index) {
-    return `="${index.label}"`;
+    return index.label; // fake data
   }
   /** Set the value at the given cell.
    *
