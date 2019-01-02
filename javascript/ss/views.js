@@ -173,7 +173,7 @@ class SpreadsheetView {
     const message = new Rectangle(screen.bottomLeft, framerate.topRight);
     // Grid
     const gridAndLabels = new Rectangle(editBox.bottomRight, message.topLeft);
-    const maxRow = this.topLeft.add({ y: gridAndLabels.height - 1, x: 0 });
+    const maxRow = this.topLeft.add({ row: gridAndLabels.height - 2, col: 0 });
     const rowLabelWidth = maxRow.rowLabel.length + 1;
     const rowLabels = Rectangle.fromDimensions(gridAndLabels.topLeft, {
       y: gridAndLabels.height,
