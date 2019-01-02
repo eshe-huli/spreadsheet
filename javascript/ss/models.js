@@ -138,10 +138,11 @@ class Index {
      * @return {string}
      *
      * @example
+     * new Index(0, 0).label // => 'A1'
      * new Index(9, 27).label // => 'BB10'
      */
     get label() {
-        return this.columnLabel + this.rowLabel;
+        return `${this.columnLabel}${this.rowLabel}`;
     }
 
     /**

@@ -4,7 +4,8 @@
   "description": "Text mode spreadsheet interview project",
   "main": "ss/main.js",
   "dependencies": {
-    "blessed": "^0.1.81"
+    "blessed": "^0.1.81",
+    "csv-parse": "^4.3.0"
   },
   "devDependencies": {
     "jsdoc": "^3.5.5",
