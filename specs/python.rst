@@ -8,6 +8,8 @@ Spreadsheet interview - Python
 Appendix: interfaces
 ====================
 
+.. _engine:
+
 The engine interface
 --------------------
 

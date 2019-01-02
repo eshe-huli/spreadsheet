@@ -45,6 +45,12 @@ They're stack ranked, so please prioritize them accordingly—in particular, it'
 Spec
 ====
 
+We've implemented the spreadsheet UI, but you need to implement the "engine" that actually stores and executes the spreadsheet computation.
+
+We've defined the spreadsheet engine interface (see :ref:`engine`). You will implement parts of this interface, and write a design doc for other parts that are too big to build in the allotted time.
+
+At the end of this section, we'll tell you which parts to implement in which order. But first we need to explain how the spreadsheet is supposed to work in general.
+
 The spreadsheet data model
 --------------------------
 
@@ -76,6 +82,7 @@ A **formula** is a cell value starting with `=`, followed by an expression which
 * a **binary operator** (`+-*/`) on two sub-expressions (**operands**), like `A1 * 6.02e23`
     * There must be spaces on each side of the operand. (Otherwise we couldn't tell whether `2018-01-01` was a date or equal to the value `2016`!)
     * All binary operators are valid to apply to 2 numbers. For dates, only addition and subtraction are defined. If you add a number to a date, you get a date that many days in the future. If you subtract two dates, you get the difference between them in days. You can't add two dates.
+* a **function call** with any number of sub-expressions (**arguments**), like `sum(A1:B2, C3:D4)`. Function names are alphanumeric only and case-insensitive.
 
 When printed, a cell with a formula should display the result of evaluating the formula. If a set of cell formulae causes a circular reference (for instance `set A1 = A2; set A2 = A1`) then it would be nice not to hang or crash.
 
