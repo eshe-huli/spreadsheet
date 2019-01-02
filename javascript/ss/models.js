@@ -7,10 +7,13 @@ const INDEX_RE = new RegExp(
 
 const A_CHAR_CODE = 'A'.charCodeAt(0);
 
-class ParseError extends Error {
+/**
+ * The argument passed was not valid for some reason.
+ */
+class ValueError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'ParseError';
+        this.name = 'ValueError';
     }
 }
 /**
@@ -21,6 +24,7 @@ class ParseError extends Error {
  * To construct from a string like 'A1', use `Index.parse`.
  *
  * To render a user-facing label, use the `label` property.
+ *
  */
 class Index {
     /**
@@ -30,7 +34,9 @@ class Index {
      * @param {number} col
      */
     constructor(row, col) {
+        /** The row (y-coordinate) */
         this.row = row;
+        /** The column (x-coordinate) */
         this.col = col;
         Object.freeze(this);
     }
@@ -41,10 +47,10 @@ class Index {
      * @param {models.Index} other
      *
      * @example
-     *   new Index(0, 0).equals(new Index(0, 0)) // => true
-     *   new Index(0, 0).equals({row: 0, col: 0, ignored: 0}) // => true
-     *   new Index(1, 0).equals(new Index(0, 0)) // => false
-     *   new Index(0, 1).equals(new Index(0, 0)) // => false
+     * new Index(0, 0).equals(new Index(0, 0)) // => true
+     * new Index(0, 0).equals({row: 0, col: 0, ignored: 0}) // => true
+     * new Index(1, 0).equals(new Index(0, 0)) // => false
+     * new Index(0, 1).equals(new Index(0, 0)) // => false
      */
     equals(other) {
         return this.row == other.row && this.col == other.col;
@@ -56,8 +62,7 @@ class Index {
      * @return {models.Index}
      *
      * @example
-     *   new Index(1, 2).add({row: 3, col: 4})
-     *   // => new Index(4, 6)
+     * new Index(1, 2).add({row: 3, col: 4}) // => new Index(4, 6)
      */
     add(other) {
         return this._binop((a, b) => a + b, other);
@@ -69,8 +74,7 @@ class Index {
      * @return {models.Index}
      *
      * @example
-     *   new Index(1, 2).sub({row: 1, col: 2})
-     *   // => new Index(0, 0)
+     * new Index(1, 2).sub({row: 1, col: 2}) // => new Index(0, 0)
      */
     sub(other) {
         return this._binop((a, b) => a - b, other);
@@ -82,8 +86,7 @@ class Index {
      * @return {models.Index}
      *
      * @example
-     *   new Index(1, 2).max(new Index(2, 1))
-     *   // => new Index(2, 2)
+     * new Index(1, 2).max(new Index(2, 1)) // => new Index(2, 2)
      */
     max(other) {
         return this._binop(Math.max, other);
@@ -95,8 +98,7 @@ class Index {
      * @return {models.Index}
      *
      * @example
-     *   new Index(1, 2).min(new Index(2, 1))
-     *   // => new Index(1, 1)
+     * new Index(1, 2).min(new Index(2, 1)) // => new Index(1, 1)
      */
     min(other) {
         return this._binop(Math.min, other);
@@ -107,9 +109,9 @@ class Index {
      * @return {string}
      *
      * @example
-     *   new Index(57, 1).columnLabel // => 'B'
-     *   new Index(57, 27).columnLabel // => 'BB'
-     *   new Index(57, 53).columnLabel // => 'BBB'
+     * new Index(57, 1).columnLabel // => 'B'
+     * new Index(57, 27).columnLabel // => 'BB'
+     * new Index(57, 53).columnLabel // => 'BBB'
      */
     get columnLabel() {
         var nreps = Math.floor(this.col / 26) + 1;
@@ -124,7 +126,7 @@ class Index {
      * @return {string}
      *
      * @example
-     *   new Index(1, 1).rowLabel // => '2'
+     * new Index(1, 1).rowLabel // => '2'
      */
     get rowLabel() {
         return (this.row + 1).toString();
@@ -136,7 +138,7 @@ class Index {
      * @return {string}
      *
      * @example
-     *   new Index(9, 27).label // => 'BB10'
+     * new Index(9, 27).label // => 'BB10'
      */
     get label() {
         return this.columnLabel + this.rowLabel;
@@ -147,21 +149,19 @@ class Index {
      *
      * Case-insensitive.
      *
-     * Throws ParseError if the index is not valid.
-     *
      * @param {string} label
      * @return {models.Index}
-     * @throws {ParseError} if the string is not a valid index.
+     * @throws {models.ValueError} if the string is not a valid index.
      *
      * @example
-     *   Index.parse("A1") // => new Index(0, 0)
-     *   Index.parse("bb10") // => new Index(9, 27)
+     * Index.parse("A1") // => new Index(0, 0)
+     * Index.parse("bb10") // => new Index(9, 27)
      */
     static parse(label) {
         INDEX_RE.lastIndex = 0;
         var match = INDEX_RE.exec(label);
         if (match == null) {
-            throw new ParseError(label + " is not a valid index");
+            throw new ValueError(label + " is not a valid index");
         }
         var row = Number.parseInt(match.groups.row) - 1;
         var charCode = match.groups.char.toUpperCase().charCodeAt(0);
@@ -170,8 +170,7 @@ class Index {
         return new Index(row, col);
     }
 
-    /** Apply a binary operator to both `row` and `col`, producing a new Index.
-     */
+    // Apply a binary operator to both `row` and `col`, producing a new Index.
     _binop(f, other) {
         return new Index(f(this.row, other.row), f(this.col, other.col));
     }
@@ -200,8 +199,8 @@ class Range {
      * @param {models.Index} pos2
      *
      * @example
-     *   new Range(new Index(1, 0), new Index(0, 1)).first
-     *   // => new Index(0, 0)
+     * new Range(new Index(1, 0), new Index(0, 1)).first
+     * // => new Index(0, 0)
      */
     constructor(pos1, pos2) {
         this.first = pos1.min(pos2);
@@ -214,9 +213,9 @@ class Range {
      * @return {boolean}
      *
      * @example
-     *   Range.parse('B2:C3').contains(Index.parse('C3')) // => true
-     *   Range.parse('B2:C3').contains(Index.parse('C4')) // => false
-     *   Range.parse('B2:C3').contains(Index.parse('D3')) // => false
+     * Range.parse('B2:C3').contains(Index.parse('C3')) // => true
+     * Range.parse('B2:C3').contains(Index.parse('C4')) // => false
+     * Range.parse('B2:C3').contains(Index.parse('D3')) // => false
      */
     contains(pos) {
         return (
@@ -230,8 +229,8 @@ class Range {
      * @return {string}
      *
      * @example
-     *   new Range(Index.parse('A1'), Index.parse('B2')).label
-     *   // => "A1:B2"
+     * new Range(Index.parse('A1'), Index.parse('B2')).label
+     * // => "A1:B2"
      */
     get label() {
         return `${this.first.label}:${this.last.label}`;
@@ -242,7 +241,7 @@ class Range {
      * @return {number}
      *
      * @example
-     *   Range.parse('A1:B3').height // => 3
+     * Range.parse('A1:B3').height // => 3
      */
     get height() {
         return this.last.row - this.first.row + 1;
@@ -253,7 +252,7 @@ class Range {
      * @return {number}
      *
      * @example
-     *   Range.parse('A1:B3').width // => 2
+     * Range.parse('A1:B3').width // => 2
      */
     get width() {
         return this.last.col - this.first.col + 1;
@@ -264,8 +263,8 @@ class Range {
      * @return {Generator}
      *
      * @example
-     *   [...Range.parse('A1:C4').row(1)].map(it => it.label)
-     *   // => ['A2', 'B2', 'C2']
+     * [...Range.parse('A1:C4').row(1)].map(it => it.label)
+     * // => ['A2', 'B2', 'C2']
      */
     *row(i) {
         if (i >= this.height) { throw new ValueError("Require i < " + this.height); }
@@ -280,8 +279,8 @@ class Range {
      * @return {Generator}
      *
      * @example
-     *   [...Range.parse('A1:B3').indices].map(it => it.label)
-     *   // => ['A1', 'B1', 'A2', 'B2', 'A3', 'B3']
+     * [...Range.parse('A1:B3').indices].map(it => it.label)
+     * // => ['A1', 'B1', 'A2', 'B2', 'A3', 'B3']
      */
     get indices() {
         return (function* () {
@@ -296,10 +295,10 @@ class Range {
     /**
      * Parse a Range from a string like A1:B3.
      *
-     * @throws {ParseError} if the string is not a valid range.
+     * @throws {models.ValueError} if the string is not a valid range.
      *
      * @example
-     *   Range.parse('A1:B3').label // => 'A1:B3'
+     * Range.parse('A1:B3').label // => 'A1:B3'
      */
     static parse(text) {
         let split = text.split(':');

@@ -23,6 +23,8 @@ The formula library
 
 .. js:autofunction:: formula.parse
 
+.. js:autoclass:: formula.ParseError
+
 The index/range library
 -----------------------
 
@@ -31,3 +33,5 @@ The index/range library
 
 .. js:autoclass:: models.Range
    :members:
+
+.. js:autoclass:: models.ValueError

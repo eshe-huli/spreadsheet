@@ -6,6 +6,8 @@
  *     calls, it will return a list whose first element is the operator and
  *     whose second and third elements are the operands.
  *
+ * @throws {formula.ParseError} if the formula is syntactically invalid.
+ *
  * @example
  * parse('A1') // => 'A1'
  * parse('2018-01-01') // => '2018-01-01'
@@ -19,6 +21,16 @@
  */
 function parse(code) {
     return new Parser(tokenize(code)).parse();
+}
+
+/**
+ * Error subclass indicating the parsing of a formula failed.
+ */
+class ParseError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'ParseError';
+    }
 }
 
 const LEXER = new RegExp(
@@ -204,4 +216,4 @@ class Parser {
     }
 }
 
-module.exports = {tokenize, parse}
+module.exports = {tokenize, parse, ParseError}
