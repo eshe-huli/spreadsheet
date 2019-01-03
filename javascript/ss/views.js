@@ -315,8 +315,8 @@ class SpreadsheetView {
   }
   handleKeyEdit(ch, key) {
     const FINISH_KEYS = {
-      return: { y: 1, x: 0 },
-      tab: { x: 1, y: 0 }
+      return: { row: 1, col: 0 },
+      tab: { col: 1, row: 0 }
     };
     const MOVEMENT_KEYS = {
       left: -1,
