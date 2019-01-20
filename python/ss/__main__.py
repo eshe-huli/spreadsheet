@@ -1,5 +1,7 @@
 import csv
 import curses
+import logging
+import pathlib
 import sys
 
 from ss import engine, views, models
@@ -13,7 +15,24 @@ def read_csv(fname, sheet):
                 sheet.set(str(models.Index(row, col)), value)
 
 
+def setup_logging():
+    """Set up Python's log infrastructure with some simple defaults:
+    - append to 'spreadsheet.log' in the 'python' directory
+    - include the date/time on every message
+    - set loglevel to DEBUG
+    """
+    logfile = pathlib.Path(__file__).parent.parent / 'spreadsheet.log'
+    logging.basicConfig(
+        format='[%(asctime)s]: %(message)s',
+        filename=logfile,
+        level=logging.DEBUG
+    )
+
+
 if __name__ == "__main__":
+    setup_logging()
+    logging.info("--------------------")
+    logging.info("Spreadsheet starting")
 
     @curses.wrapper
     def main(stdscr):
@@ -25,5 +44,7 @@ if __name__ == "__main__":
                 read_csv(fname, sheet)
             viewer = views.Viewer(sheet, stdscr)
             viewer.loop()
+
+            logging.info("Exiting.")
         finally:
             curses.noraw()
