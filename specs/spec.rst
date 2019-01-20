@@ -104,3 +104,9 @@ Here's the order you should do things in:
     2. Make `importcsv` download a file from the Internet, if given a URL.
     3. Evaluate formulae *asynchronously* (i.e., on a different thread from the thread on which `get_formatted` is called, so that the UI stays responsive even if you've opened a large spreadsheet with lots of computation).
 
+
+
+Other things worth knowing
+--------------------------
+
+For debug logging, printing to the console will not work. Instead, we have provided a simple logging infrastructure that logs to a file named `spreadsheet.log`. See `ss/__main__.py` or `ss/main.js` (depending on your language) for a usage example.
