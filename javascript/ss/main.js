@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 if (require.main === module) {
+  const logger = require("./logging.js");
+  logger.log("--------------------");
+  logger.log("Spreadsheet starting");
+
   const blessed = require("blessed");
   const views = require("./views.js");
   const models = require("./models.js");
@@ -16,7 +20,6 @@ if (require.main === module) {
     const records = parse(data);
     records.forEach((values, row) => {
       values.forEach((value, col) => {
-        console.log(row, col);
         engine.set(new models.Index(row, col), records[row][col]);
       });
     });
@@ -31,6 +34,7 @@ if (require.main === module) {
   process.on("exit", () => {
     program.showCursor();
     program.normalBuffer();
+    logger.log("Exiting.");
   });
   new views.SpreadsheetView(engine, program);
 }
