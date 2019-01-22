@@ -47,7 +47,7 @@ class Spreadsheet:
                 - if `type` is ``'default'``, should be None
                 - if `type` is ``'number'``, a string suitable for passing to
                   `str.format`
-                - if `type` is ``'datetime'``, a string suitable for passing to
+                - if `type` is ``'date'``, a string suitable for passing to
                   `datetime.strftime`
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")
