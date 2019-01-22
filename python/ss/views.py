@@ -481,7 +481,7 @@ class Viewer:
     def select_formatting(self, format):
         (ftype, spec) = format
         for index in self.selection.indices:
-            self.spreadsheet.set_format(self.selection, ftype, spec)
+            self.spreadsheet.set_format(index, ftype, spec)
 
     def enter_sort_menu(self):
         if self.selecting_from is None:
