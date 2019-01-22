@@ -46,7 +46,7 @@ class Spreadsheet:
 
                 - if `type` is ``'default'``, should be None
                 - if `type` is ``'number'``, a string suitable for passing to
-                  `str.format`
+                  python's string % operator
                 - if `type` is ``'date'``, a string suitable for passing to
                   `datetime.strftime`
         """
