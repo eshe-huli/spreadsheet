@@ -6,7 +6,7 @@ We're building a text-UI spreadsheet app named `ss`. Here's what it looks like s
    :width: 674
    :height: 447
 
-We've built the user interface (you'll get access right before the project starts)—your task is to supply the spreadsheet engine based on the spec below.
+We've built the user interface (you'll get access right before the project starts)—your task is to design and build the spreadsheet engine based on the spec below.
 
 .. contents::
 
@@ -14,8 +14,9 @@ Prep
 ----
 
 1. Read through the spec below.
-2. Set up a fresh environment of Python 3.7 (if using Python) or Node 10.x (if using Javascript).
-3. Think through your major design choices and any questions you want to ask your interviewer before you start coding.
+2. Think through your major design choices. **Note:** The design of this project is subtle and easy to botch, so you will be well served by thinking it through!
+3. Email your interviewer any questions you have about the spec or project.
+4. Set up a fresh environment of Python 3.7 (if using Python) or Node 10.x (if using Javascript).
 
 Interview structure
 -------------------
@@ -29,25 +30,27 @@ Interview structure
 How you will be evaluated
 -------------------------
 
-Here are our criteria for evaluating the project.
-
-They're stack ranked, so please prioritize them accordingly—in particular, it's better to get through less of the project, but with a better design and better edge-case coverage.
+Here are our criteria for evaluating the project. They're stack ranked, so please prioritize them accordingly.
 
 1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
 2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
-3. **Completeness**, to the extent possible (you're not necessarily expected to finish every step, especially if you're a less experienced candidate).
-4. **Don't worry at all about:**
-    1. security
-    2. small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round :)
-    3. performance, unless it takes you over 1 second to execute a simple command
-    4. actually writing unit tests (do worry about making it testable though!)
+3. **Extensibility.** You don't need to optimize for performance or write unit tests, but try not to make assumptions that would make high performance or testing impossible later.
+
+You should prioritize *all* of these over finishing the entire spec. All we care about is being able to see the major elements of your design realized in code. If you are worried about running out of time, *aggressively drop things* that don't seem interesting from a design/user-friendliness perspective.
+
+Finally, **don't worry about**:
+
+- security
+- small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round and your interviewer will learn the codebase by pairing with you :)
+- optimizing your code, unless it takes you over 1 second to execute a simple command
+- actually writing unit tests (again, do worry about making it testable though!)
 
 Spec
 ====
 
 We've implemented the spreadsheet UI, but you need to implement the "engine" that actually stores and executes the spreadsheet computation.
 
-We've defined the spreadsheet engine interface (see :ref:`engine`). You will implement parts of this interface, and write a design doc for other parts that are too big to build in the allotted time.
+We've defined the spreadsheet engine interface (see :ref:`engine`). You will implement parts of this interface (not all of it, unless you have lots of extra time at the end!).
 
 At the end of this section, we'll tell you which parts to implement in which order. But first we need to explain how the spreadsheet is supposed to work in general.
 
@@ -95,11 +98,9 @@ Your tasks
 Here's the order you should do things in:
 
 1. Get `set` and `get_raw` working.
-2. Make `get_formatted` work correctly on formula cells (i.e. return the evaluated formula) with binary operations (don't worry about defining any functions yet).
-3. Implement the `sum(range)` function for formula evaluation, which adds together all the values in the given range.
-4. Implement `sort` (don't worry about changing formulae if the cells that they reference are moved during sort).
-5. Implement a function `importcsv(path)` that opens the file at the given path, reads a CSV from it,  and fills an appropriate nearby range with the values.
-6. Write a design doc explaining how you would add the following (e.g., what changes you would make to your code, new functions with their signatures and contracts, new data types, etc.):
-    1. Get `set_format` working and make `get_formatted` apply the format string.
-    2. Make `importcsv` download a file from the Internet, if given a URL.
-    3. Evaluate formulae *asynchronously* (i.e., on a different thread from the thread on which `get_formatted` is called, so that the UI stays responsive even if you've opened a large spreadsheet with lots of computation).
+1. Make `get_formatted` work correctly on formula cells with default formatting (i.e. return the evaluated formula). Don't worry about applying non-default formatting or defining any functions yet.
+1. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
+1. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
+1. (with your interviewer) Discuss in broad strokes how you would implement:
+    1. Unit tests for the code you just wrote.
+    1. Making sure the UI always responds quickly to user input.
