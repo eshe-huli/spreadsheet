@@ -6,7 +6,7 @@ We're building a text-UI spreadsheet app named `ss`. Here's what it looks like s
    :width: 674
    :height: 447
 
-We've built the user interface (you'll get access right before the project starts)—your task is to design and build the spreadsheet engine based on the spec below.
+We've built the user interface (you'll get access right before the project starts)—your task is to design and build the spreadsheet engine based on the spec below. The point of this project is to see how well you can own a feature, from the problem description all the way to the fiddly details.
 
 .. contents::
 
@@ -34,9 +34,9 @@ Here are our criteria for evaluating the project. They're stack ranked, so pleas
 
 1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
 2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
-3. **Extensibility.** You don't need to optimize for performance or write unit tests, but try not to make assumptions that would make high performance or testing impossible later.
+3. **Extensibility.** You don't need to optimize for performance or write unit tests, but try not to make assumptions that would make high performance or testing impossible later. Similarly, it should be easy to add new binary operators, functions, types, etc.
 
-You should prioritize *all* of these over finishing the entire spec. All we care about is being able to see the major elements of your design realized in code. If you are worried about running out of time, *aggressively drop things* that don't seem interesting from a design/user-friendliness perspective.
+You should prioritize *all* of these over finishing the entire spec. All we care about is being able to see the major elements of your design realized in code. If you are worried about running out of time, please *aggressively drop things* that don't seem interesting from a design/user-friendliness perspective.
 
 Finally, **don't worry about**:
 
