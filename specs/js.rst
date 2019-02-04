@@ -33,3 +33,10 @@ The index/range library
    :members:
 
 .. js:autoclass:: models.ValueError
+
+Appendix: README
+================
+
+This will probably be more useful after you have source code access, but we're including it here for completeness.
+
+.. include:: ../javascript/README.rst

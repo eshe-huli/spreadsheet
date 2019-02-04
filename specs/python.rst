@@ -28,3 +28,10 @@ The index/range library
 .. automodule:: ss.models
    :members:
    :special-members: __add__, __str__
+
+Appendix: README
+================
+
+This will probably be more useful after you have source code access, but we're including it here for completeness.
+
+.. include:: ../python/README.rst
