@@ -98,9 +98,9 @@ Your tasks
 Here's the order you should do things in:
 
 1. Get `set` and `get_raw` working.
-1. Make `get_formatted` work correctly on formula cells with default formatting (i.e. return the evaluated formula). Don't worry about applying non-default formatting or defining any functions yet.
-1. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
-1. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
-1. (with your interviewer) Discuss in broad strokes how you would implement:
+2. Make `get_formatted` work correctly on formula cells with default formatting (i.e. return the evaluated formula). Don't worry about applying non-default formatting or defining any functions yet.
+3. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
+4. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
+5. (with your interviewer) Discuss in broad strokes how you would implement:
     1. Unit tests for the code you just wrote.
-    1. Making sure the UI always responds quickly to user input.
+    2. Making sure the UI always responds quickly to user input.
