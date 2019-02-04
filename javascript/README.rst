@@ -3,10 +3,6 @@ Setup
 
 Install Node 10.x or later, then in this directory run `npm i --production`.
 
-(Note that during installation of the dependencies, `python` must invoke
-python2 currently, so make sure you are outside any python3 virtualenv and
-have python2 installed! Sorry about that grossness.)
-
 Usage
 -----
 

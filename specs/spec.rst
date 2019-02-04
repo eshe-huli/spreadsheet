@@ -40,10 +40,11 @@ You should prioritize *all* of these over finishing the entire spec. All we care
 
 Finally, **don't worry about**:
 
-- security
 - small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round and your interviewer will learn the codebase by pairing with you :)
-- optimizing your code, unless it takes you over 1 second to execute a simple command
 - actually writing unit tests (again, do worry about making it testable though!)
+- trivial bugs/regressions (in the real world, you'd have automated tests to prevent these)
+- actually optimizing your code, unless it takes you over 1 second to execute a simple command
+- security
 
 Spec
 ====
@@ -95,12 +96,14 @@ When printed, a cell with a formula should display the result of evaluating the 
 Your tasks
 ----------
 
-Here's the order you should do things in:
+Here's the order you should do things in. Each step (up through `sum`) comes with a CSV in the `examples` directory that you can load for a very basic/incomplete test of the "happy path." (Testing the unhappy path is up to you.)
 
 1. Get `set` and `get_raw` working.
-2. Make `get_formatted` work correctly on formula cells with default formatting (i.e. return the evaluated formula). Don't worry about applying non-default formatting or defining any functions yet.
-3. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
-4. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
-5. (with your interviewer) Discuss in broad strokes how you would implement:
+2. Make `get_formatted` evaluate simple references to constants, e.g. `=A1` where A1 is `1`. (Don't worry about formatting at this point! That's a later step.)
+3. Allow references to other references, e.g. `=B1` where B1 is `=A1`.
+4. Move on to binary operations, e.g. `=1 + 2` (or `=A1 + A2`).
+5. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
+6. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
+7. (with your interviewer) Discuss in broad strokes how you would implement:
     1. Unit tests for the code you just wrote.
     2. Making sure the UI always responds quickly to user input.
