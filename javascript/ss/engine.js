@@ -31,15 +31,14 @@ class Spreadsheet {
    * @param {models.Index} index the cell to format
    * @param {String} type the type of format--'default', 'number' or
    * 'datetime'
-   * @param {String} spec the format string to use on the cell:
+   * @param {String} spec the formatter to use on the cell:
    *      if `type` is 'default', should be None
-   *      if `type` is 'number', a string suitable for passing to
-   *          `str.format`
-   *      if `type` is 'datetime', a string suitable for passing to
-   *          `datetime.strftime`
+   *      if `type` is 'number', an instance of `Intl.NumberFormat`
+   *      if `type` is 'datetime', an instance of `Intl.DateFormat`
    */
   setFormat(index, type, spec) {
-    throw Error(`setFormat ${index.label} ${type} ${spec}`);
+    let specStr = spec && spec.resolvedOptions && JSON.stringify(spec.resolvedOptions());
+    throw Error(`setFormat ${index.label} ${type} ${specStr}`);
   }
   /**
    *

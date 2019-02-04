@@ -72,9 +72,11 @@ Each cell contains a **value** which can be one of a few things:
 
 Finally, each cell has a **format** which controls how it is displayed, which can be either:
 
-* A **number format** using the syntax of `printf` (e.g. `%d`, `%.2f`)
-* A **date format** using the syntax of `strftime` (e.g. `%Y-%m-%d`)
-* The **default format** which displays numbers and dates however you want.
+* A **number format** (controlling e.g. the number of digits after the decimal point)
+* A **date format** (controlling e.g. whether or not the time is displayed)
+* The **default format** which displays the value however you want.
+
+For how the format is specified at the API level, see the relevant method in the section :ref:`engine` below.
 
 Formulae
 --------
@@ -90,7 +92,7 @@ A **formula** is a cell value starting with `=`, followed by an expression which
 
 When printed, a cell with a formula should display the result of evaluating the formula. If a set of cell formulae causes a circular reference (for instance `set A1 = A2; set A2 = A1`) then it would be nice not to hang or crash.
 
-**We will give you a pre-written `parse` function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See below for details.
+**We will give you a pre-written** `parse` **function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See `The formula library <#the-formula-library>` for details.
 
 
 Your tasks

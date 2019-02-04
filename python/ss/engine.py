@@ -46,9 +46,9 @@ class Spreadsheet:
 
                 - if `type` is ``'default'``, should be None
                 - if `type` is ``'number'``, a string suitable for passing to
-                  python's string % operator
+                  python's string % operator, e.g. ``'%.2f'``
                 - if `type` is ``'date'``, a string suitable for passing to
-                  `datetime.strftime`
+                  `datetime.strftime`, e.g. ``'%Y-%m-%d'``
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")
 

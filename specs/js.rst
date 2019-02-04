@@ -10,6 +10,8 @@ Spreadsheet interview - Javascript
 Appendix: interfaces
 ====================
 
+.. _engine:
+
 The engine interface
 --------------------
 

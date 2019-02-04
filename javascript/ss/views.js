@@ -266,18 +266,28 @@ class SpreadsheetView {
     });
   }
   selectFormat() {
+    let date = new Intl.DateTimeFormat([], {});
+    let dateTime = new Intl.DateTimeFormat([], {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric"
+    });
+    let example = new Date("2018-01-01T13:34:45")
     this.enterMenu({
       title: `Format ${this.selection.label}`,
       choices: [
         { key: "C-o", name: "default", value: ["default", null] },
-        { key: "C-i", name: "1", value: ["number", "%d"] },
-        { key: "C-i", name: "1.23", value: ["number", "%0.2f"] },
-        { key: "C-s", name: "$1.23", value: ["number", "$%0.2f"] },
-        { key: "C-d", name: "2018-01-01", value: ["date", "%Y-%m-%d"] },
+        { key: "C-i", name: "1", value: ["number", new Intl.NumberFormat([], {maximumFractionDigits: 0})] },
+        { key: "C-f", name: "1.23", value: ["number", new Intl.NumberFormat([], {maximumFractionDigits: 2, minimumFractionDigits: 2})] },
+        { key: "C-s", name: "$1.23", value: ["number", new Intl.NumberFormat([], {currency: "USD", currencyDisplay: "symbol", maximumFractionDigits: 2, minimumFractionDigits: 2})] },
+        { key: "C-d", name: date.format(example), value: ["date", date] },
         {
           key: "C-t",
-          name: "2018-01-01 13:34:45",
-          value: ["date", "%Y-%m-%d %H:%M:%S"]
+          name: dateTime.format(example),
+          value: ["date", dateTime]
         }
       ],
       onSelected: ([type, spec]) => {
