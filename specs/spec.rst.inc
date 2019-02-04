@@ -51,7 +51,7 @@ Spec
 
 We've implemented the spreadsheet UI, but you need to implement the "engine" that actually stores and executes the spreadsheet computation.
 
-We've defined the spreadsheet engine interface (see :ref:`engine`). You will implement parts of this interface (not all of it, unless you have lots of extra time at the end!).
+We've defined the spreadsheet engine interface (see |engine|). You will implement parts of this interface (not all of it, unless you have lots of extra time at the end!).
 
 At the end of this section, we'll tell you which parts to implement in which order. But first we need to explain how the spreadsheet is supposed to work in general.
 
@@ -76,7 +76,7 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 * A **date format** (controlling e.g. whether or not the time is displayed)
 * The **default format** which displays the value however you want.
 
-For how the format is specified at the API level, see the relevant method in the section :ref:`engine` below.
+For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
 Formulae
 --------
@@ -92,7 +92,7 @@ A **formula** is a cell value starting with `=`, followed by an expression which
 
 When printed, a cell with a formula should display the result of evaluating the formula. If a set of cell formulae causes a circular reference (for instance `set A1 = A2; set A2 = A1`) then it would be nice not to hang or crash.
 
-**We will give you a pre-written** `parse` **function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See `The formula library <#the-formula-library>` for details.
+**We will give you a pre-written** `parse` **function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See |formula| for details.
 
 
 Your tasks

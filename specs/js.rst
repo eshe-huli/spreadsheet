@@ -3,20 +3,25 @@ Spreadsheet interview - Javascript
 
 .. default-domain:: js
 
-.. include:: spec.rst
+.. |engine| replace:: :ref:`js_engine`
+.. |formula| replace:: :ref:`js_formula`
 
-.. default-role:: any
+.. include:: spec.rst.inc
+
+.. default-role:: attr
 
 Appendix: interfaces
 ====================
 
-.. _engine:
+.. _js_engine:
 
 The engine interface
 --------------------
 
 .. js:autoclass:: engine.Spreadsheet
    :members:
+
+.. _js_formula:
 
 The formula library
 -------------------

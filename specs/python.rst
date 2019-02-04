@@ -1,20 +1,25 @@
 Spreadsheet interview - Python
 ==============================
 
-.. include:: spec.rst
+.. |engine| replace:: :ref:`py_engine`
+.. |formula| replace:: :ref:`py_formula`
+
+.. include:: spec.rst.inc
 
 .. default-role:: any
 
 Appendix: interfaces
 ====================
 
-.. _engine:
+.. _py_engine:
 
 The engine interface
 --------------------
 
 .. automodule:: ss.engine
    :members:
+
+.. _py_formula:
 
 The formula library
 -------------------
