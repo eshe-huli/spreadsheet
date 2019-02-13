@@ -23,7 +23,6 @@ if (require.main === module) {
         engine.set(new models.Index(row, col), records[row][col]);
       });
     });
-    process.exit(0);
   }
 
   program.alternateBuffer();
