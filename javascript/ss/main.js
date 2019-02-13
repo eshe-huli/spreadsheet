@@ -19,7 +19,7 @@ if (require.main === module) {
   })
   process.on("uncaughtException", (err) => {
     logger.log(`Exiting due to uncaught exception: ${err}`);
-    console.trace(err);
+    console.log(err.stack);
     logger.close(() => {
       process.exit(1);
     });
