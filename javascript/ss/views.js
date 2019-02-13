@@ -1,4 +1,5 @@
 const { Index, Range } = require("./models.js");
+const logger = require("./logging.js")
 
 const KEY_DELTAS = {
   left: { row: 0, col: -1 },
@@ -193,6 +194,7 @@ class SpreadsheetView {
   }
   handleKeyDefault(ch, key) {
     if (["escape", "C-c"].includes(key.full)) {
+      logger.log("Spreadsheet quitting.");
       return process.exit(0);
     } else if (["left", "right", "up", "down"].includes(key.full)) {
       this.moveCursorBy(KEY_DELTAS[key.full]);

@@ -3,6 +3,9 @@ const fs = require('fs');
 const output = fs.createWriteStream(__dirname + '/../spreadsheet.log', {'flags': 'a'});
 
 const logger = new console.Console(output);
+logger.close = function (cb) {
+  output.end(cb);
+};
 
 const funcs = {
   log: logger.log.bind(logger),
@@ -35,4 +38,3 @@ function patch(fn) {
 function timestamp() {
   return '[' + new Date().toISOString() + ']';
 }
-

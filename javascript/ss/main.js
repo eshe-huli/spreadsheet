@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+const fs = require('fs');
+
 if (require.main === module) {
   const logger = require("./logging.js");
   logger.log("--------------------");
@@ -10,6 +12,19 @@ if (require.main === module) {
   const { Spreadsheet } = require("./engine.js");
 
   const program = blessed.program({ buffer: true, tput: true, zero: true });
+
+  process.on("exit", () => {
+    program.showCursor();
+    program.normalBuffer();
+  })
+  process.on("uncaughtException", (err) => {
+    logger.log(`Exiting due to uncaught exception: ${err}`);
+    console.trace(err);
+    logger.close(() => {
+      process.exit(1);
+    });
+  });
+
   const engine = new Spreadsheet();
 
   if (process.argv.length > 2) {
@@ -30,10 +45,5 @@ if (require.main === module) {
   program.csr(0, program.height - 1);
   program.cup(0, 0);
   program.clear();
-  process.on("exit", () => {
-    program.showCursor();
-    program.normalBuffer();
-    logger.log("Exiting.");
-  });
   new views.SpreadsheetView(engine, program);
 }
