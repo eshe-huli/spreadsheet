@@ -37,7 +37,7 @@ const LEXER = new RegExp(
   "(?<lparen>\\()" +
     "|(?<rparen>\\))" +
     "|(?<plus>\\+)" +
-    "|(?<minus>-)" +
+    "|(?<minus>- )" + // hack: minus must be followed by whitespace
     "|(?<value>[a-zA-Z0-9:-]+)" +
     '|(?<quoted>"[^"]+")' +
     "|(?<times>\\*)" +

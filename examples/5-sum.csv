@@ -2,4 +2,4 @@ actual,expected
 1,1
 2,2
 3,3
-=sum(A1:A3),6
+=sum(A2:A4),6
