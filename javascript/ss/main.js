@@ -18,7 +18,7 @@ if (require.main === module) {
     program.normalBuffer();
   })
   process.on("uncaughtException", (err) => {
-    logger.log(`Exiting due to uncaught exception: ${err}`);
+    logger.log(`Exiting due to uncaught exception: ${err.stack}`);
     console.log(err.stack);
     logger.close(() => {
       process.exit(1);
