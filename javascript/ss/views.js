@@ -580,8 +580,12 @@ const CHARACTERS = {
   space: " "
 };
 function getCharacter(key) {
-  if (key.full.length == 1) return key.full;
-  return CHARACTERS[key.full];
+  const str = key.full;
+  if (str.length == 1) return str;
+  if (str.length == 3 && str.slice(0, 2) == "S-") {
+    return str.slice(2).toUpperCase();
+  }
+  return CHARACTERS[str];
 }
 function isCharacter(key) {
   return getCharacter(key) != null;
