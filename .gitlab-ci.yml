@@ -5,7 +5,8 @@ pages:
   - pip install -r python/requirements-dev.txt
   - npm install -g jsdoc
   - make html
+  - mv build/html public
 
   artifacts:
     paths:
-    - build/html
+    - public
