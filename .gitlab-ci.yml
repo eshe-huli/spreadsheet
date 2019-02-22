@@ -1,8 +1,9 @@
-image: python:3.7.2
+image: registry.gitlab.com/wave-engineering/spreadsheet/builder:latest
 
 pages:
   script:
   - pip install -r python/requirements-dev.txt
+  - npm install -g jsdoc
   - make html
 
   artifacts:
