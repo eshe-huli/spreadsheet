@@ -23,6 +23,8 @@ def parse(formula):
     'A1'
     >>> parse('2018-01-01')
     '2018-01-01'
+    >>> parse('6.02e23')
+    '6.02e23'
     >>> parse('A1 + A2')
     ['+', 'A1', 'A2']
     >>> parse('"string"')
@@ -37,6 +39,12 @@ def parse(formula):
     ['+', 'a', ['b', ['+', 'c', 'd']]]
     >>> parse('a * b(c)')
     ['*', 'a', ['b', 'c']]
+    >>> parse('-1 + 2')
+    ['+', '-1', '2']
+    >>> parse('2 + -1')
+    ['+', '2', '-1']
+    >>> parse('trunc(2018-12-01T02:34:56)')
+    ['trunc', '2018-12-01T02:34:56']
 
     >>> parse("a1:b1(1, 2, 3)")
     Traceback (most recent call last):
@@ -65,8 +73,8 @@ LEXER = re.compile(
 (?P<lparen>\()
 | (?P<rparen>\))
 | (?P<plus>\+)
-| (?P<minus>-)
-| (?P<value>[a-zA-Z0-9:-]+)
+| (?P<minus>-\ )  # Hack: minus must be followed by whitespace (else -1 won't parse)
+| (?P<value>[a-zA-Z0-9:\.-]+)
 | (?P<quoted>"[^"]+")
 | (?P<times>\*)
 | (?P<divided>/)
