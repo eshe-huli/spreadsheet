@@ -11,6 +11,7 @@
  * @example
  * parse('A1') // => 'A1'
  * parse('2018-01-01') // => '2018-01-01'
+ * parse('6.02e23') // => '6.02e23'
  * parse('A1 + A2') // => ['+', 'A1', 'A2']
  * parse('"string"') // => 'string'
  * parse('sum(A1:A2)') // => ['sum', 'A1:A2']
@@ -38,7 +39,7 @@ const LEXER = new RegExp(
     "|(?<rparen>\\))" +
     "|(?<plus>\\+)" +
     "|(?<minus>- )" + // hack: minus must be followed by whitespace
-    "|(?<value>[a-zA-Z0-9:-]+)" +
+    "|(?<value>[a-zA-Z0-9:\.-]+)" +
     '|(?<quoted>"[^"]+")' +
     "|(?<times>\\*)" +
     "|(?<divided>/)" +
