@@ -15,7 +15,7 @@
     "prettier": "1.15.3"
   },
   "scripts": {
-    "ss": "ss/main.js",
+    "start": "ss/main.js",
     "test": "mocha --require jsdoctest && npm run jsdoctest",
     "jsdoctest": "mocha --require jsdoctest `find ss -name \"*.js\"`"
   },
