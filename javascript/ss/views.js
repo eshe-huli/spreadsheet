@@ -560,6 +560,7 @@ class SpreadsheetView {
 }
 
 function alignRight(str, width) {
+  assertString(str);
   if (str.length > width) {
     return str.slice(0, width - 2) + "..";
   }
@@ -567,6 +568,7 @@ function alignRight(str, width) {
 }
 
 function alignCenter(str, width) {
+  assertString(str);
   if (str.length > width) {
     return str.slice(0, width - 2) + "..";
   }
@@ -574,6 +576,12 @@ function alignCenter(str, width) {
     pLeft = Math.floor(padding / 2),
     pRight = padding - pLeft;
   return " ".repeat(pLeft) + str + " ".repeat(pRight);
+}
+
+function assertString(str) {
+  if (!(typeof str === "string" || str instanceof String)) {
+    throw new Error(`Expected string; got ${str}`);
+  }
 }
 
 const CHARACTERS = {
