@@ -65,7 +65,7 @@ Many spreadsheet operations act on a single cell. A cell is **referenced** by th
 Each cell contains a **value** which can be one of a few things:
 
 * A **number** formatted like `1`, `1.23` or `6.02e23`
-* A **datetime** formatted like `2018-01-01` or `2018-01-01 13:45:56`
+* A **datetime** formatted like `2018-01-01` or `2018-01-01T13:45:56`
 * A **string** like `purple pandas`
 * A **formula** like `= A1 + 2` (note that we will give you the code to parse a formula; see below.)
 * The cell can also be **empty**.
