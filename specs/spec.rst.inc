@@ -13,7 +13,7 @@ We've built the user interface (you'll get access right before the project start
 Prep
 ----
 
-1. Read through the spec below.
+1. Read through the spec below, especially the list of tasks at the end.
 2. Think through your major design choices. **Note:** The design of this project is subtle and easy to botch, so you will be well served by thinking it through!
 3. Email your interviewer any questions you have about the spec or project.
 4. Set up a fresh environment of Python 3.7 (if using Python) or Node 10.x (if using Javascript).
@@ -22,10 +22,9 @@ Interview structure
 -------------------
 
 1. We'll start with a quick call where you can ask your interviewer any UX questions, talk through your plan, and make sure you can run `ss` usefully.
-2. For the first 2.5 hours you'll work largely on your own to implement the spreadsheet engine. Your interviewer will check in with you after 1h30m to see how things are going.
+2. For the first 2.5 hours you'll work largely on your own to implement the spreadsheet engine. Your interviewer will check in with you after ~1h30m to see how things are going.
 3. From 2h30m to 3h30m, you and your interviewer will pair program for an hour on whatever you're working on.
-4. From 3h30m to 4h, you'll wrap up by sketching out the design of whatever work you didn't finish implementing.
-5. At 4h your interviewer will read the design doc and ask any final clarifying questions.
+4. From 3h30m to 4h, we'll wrap up with a post-mortem of your design and talk about what improvements you'd make with the benefit of hindsight.
 
 How you will be evaluated
 -------------------------
@@ -90,7 +89,7 @@ A **formula** is a cell value starting with `=`, followed by an expression which
     * All binary operators are valid to apply to 2 numbers. For dates, only addition and subtraction are defined. If you add a number to a date, you get a date that many days in the future. If you subtract two dates, you get the difference between them in days. You can't add two dates.
 * a **function call** with any number of sub-expressions (**arguments**), like `sum(A1:B2, C3:D4)`. Function names are alphanumeric only and case-insensitive.
 
-When printed, a cell with a formula should display the result of evaluating the formula. If a set of cell formulae causes a circular reference (for instance `set A1 = A2; set A2 = A1`) then it would be nice not to hang or crash.
+When printed, a cell with a formula should display the result of evaluating the formula. If a set of cell formulae causes a circular reference (for instance A1 is `=A2` and A2 `=A1`) then it would be nice not to hang or crash.
 
 **We will give you a pre-written** `parse` **function** to parse a formula string (without the `=` sign), because this function is boring and fiddly to write. See |formula| for details.
 
@@ -101,11 +100,7 @@ Your tasks
 Here's the order you should do things in. Each step (up through `sum`) comes with a CSV in the `examples` directory that you can load for a very basic/incomplete test of the "happy path." (Testing the unhappy path is up to you.)
 
 1. Get `set` and `get_raw` working.
-2. Make `get_formatted` evaluate simple references to constants, e.g. `=A1` where A1 is `1`. (Don't worry about formatting at this point! That's a later step.)
-3. Allow references to other references, e.g. `=B1` where B1 is `=A1`.
-4. Move on to binary operations, e.g. `=1 + 2` (or `=A1 + A2`).
-5. Implement a `sum(range)` function for formula evaluation, which adds together all the values in the given range.
-6. (pairing) Get `set_format` working and make `get_formatted` apply the format string.
-7. (with your interviewer) Discuss in broad strokes how you would implement:
-    1. Unit tests for the code you just wrote.
-    2. Making sure the UI always responds quickly to user input.
+2. Get `set_format` working and make `get_formatted` apply the given format.
+3. Make `get_formatted` follow references, e.g. `=A1`.
+4. Make `get_formatted` support binary operations, e.g. `=1 + 2`.
+5. Implement a `sum(range1, ...)` function for formula evaluation, which adds together all the values in the given range(s).
