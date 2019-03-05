@@ -41,7 +41,7 @@ class Spreadsheet:
 
         Arguments:
             index (Index): the cell to format
-            type (str): the type of format--``'default'``, ``'number'`` or ``'datetime'``
+            type (str): the type of format--``'default'``, ``'number'`` or ``'date'``
             spec (str): the format string to use on the cell:
 
                 - if `type` is ``'default'``, should be None
