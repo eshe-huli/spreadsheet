@@ -76,8 +76,8 @@ class Index(NamedTuple):
     def max(self, other):
         """Return a new Index with the greater of each `row` and `col` attr.
 
-        >>> Index(1, 2).min((2, 1))
-        Index(row=1, col=1)
+        >>> Index(1, 2).max((2, 1))
+        Index(row=2, col=2)
 
         Args:
             other (Index):
