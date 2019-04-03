@@ -12,7 +12,7 @@ def read_csv(fname, sheet):
         reader = csv.reader(f)
         for row, values in enumerate(reader):
             for col, value in enumerate(values):
-                sheet.set(str(models.Index(row, col)), value)
+                sheet.set(models.Index(row, col), value)
 
 
 def setup_logging():
