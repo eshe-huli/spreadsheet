@@ -15,6 +15,8 @@
  * parse("miscellaneousliteral") // => 'miscellaneousliteral'
  * parse('"string with spaces"') // => 'string with spaces'
  * parse('A1 + A2') // => ['+', 'A1', 'A2']
+ * parse('-1 + 2') // => ['+', '-1', '2']
+ * parse('2 + -1') // => ['+', '2', '-1']
  * parse('A1 - A2 - A3') // => ['-', ['-', 'A1', 'A2'], 'A3']
  * parse('A1 - (A2 - A3)') // => ['-', 'A1', ['-', 'A2', 'A3']]
  * parse('A1 + A2 * A3') // => ['+', 'A1', ['*', 'A2', 'A3']]
