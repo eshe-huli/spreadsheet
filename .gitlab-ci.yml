@@ -1,10 +1,10 @@
-image: registry.gitlab.com/wave-engineering/spreadsheet/builder:latest
-
 pages:
+  image: registry.gitlab.com/wave-engineering/spreadsheet/builder:latest
   script:
   - pip install -r python/requirements-dev.txt
   - npm install -g jsdoc@3.5
   - make html
+  - git bundle create build/html/_static/repo.bundle
   - mv build/html public
 
   artifacts:
