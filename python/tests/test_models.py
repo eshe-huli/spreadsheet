@@ -1,5 +1,6 @@
 from ss.models import Index, Range
 
+
 def test_parse_roundtrip():
     for row in range(50):
         for col in range(50):

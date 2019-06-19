@@ -21,11 +21,9 @@ def setup_logging():
     - include the date/time on every message
     - set loglevel to DEBUG
     """
-    logfile = pathlib.Path(__file__).parent.parent / 'spreadsheet.log'
+    logfile = pathlib.Path(__file__).parent.parent / "spreadsheet.log"
     logging.basicConfig(
-        format='[%(asctime)s]: %(message)s',
-        filename=logfile,
-        level=logging.DEBUG
+        format="[%(asctime)s]: %(message)s", filename=logfile, level=logging.DEBUG
     )
 
 
