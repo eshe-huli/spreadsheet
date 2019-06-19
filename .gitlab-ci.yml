@@ -3,7 +3,7 @@ image: registry.gitlab.com/wave-engineering/spreadsheet/builder:latest
 pages:
   script:
   - pip install -r python/requirements-dev.txt
-  - npm install -g jsdoc
+  - npm install -g jsdoc@3.5
   - make html
   - mv build/html public
 
