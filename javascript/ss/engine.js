@@ -37,7 +37,8 @@ class Spreadsheet {
    *      if `type` is 'datetime', an instance of `Intl.DateFormat`
    */
   setFormat(index, type, spec) {
-    let specStr = spec && spec.resolvedOptions && JSON.stringify(spec.resolvedOptions());
+    let specStr =
+      spec && spec.resolvedOptions && JSON.stringify(spec.resolvedOptions());
     throw Error(`setFormat ${index.label} ${type} ${specStr}`);
   }
   /**

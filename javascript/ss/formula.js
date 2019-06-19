@@ -43,8 +43,10 @@ const LEXER = new RegExp(
   "(?<lparen>\\()" +
     "|(?<rparen>\\))" +
     "|(?<plus>\\+)" +
-    "|(?<minus>- )" + // hack: minus must be followed by whitespace
-    "|(?<value>[a-zA-Z0-9:\.-]+)" +
+    // hack: minus must be followed by whitespace to avoid conflict with
+    // negative numbers
+    "|(?<minus>- )" +
+    "|(?<value>[a-zA-Z0-9:.-]+)" +
     '|(?<quoted>"[^"]+")' +
     "|(?<times>\\*)" +
     "|(?<divided>/)" +

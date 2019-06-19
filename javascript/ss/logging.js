@@ -1,9 +1,11 @@
-const util = require('util');
-const fs = require('fs');
-const output = fs.createWriteStream(__dirname + '/../spreadsheet.log', {'flags': 'a'});
+const util = require("util");
+const fs = require("fs");
+const output = fs.createWriteStream(__dirname + "/../spreadsheet.log", {
+  flags: "a"
+});
 
 const logger = new console.Console(output);
-logger.close = function (cb) {
+logger.close = function(cb) {
   output.end(cb);
 };
 
@@ -18,13 +20,12 @@ const funcs = {
 function logprefix(fn) {
   Object.keys(funcs).forEach(function(k) {
     logger[k] = function() {
-      const s = typeof fn === 'function' ? fn() : fn;
+      const s = typeof fn === "function" ? fn() : fn;
       arguments[0] = util.format(s, arguments[0]);
       funcs[k].apply(logger, arguments);
     };
   });
 }
-
 
 module.exports = logger;
 
@@ -36,5 +37,5 @@ function patch(fn) {
 
 // This is the date format to prepend:
 function timestamp() {
-  return '[' + new Date().toISOString() + ']';
+  return "[" + new Date().toISOString() + "]";
 }

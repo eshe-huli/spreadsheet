@@ -1,5 +1,5 @@
 const { Index, Range } = require("./models.js");
-const logger = require("./logging.js")
+const logger = require("./logging.js");
 
 const KEY_DELTAS = {
   left: { row: 0, col: -1 },
@@ -277,14 +277,43 @@ class SpreadsheetView {
       minute: "numeric",
       second: "numeric"
     });
-    let example = new Date("2018-01-01T13:34:45")
+    let example = new Date("2018-01-01T13:34:45");
     this.enterMenu({
       title: `Format ${this.selection.label}`,
       choices: [
         { key: "C-o", name: "default", value: ["default", null] },
-        { key: "C-i", name: "1", value: ["number", new Intl.NumberFormat([], {maximumFractionDigits: 0})] },
-        { key: "C-f", name: "1.23", value: ["number", new Intl.NumberFormat([], {maximumFractionDigits: 2, minimumFractionDigits: 2})] },
-        { key: "C-s", name: "$1.23", value: ["number", new Intl.NumberFormat([], {currency: "USD", currencyDisplay: "symbol", maximumFractionDigits: 2, minimumFractionDigits: 2})] },
+        {
+          key: "C-i",
+          name: "1",
+          value: [
+            "number",
+            new Intl.NumberFormat([], { maximumFractionDigits: 0 })
+          ]
+        },
+        {
+          key: "C-f",
+          name: "1.23",
+          value: [
+            "number",
+            new Intl.NumberFormat([], {
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2
+            })
+          ]
+        },
+        {
+          key: "C-s",
+          name: "$1.23",
+          value: [
+            "number",
+            new Intl.NumberFormat([], {
+              currency: "USD",
+              currencyDisplay: "symbol",
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2
+            })
+          ]
+        },
         { key: "C-d", name: date.format(example), value: ["date", date] },
         {
           key: "C-t",

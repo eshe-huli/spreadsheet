@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const fs = require('fs');
+const fs = require("fs");
 
 if (require.main === module) {
   const logger = require("./logging.js");
@@ -16,8 +16,8 @@ if (require.main === module) {
   process.on("exit", () => {
     program.showCursor();
     program.normalBuffer();
-  })
-  process.on("uncaughtException", (err) => {
+  });
+  process.on("uncaughtException", err => {
     logger.log(`Exiting due to uncaught exception: ${err.stack}`);
     console.log(err.stack);
     logger.close(() => {
