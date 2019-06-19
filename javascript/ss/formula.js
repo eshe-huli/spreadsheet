@@ -12,13 +12,16 @@
  * parse('A1') // => 'A1'
  * parse('2018-01-01') // => '2018-01-01'
  * parse('6.02e23') // => '6.02e23'
- * parse('A1 + A2') // => ['+', 'A1', 'A2']
- * parse('"string"') // => 'string'
- * parse('sum(A1:A2)') // => ['sum', 'A1:A2']
  * parse("miscellaneousliteral") // => 'miscellaneousliteral'
- * parse('function((1+1))') // => ['function', ['+', '1', '1']]
- * parse('a + b(c + d)') // => ['+', 'a', ['b', ['+', 'c', 'd']]]
- * parse('a * b(c)') // => ['*', 'a', ['b', 'c']]
+ * parse('"string with spaces"') // => 'string with spaces'
+ * parse('A1 + A2') // => ['+', 'A1', 'A2']
+ * parse('A1 - A2 - A3') // => ['-', ['-', 'A1', 'A2'], 'A3']
+ * parse('A1 - (A2 - A3)') // => ['-', 'A1', ['-', 'A2', 'A3']]
+ * parse('A1 + A2 * A3') // => ['+', 'A1', ['*', 'A2', 'A3']]
+ * parse('sum(A1:A2)') // => ['sum', 'A1:A2']
+ * parse('sum(A1:A2, A3, A4)') // => ['sum', 'A1:A2', 'A3', 'A4']
+ * parse('sqrt((1+1))') // => ['sqrt', ['+', '1', '1']]
+ * parse('A1 + sqrt(A2 + A3)') // => ['+', 'A1', ['sqrt', ['+', 'A2', 'A3']]]
  */
 function parse(code) {
   return new Parser(tokenize(code)).parse();
@@ -211,7 +214,7 @@ class Parser {
   arglist() {
     let tm = [this.expr()];
     while (this.consume("comma")) {
-      tm.push(this.consume(expr));
+      tm.push(this.expr());
     }
     return tm;
   }
