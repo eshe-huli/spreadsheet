@@ -10,3 +10,19 @@ pages:
   artifacts:
     paths:
     - public
+
+python:
+  image: python:3.7
+  script:
+  - cd python
+  - pip install -r requirements-dev.txt
+  - pytest
+  - black --check ss tests
+
+javascript:
+  image: node:10.15.0
+  script:
+  - cd javascript
+  - npm i --dev
+  - npm test
+  - node_modules/prettier/bin-prettier.js --list-different ss/*.js test/*.js
