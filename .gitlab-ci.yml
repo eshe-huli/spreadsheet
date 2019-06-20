@@ -4,7 +4,7 @@ pages:
   - pip install -r python/requirements-dev.txt
   - npm install -g jsdoc@3.5
   - make html
-  - git bundle create build/html/_static/repo.bundle
+  - git bundle create build/html/_static/repo.bundle --branches HEAD
   - mv build/html public
 
   artifacts:
