@@ -310,7 +310,8 @@ class SpreadsheetView {
               currency: "USD",
               currencyDisplay: "symbol",
               maximumFractionDigits: 2,
-              minimumFractionDigits: 2
+              minimumFractionDigits: 2,
+              style: "currency"
             })
           ]
         },
