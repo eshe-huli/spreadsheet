@@ -1,6 +1,6 @@
 .. default-role:: code
 
-We're building a text-UI spreadsheet app named `ss`. Here's what it looks like so far:
+We're building a text-UI spreadsheet app named `sheet`. Here's what it looks like so far:
 
 .. image:: screenshot.png
    :width: 674
@@ -21,7 +21,7 @@ Prep
 Interview structure
 -------------------
 
-1. We'll start with a quick call where you can ask your interviewer any UX questions, talk through your plan, and make sure you can run `ss` usefully.
+1. We'll start with a quick call where you can ask your interviewer any UX questions, talk through your plan, and make sure you can run `sheet` usefully.
 2. For the first 2.5 hours you'll work largely on your own to implement the spreadsheet engine. Your interviewer will check in with you after ~1h30m to see how things are going.
 3. From 2h30m to 3h30m, you and your interviewer will pair program for an hour on whatever you're working on.
 4. From 3h30m to 4h, we'll wrap up with a post-mortem of your design and talk about what improvements you'd make with the benefit of hindsight.
@@ -59,7 +59,7 @@ The spreadsheet data model
 
 A spreadsheet is (displayed as) a 2-dimensional grid of cells. The rows of the grid are lettered `A, B, ... Z, AA, BB, ..., AAA, ...`. The columns of the grid are numbered `1, 2, ...`. There is no limit to the number of rows or columns of the spreadsheet.
 
-Many spreadsheet operations act on a single cell. A cell is **referenced** by the concatenation of its row and column, e.g. `A1` (column 1, row 1) or `ZZ590` (column 52, row 590). Some spreadsheet operations operate on a **range** of cells, written as two cell references separated by a colon (e.g. `A1:B3` is a 2x3 range). We will give you library functions for converting references and ranges to/from tuples; see the `ss.models` module.
+Many spreadsheet operations act on a single cell. A cell is **referenced** by the concatenation of its row and column, e.g. `A1` (column 1, row 1) or `ZZ590` (column 52, row 590). Some spreadsheet operations operate on a **range** of cells, written as two cell references separated by a colon (e.g. `A1:B3` is a 2x3 range). We will give you library functions for converting references and ranges to/from tuples; see the `sheet.models` module.
 
 Each cell contains a **value** which can be one of a few things:
 

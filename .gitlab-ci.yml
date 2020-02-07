@@ -17,7 +17,7 @@ python:
   - cd python
   - pip install -r requirements-dev.txt
   - pytest
-  - black --check ss tests
+  - black --check sheet tests
 
 javascript:
   image: node:10.15.0
@@ -25,4 +25,4 @@ javascript:
   - cd javascript
   - npm i --dev
   - npm test
-  - node_modules/prettier/bin-prettier.js --list-different ss/*.js test/*.js
+  - node_modules/prettier/bin-prettier.js --list-different sheet/*.js test/*.js

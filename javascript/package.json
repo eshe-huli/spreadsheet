@@ -1,8 +1,8 @@
 {
-  "name": "ss",
+  "name": "sheet",
   "version": "1.0.0",
   "description": "Text mode spreadsheet interview project",
-  "main": "ss/main.js",
+  "main": "sheet/main.js",
   "dependencies": {
     "blessed": "^0.1.81",
     "csv-parse": "^4.3.0"
@@ -15,9 +15,9 @@
     "prettier": "1.15.3"
   },
   "scripts": {
-    "start": "ss/main.js",
+    "start": "sheet/main.js",
     "test": "mocha --require jsdoctest && npm run jsdoctest",
-    "jsdoctest": "mocha --require jsdoctest `find ss -name \"*.js\"`"
+    "jsdoctest": "mocha --require jsdoctest `find sheet -name \"*.js\"`"
   },
   "author": "",
   "license": "ISC"

@@ -4,7 +4,7 @@ import logging
 import pathlib
 import sys
 
-from ss import engine, views, models
+from sheet import engine, views, models
 
 
 def read_csv(fname, sheet):

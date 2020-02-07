@@ -13,6 +13,6 @@ To load a CSV file (useful as a shortcut for testing), run `npm start ../example
 Dev tips
 --------
 
-The spreadsheet class you should extend lives in `ss/engine.js`.
+The spreadsheet class you should extend lives in `sheet/engine.js`.
 
-Normal printing to the console won't work because the UI will be drawn over it. Instead, we provide a simple way to log to a file named `spreadsheet.log`. See `ss/main.js` for a usage example.
+Normal printing to the console won't work because the UI will be drawn over it. Instead, we provide a simple way to log to a file named `spreadsheet.log`. See `sheet/main.js` for a usage example.

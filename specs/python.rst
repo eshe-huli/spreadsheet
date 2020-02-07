@@ -16,7 +16,7 @@ Appendix: interfaces
 The engine interface
 --------------------
 
-.. automodule:: ss.engine
+.. automodule:: sheet.engine
    :members:
 
 .. _py_formula:
@@ -24,13 +24,13 @@ The engine interface
 The formula library
 -------------------
 
-.. automodule:: ss.formula
+.. automodule:: sheet.formula
    :members:
 
 The index/range library
 -----------------------
 
-.. automodule:: ss.models
+.. automodule:: sheet.models
    :members:
    :special-members: __add__, __str__
 

@@ -1,6 +1,6 @@
 import pytest
 
-from ss import formula
+from sheet import formula
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,4 @@
-let { tokenize, parse } = require("../ss/formula.js");
+let { tokenize, parse } = require("../sheet/formula.js");
 let assert = require("assert");
 
 describe("parse", () => {

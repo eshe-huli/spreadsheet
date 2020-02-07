@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../python'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'ss'
+project = 'sheet'
 copyright = '2019, Wave'
 author = 'Wave'
 
@@ -43,7 +43,7 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
-js_source_path = './javascript/ss'
+js_source_path = './javascript/sheet'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
