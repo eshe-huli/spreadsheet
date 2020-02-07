@@ -51,24 +51,3 @@ class Spreadsheet:
                   `datetime.strftime`, e.g. ``'%Y-%m-%d'``
         """
         raise NotImplementedError(f"set_format {index} {type} {spec}")
-
-    def copy(self, src, dest):
-        """Copy the cell range `src` to `dest`.
-
-        Arguments:
-            src (Range): the range to copy
-            dest (Index): the cell into which the upper-left of `src` should go
-        """
-        raise NotImplementedError(f"copy {src} {dest}")
-
-    def sort(self, range, column, ascending):
-        """Sort the given range by the given column.
-
-        Arguments:
-            range (Range): the range to sort.
-            column (int): the integer index of the column to sort. Must lie
-                between range.first.col and range.last.col (inclusive).
-            ascending (bool): whether to sort in ascending (1, 2, 3) or
-                descending (3, 2, 1) order.
-        """
-        raise NotImplementedError(f"sort {range} {column} {ascending}")
