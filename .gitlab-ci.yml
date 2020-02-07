@@ -1,7 +1,7 @@
 pages:
   image: registry.gitlab.com/wave-engineering/spreadsheet/builder:latest
   script:
-  - pip install -r python/requirements-dev.txt
+  - pip install -r python/requirements-dev-frozen.txt
   - npm install -g jsdoc@3.5
   - make html
   - git bundle create build/html/_static/repo.bundle --branches HEAD
