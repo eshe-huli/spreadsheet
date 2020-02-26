@@ -57,7 +57,7 @@ At the end of this section, we'll tell you which parts to implement in which ord
 The spreadsheet data model
 --------------------------
 
-A spreadsheet is (displayed as) a 2-dimensional grid of cells. The rows of the grid are lettered `A, B, ... Z, AA, BB, ..., AAA, ...`. The columns of the grid are numbered `1, 2, ...`. There is no limit to the number of rows or columns of the spreadsheet.
+A spreadsheet is (displayed as) a 2-dimensional grid of cells. The columns of the grid are lettered `A, B, ... Z, AA, BB, ..., AAA, ...`. The rows of the grid are numbered `1, 2, ...`. There is no limit to the number of rows or columns of the spreadsheet.
 
 Many spreadsheet operations act on a single cell. A cell is **referenced** by the concatenation of its row and column, e.g. `A1` (column 1, row 1) or `ZZ590` (column 52, row 590). Some spreadsheet operations operate on a **range** of cells, written as two cell references separated by a colon (e.g. `A1:B3` is a 2x3 range). We will give you library functions for converting references and ranges to/from tuples; see the `sheet.models` module.
 
