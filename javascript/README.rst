@@ -1,7 +1,7 @@
 Setup
 -----
 
-Install Node 10.x or later, then in this directory run `npm i --production`.
+Install Node 12.x or later, then in this directory run `npm i --production`.
 
 Usage
 -----

@@ -16,7 +16,7 @@ Prep
 1. Read through the spec below, especially the list of tasks at the end.
 2. Think through your major design choices. **Note:** The design of this project is subtle and easy to botch, so you will be well served by thinking it through!
 3. Email your interviewer any questions you have about the spec or project.
-4. Set up a fresh environment of Python 3.7 (if using Python) or Node 10.x (if using Javascript).
+4. Set up a fresh environment of Python 3.7 (if using Python) or Node 12.x (if using Javascript).
 
 Interview structure
 -------------------
