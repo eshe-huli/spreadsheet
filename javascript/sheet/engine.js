@@ -26,7 +26,7 @@ class Spreadsheet {
   set(index, raw) {
     throw Error(`set ${index.label} = ${raw}`);
   }
-  /** Set the format string for a given index.
+  /** Set the format string for a given cell.
    *
    * @param {models.Index} index the cell to format
    * @param {String} type the type of format--'default', 'number' or

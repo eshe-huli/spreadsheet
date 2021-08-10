@@ -37,7 +37,7 @@ class Spreadsheet:
         raise NotImplementedError(f"set {index} = {raw!r}")
 
     def set_format(self, index, type, spec):
-        """Set the format string for a given range.
+        """Set the format string for a given cell.
 
         Arguments:
             index (Index): the cell to format
