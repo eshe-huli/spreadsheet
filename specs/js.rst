@@ -22,13 +22,10 @@ The engine interface
    :members:
 
 
-The index/range library
+The index library
 -----------------------
 
 .. js:autoclass:: models.Index
-   :members:
-
-.. js:autoclass:: models.Range
    :members:
 
 .. js:autoclass:: models.ValueError
