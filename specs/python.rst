@@ -22,10 +22,10 @@ The engine interface
 .. _py_formula:
 
 
-The index/range library
+The index library
 -----------------------
 
-.. automodule:: sheet.models
+.. automodule:: sheet.index
    :members:
    :special-members: __add__, __str__
 

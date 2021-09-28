@@ -4,7 +4,7 @@ import logging
 import pathlib
 import sys
 
-from sheet import engine, views, models
+from sheet import engine, views, index
 
 
 def read_csv(fname, sheet):
@@ -12,7 +12,7 @@ def read_csv(fname, sheet):
         reader = csv.reader(f)
         for row, values in enumerate(reader):
             for col, value in enumerate(values):
-                sheet.set(models.Index(row, col), value)
+                sheet.set(index.Index(row, col), value)
 
 
 def setup_logging():
