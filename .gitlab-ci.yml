@@ -16,7 +16,7 @@ python:
   script:
   - cd python
   - pip install -r requirements-dev.txt
-  - pytest
+  - pytest sheet/ tests/
   - black --check sheet tests
 
 javascript:
