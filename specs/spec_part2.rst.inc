@@ -2,6 +2,8 @@
 
 Congratulations, your basic spreadsheet implementation looked great, so it's now time to build on it!  We'll be extinding our spreadsheet by building a wider variety of formulas, as specified below.
 
+.. contents::
+
 Interview structure
 -------------------
 
