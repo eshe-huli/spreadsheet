@@ -21,14 +21,6 @@ The engine interface
 .. js:autoclass:: engine.Spreadsheet
    :members:
 
-.. _js_formula:
-
-The formula library
--------------------
-
-.. js:autofunction:: formula.parse
-
-.. js:autoclass:: formula.ParseError
 
 The index/range library
 -----------------------

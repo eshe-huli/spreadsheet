@@ -21,11 +21,6 @@ The engine interface
 
 .. _py_formula:
 
-The formula library
--------------------
-
-.. automodule:: sheet.formula
-   :members:
 
 The index/range library
 -----------------------
