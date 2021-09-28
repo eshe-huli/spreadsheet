@@ -390,7 +390,7 @@ class Viewer:
     def begin_selecting(self):
         """Enter range-selection mode.
 
-        In this mode, """
+        In this mode,"""
         self.selecting_from = self.cursor
 
     def begin_copy(self):

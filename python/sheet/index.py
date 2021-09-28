@@ -143,5 +143,3 @@ class Index(NamedTuple):
         num_chars = len(match["col"])
         col = 26 * (num_chars - 1) + ord(char) - ord("A")
         return Index(row=row, col=col)
-
-

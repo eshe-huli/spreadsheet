@@ -2,6 +2,7 @@ from typing import NamedTuple
 
 from sheet.index import Index
 
+
 class _Range(NamedTuple):
     # Private base class for `Range`, which needs to override __new__. See
     # `Range` for docs.
