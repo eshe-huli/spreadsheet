@@ -19,8 +19,6 @@ The engine interface
 .. automodule:: sheet.engine
    :members:
 
-.. _py_formula:
-
 
 The index library
 -----------------------

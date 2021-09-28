@@ -1,6 +1,36 @@
+.. default-role:: code
+
+Congratulations, your basic spreadsheet implementation looked great, so it's now time to build on it!  We'll be extinding our spreadsheet by building a wider variety of formulas, as specified below.
+
+Interview structure
+-------------------
+
+This time, you'll screenshare with a Wave engineer to implement the changes on top of what you've already done on your spreadsheet.  We'll have two hours for this part of the interview.
+
+We want to see how you think and solve problems, so we won't necessarily give you guidance, but if you're stuck, we won't let you spin your wheels (that's not interesting for us either), and we won't let you charge off in a direction that's not what we intended.  Please ask your interviewer questions if you have them, and if you ask them something we want you to figure out yourself, we'll tell you so.
 
 
-Congratulations, your basic spreadsheet implementation looked great, so it's now time to build on it!
+
+How you will be evaluated
+-------------------------
+
+We'll use the same high-level criteria to evaluate you as for part 1.
+
+1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
+2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
+3. **Extensibility.**  how easy is it to build even more features on top of what you've made so far?  You also still don't need to optimize for performance or write unit tests, but try not to make assumptions that would make high performance or testing impossible later.
+
+You should prioritize *all* of these over finishing the entire spec.  We recommend implementing the new features one by one, and if we run out of time before they're all implemented, that's totally fine and doesn't mean you didn't do well.
+
+
+As before, **don't worry about**:
+
+- small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round and your interviewer will learn the codebase by pairing with you :)
+- actually writing unit tests (again, do worry about making it testable though!)
+- trivial bugs/regressions (in the real world, you'd have automated tests to prevent these)
+- actually optimizing your code, unless it takes you over 1 second to execute a simple command
+- security
+
 
 Spec additions
 --------------
