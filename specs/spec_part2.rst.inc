@@ -7,11 +7,9 @@ Congratulations, your basic spreadsheet implementation looked great, so it's now
 Interview structure
 -------------------
 
-This time, you'll screenshare with a Wave engineer to implement the changes on top of what you've already done on your spreadsheet.  We'll have two hours for this part of the interview.
+This time, you'll screenshare with a Wave engineer to implement the changes on top of what you've already done on your spreadsheet.  We'll have two hours for this part of the interview.  At the start of the interview, we'll give you access to the two new libraries described below.
 
 We want to see how you think and solve problems, so we won't necessarily give you guidance, but if you're stuck, we won't let you spin your wheels (that's not interesting for us either), and we won't let you charge off in a direction that's not what we intended.  Please ask your interviewer questions if you have them, and if you ask them something we want you to figure out yourself, we'll tell you so.
-
-
 
 How you will be evaluated
 -------------------------
@@ -41,7 +39,7 @@ In addition to the types you implemented in part 1 (number, datetime, string, an
 
 A **formula** is a cell value starting with `=`, followed by an expression which can either be:
 
- * a **cell reference** like `A1` (you've already implemented this!)
+ * a **cell reference** like `A1` (You've already implemented this!  But you may want to refactor it with the new information in minde, e.g. to use the formula parse library you now have access to.)
  * a **literal number or date** like `6.02e23` or `2018-01-01`
  * a **binary operator** (`+-*/`) on two sub-expressions (**operands**), like `A1 * 6.02e23`
      * There must be spaces on each side of the operand. (Otherwise we couldn't tell whether `2018-01-01` was a date or equal to the value `2016`!)
