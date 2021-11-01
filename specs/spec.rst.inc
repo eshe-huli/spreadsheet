@@ -43,6 +43,19 @@ Finally, **don't worry about**:
 - actually optimizing your code, unless it takes you over 1 second to execute a simple command
 - security
 
+Logistics
+---------
+
+Once you're ready to start, we'll send you the URL of the existing code.  You'll run `curl` on that URL and get a file called `repo.bundle`.  To open that file, run `git clone repo.bundle spreadsheet`.
+
+This should create a `spreadsheet` directory with a git repository with the `part1` branch checked out, ready for you to work in it.
+
+When you’re ready to submit:
+* If you haven't been making commits as you go, commit your work with `git add . && git commit -m "completed spreadsheet"`
+* Run `git bundle create commits.bundle part1 startingpoint`
+* Send the resulting `.bundle` file to us in an email
+
+
 Spec
 ====
 
@@ -75,7 +88,7 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
-Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview 
+Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview
 
 Your tasks
 ----------
