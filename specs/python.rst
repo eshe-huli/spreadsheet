@@ -23,7 +23,7 @@ The engine interface
 The index library
 -----------------------
 
-.. automodule:: sheet.index
+.. autoclass:: sheet.models.Index
    :members:
    :special-members: __add__, __str__
 

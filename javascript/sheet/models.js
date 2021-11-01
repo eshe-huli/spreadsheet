@@ -174,7 +174,6 @@ class Index {
   }
 }
 
-
 /**
  * Represents a range of cells like 'A1:B3'.
  *

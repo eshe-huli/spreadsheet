@@ -2,7 +2,7 @@ import curses
 from typing import NamedTuple, Callable
 import time
 
-from .index import Index
+from .models import Index
 from .range import Range
 
 # Map [arrow key] -> [delta to apply to cursor in grid space]
