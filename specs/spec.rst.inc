@@ -49,14 +49,14 @@ Logistics
 Once you're ready to start, we'll send you the URL of the existing code.  You'll run `curl` on that URL and get a file called `repo.bundle`.
 
 To open that file, run
-* `git clone repo.bundle spreadsheet --branch=part1`
+* `git clone part1.bundle spreadsheet --branch=part1`
 * `cd spreadsheet`
 
 This should create a `spreadsheet` directory with a git repository with the `part1` branch checked out, ready for you to work in it.
 
 When you’re ready to submit:
 * If you haven't been making commits as you go, commit your work with `git add . && git commit -m "completed spreadsheet"`
-* Run `git bundle create commits.bundle part1 startingpoint`
+* Run `git bundle create commits.bundle part1 startingpoint --branches`
 * Send the resulting `.bundle` file to us in an email
 
 
