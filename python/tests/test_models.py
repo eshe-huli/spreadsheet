@@ -1,5 +1,4 @@
-from sheet.index import Index
-from sheet.range import Range
+from sheet.models import Index
 
 
 def test_parse_roundtrip():
