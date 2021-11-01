@@ -1,6 +1,6 @@
 let models = require("../sheet/models.js");
 let assert = require("assert");
-const { Index, _ } = require("./models.js");
+const { Index, _ } = require("../models.js");
 
 describe("index", () => {
   for (let [row, col, label] of [
