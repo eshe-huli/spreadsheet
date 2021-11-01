@@ -1,5 +1,6 @@
 let models = require("../sheet/models.js");
 let assert = require("assert");
+const { Index, _ } = require("./models.js");
 
 describe("index", () => {
   for (let [row, col, label] of [
@@ -10,13 +11,13 @@ describe("index", () => {
   ]) {
     it('Knows its label', () => {
       index = new models.Index(row, col)
-      assert.equals(index.label, label)
+      assert.equal(index.label, label)
     });
 
     it('Parses connectly', () => {
       index = Index.parse(label)
-      assert.equals(index.row, row)
-      assert.equals(index.column, column)
+      assert.equal(index.row, row)
+      assert.equal(index.column, column)
     });
   }
 });
