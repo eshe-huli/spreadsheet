@@ -46,7 +46,12 @@ Finally, **don't worry about**:
 Logistics
 ---------
 
-Once you're ready to start, we'll send you the URL of the existing code.  You'll run `curl` on that URL and get a file called `repo.bundle`.  To open that file, run `git clone repo.bundle spreadsheet`.
+Once you're ready to start, we'll send you the URL of the existing code.  You'll run `curl` on that URL and get a file called `repo.bundle`.
+
+To open that file, run
+* `git clone repo.bundle spreadsheet`
+* `cd spreadsheet`
+* `git co -b part1`
 
 This should create a `spreadsheet` directory with a git repository with the `part1` branch checked out, ready for you to work in it.
 
