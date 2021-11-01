@@ -6,17 +6,17 @@ describe("index", () => {
        [0, 0, 'A1'],
        [0, 1, 'B1'],
        [1, 0, 'A2'],
-       [28, 123, 'AB123']
+       [123, 28, 'BB123']
   ]) {
     it('Knows its label', () => {
       index = new models.Index(row, col)
       assert.equal(index.label, label)
     });
 
-    it('Parses connectly', () => {
+    it('Parses correctly', () => {
       index = models.Index.parse(label)
       assert.equal(index.row, row)
-      assert.equal(index.column, column)
+      assert.equal(index.column, col)
     });
   }
 });
