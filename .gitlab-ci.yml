@@ -11,4 +11,4 @@ javascript:
   script:
   - cd javascript
   - npm i --dev
-  - node_modules/prettier/bin-prettier.js --list-different sheet/*.js
+  - npm test
