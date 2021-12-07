@@ -46,13 +46,16 @@ Finally, **don't worry about**:
 Logistics
 ---------
 
-Once you're ready to start, we'll send you the URL of the existing code.  You'll run `curl` on that URL and get a file called `repo.bundle`.
+Do the prep steps above first.  Once you have a python or node environment set up and have your interview questions answered, download the code from the link sent to you in the same email and start the timer.
 
-To open that file, run
+To open that file, run:
+
 * `git clone repo.bundle spreadsheet --branch=part1`
 * `cd spreadsheet`
 
 This should create a `spreadsheet` directory with a git repository with the `part1` branch checked out, ready for you to work in it.
+
+Once you start the timer, you have 2.5 hours to work on implementing the spec below.  Don't forget to take breaks to drink water!  
 
 When you’re ready to submit:
 
