@@ -23,6 +23,6 @@ To make changes to the interview code:
     * Tests for part1 should be made on the part1-tests branch
     * Things pertaining to part2 should be only on the part2 branch, to avoid interviewees being confused or distracted by it while doing part1
     * Instructions for both should go on the appropriate branches, but please note that instructions and bundle files are built on the part2 branch only
-* Once you’ve made changes in the part1 branch, please also update the part1-tests and part2 branches by merging in part1
+* Once you’ve made changes in the part1 branch, please also update the part1-tests and part2 branches by rebasing off of part1.  Rebasing is annoying and dangerous, because you then have to force push, but it also helps us keep ourselves from having random collections of commits on each branch.
 
 Bundles to send to candidates are automatically created in CI, so you don't need to go through a manual process to do this.
