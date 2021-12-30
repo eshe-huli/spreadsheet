@@ -48,6 +48,11 @@ Logistics
 
 Do the prep steps above first.  Once you have a python or node environment set up and have your interview questions answered, download the code from the link sent to you in the same email and start the timer.  You can do that by going to that URL in a browser, or by running `curl <url> --output repo.bundle` to get the file.
 
+<<<<<<< HEAD
+=======
+To open that file, run
+
+>>>>>>> ca7bc6ec (Fix formatting of git commands in logistics section)
 * `git clone repo.bundle spreadsheet --branch=part1`
 * `cd spreadsheet`
 
