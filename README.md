@@ -25,3 +25,4 @@ To make changes to the interview code:
     * Instructions for both should go on the appropriate branches, but please note that instructions and bundle files are built on the part2 branch only
 * Once you’ve made changes in the part1 branch, please also update the part1-tests and part2 branches by merging in part1
 
+Bundles to send to candidates are automatically created in CI, so you don't need to go through a manual process to do this.
