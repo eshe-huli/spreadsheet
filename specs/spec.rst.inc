@@ -43,7 +43,7 @@ Finally, **don't worry about**:
 - actually optimizing your code, unless it takes you over 1 second to execute a simple command
 - security
 
-You're welcome to use libraries.  If you do, please include them in `requirements-dev.txt` or `package.json`.
+You're welcome to use libraries.  If you do, you *must* include them in `requirements-dev.txt` or `package.json` (otherwise we won't know what they are and won't be able to test your code!).
 
 Logistics
 ---------
