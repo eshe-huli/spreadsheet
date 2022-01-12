@@ -32,7 +32,7 @@ class Spreadsheet:
 
         Arguments:
             index (Index): the cell to update
-            raw (str): the raw string, like ``'1'`` or ``'2018-01-01'`` or ``'=A2+A3'``
+            raw (str): the raw string, like ``'1'`` or ``'2018-01-01'`` or ``'=A2'``
         """
         raise NotImplementedError(f"set {index} = {raw!r}")
 
