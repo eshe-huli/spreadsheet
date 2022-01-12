@@ -109,4 +109,5 @@ Here's the order you should do things in. Each step comes with a CSV in the `exa
 2. Get `set_format` working and make `get_formatted` apply the given format.
 3. Make `get_formatted` follow references, e.g. `=A1`.
 
+A full featured spreadsheet would do many more things, but stick to these for this part.  You won't get extra credit for implementing anything besides these three things.
 
