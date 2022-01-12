@@ -87,7 +87,7 @@ Each cell contains a **value** which can be one of a few things:
 * A **number** formatted like `1`, `1.23` or `6.02e23`
 * A **datetime** formatted like `2018-01-01` or `2018-01-01T13:45:56`
 * A **string** like `purple pandas`
-* A **link** like `=A1`, that when evaluated, displays the contents of the cell A1
+* A **reference** like `=A1`, that when evaluated, displays the contents of the cell A1.  Note that if the contents of cell `A1` changes, the referring cell should reflect the new value.
 * The cell can also be **empty**.
 
 Finally, each cell has a **format** which controls how it is displayed, which can be either:
