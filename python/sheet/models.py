@@ -40,7 +40,7 @@ class Index(NamedTuple):
         Index(row=2, col=3)
 
         Args:
-            other (Index)
+            other (Index or tuple of two ints)
         Returns:
             Index:
         """
