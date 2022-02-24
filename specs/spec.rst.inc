@@ -58,6 +58,8 @@ To open that file, run
 
 This should create a `spreadsheet` directory with a git repository with the `part1` branch checked out, ready for you to work in it.
 
+Before you start the timer, make sure the you can run the spreadsheet program.  You should see a grid of rectangles with the cell indeces printed in them.  If you aren't able to run it, stop and debug before starting the timer!
+
 Once you start the timer, you have 2.5 hours to work on implementing the spec below.  Don't forget to take breaks to drink water!  
 
 When you’re ready to submit:
