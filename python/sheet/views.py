@@ -255,6 +255,13 @@ class Viewer:
         col = col_range.first.col
         assert col == col_range.last.col
         width = min(self.get_width(col), self.layout.grid.bottom_right.x - pos.x)
+        
+        if width == 0:
+            # Do nothing.  On mac/linux the following block correctly does the right thing, 
+            # but on windows with windows-curses, the following block causes a 
+            # crash.
+            return 
+            
         if width < 3:  # one for padding, 2 for ellipsis
             # just finish the column header
             self.stdscr.addstr(*pos, " " * width, curses.A_REVERSE)
