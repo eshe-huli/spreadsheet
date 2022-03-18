@@ -11,7 +11,7 @@ you're doing the interview in. Everything you need should be there.
 To run the tests on a candidate's code in gitlab:
 
 * Download the candidate's bundle file from Greenhouse or from their email.
-* From the root of the repository, run `./submit.sh <bundle_file> <candidate_name_with_no_spaces>`.
+* From the root of the repository, run `./push_to_gitlab.sh <bundle_file> <candidate_name_with_no_spaces>`.
 * In gitlab, click the "pipelines" tab to see the running tests (they don't take very long).
 
 
