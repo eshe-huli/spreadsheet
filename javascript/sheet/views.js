@@ -547,6 +547,8 @@ class SpreadsheetView {
   }
   drawEditor() {
     if (this.editBox == null) {
+      const formatted = this.engine.getFormatted(this.cursor);
+      this.write(this.layout.editBox.topLeft, formatted);
       this.program.hideCursor();
     } else {
       this.write(this.layout.editBox.topLeft, this.editBox.text);
