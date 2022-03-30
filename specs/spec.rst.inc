@@ -38,7 +38,6 @@ You should prioritize *all* of these over finishing the entire spec. All we care
 Finally, **don't worry about**:
 
 - persisting any data.  If you quit the spreadsheet, it's ok if all the data is lost.
-- small-scale code polish (e.g. extensive docstrings or comments, maximally readable variable names). We evaluated that in the last round and your interviewer will learn the codebase by pairing with you :)
 - actually writing unit tests (again, do worry about making it testable though!)
 - trivial bugs/regressions (in the real world, you'd have automated tests to prevent these)
 - actually optimizing your code, unless it takes you over 1 second to execute a simple command
