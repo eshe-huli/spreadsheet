@@ -306,7 +306,7 @@ class Range {
   static parse(text) {
     const split = text.split(":");
     if (split.length != 2) {
-      throw Error(text + " is not a valid range");
+      throw ValueError(text + " is not a valid range");
     }
     const [first, last] = split;
     return new Range(Index.parse(first), Index.parse(last));
