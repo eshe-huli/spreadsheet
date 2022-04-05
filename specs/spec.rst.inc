@@ -93,6 +93,8 @@ Each cell contains a **value** which can be one of a few things:
 * a **reference** like `=A1`, that when evaluated, displays the contents of the cell A1 (if the contents of cell `A1` changes, the referring cell should reflect the new value);
 * or the cell can be **empty**.
 
+The UI will always call `get_formatted` for all cells on every change.
+
 Finally, each cell has a **format** which controls how it is displayed, which can be either:
 
 * a **number format** (controlling e.g. the number of digits after the decimal point);
@@ -101,15 +103,16 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
-Your engine should meet the following functional requirements:
+At a minimum, your engine should behave reasonably in the following situations:
 
-* Users should be able to enter any value into any cell.
-* Users should be able to set any cell to any format.
-* If a cell's set format is not applicable to its current value, the current value should be rendered using the default format. You should consider carefully which formats should be applicable to which values.
-* If a user enters a value into a cell with no format set, the format (number, date, or default) should be chosen automatically.
-* References should follow other references recursively. (You can assume that the UI will always re-render all cells on every change. You do not need to implement a caching solution, although you are free to do so.)
-* References should follow the format of the cell they point to, unless the referencing cell has its own non-default format set, in which case the latter format takes precedence.
-* Any errors should be handled gracefully. The spreadsheet should never freeze or crash.
+* The user sets a cell's format, but it cannot be applied to the cell's existing value (e.g. formatting text as a number)
+* The user enters a value into a cell, but it cannot be formatted using the cell's existing format (e.g. entering text into a number-formatted cell)
+* The user sets an empty cell's format, then enters a value
+* The user enters a value, then cycles the cell through various formats
+* The user creates a reference to a cell with a set format
+* The user creates a reference to a cell with a set format, but also sets the format of the referring cell
+
+Your spreadsheet should handle errors gracefully; it should never freeze or crash.
 
 Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview.
 
