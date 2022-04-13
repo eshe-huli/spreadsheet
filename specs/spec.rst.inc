@@ -93,8 +93,6 @@ Each cell contains a **value** which can be one of a few things:
 * a **reference** like `=A1`, that when evaluated, displays the contents of the cell A1 (if the contents of cell `A1` changes, the referring cell should reflect the new value);
 * or the cell can be **empty**.
 
-The UI will always call `get_formatted` for all cells on every change.
-
 Finally, each cell has a **format** which controls how it is displayed, which can be either:
 
 * a **number format** (controlling e.g. the number of digits after the decimal point);

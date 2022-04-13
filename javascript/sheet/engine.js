@@ -1,4 +1,9 @@
-/** Spreadsheet engine. */
+/** Spreadsheet engine.  This is your job to implement!
+
+These functions are called by the spreadsheet UI.  Each time a value or 
+format is changed, `getFormatted` will be called for every cell in the 
+spreadsheet in sequence.
+*/
 class Spreadsheet {
   /** Get the evaluated and formatted value at the given cell index.
    *
