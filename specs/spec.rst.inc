@@ -100,6 +100,8 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
+For a cell containing a reference, the format displayed should be the format set on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
+
 Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview
 
 Your tasks
