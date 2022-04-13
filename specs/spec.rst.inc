@@ -103,16 +103,15 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
-At a minimum, your engine should behave reasonably in the following situations:
+At a minimum, your engine should behave reasonably in the following situations.  There may be multiple "reasonable" ways for the spreadsheet to behave, but it should never freeze or crash:
 
 * The user sets a cell's format, but it cannot be applied to the cell's existing value (e.g. formatting text as a number)
 * The user enters a value into a cell, but it cannot be formatted using the cell's existing format (e.g. entering text into a number-formatted cell)
 * The user sets an empty cell's format, then enters a value
 * The user enters a value, then cycles the cell through various formats
-* The user creates a reference to a cell with a set format
-* The user creates a reference to a cell with a set format, but also sets the format of the referring cell
+* The user enters an format that doesn't apply to the data in the cell cell (e.g. formatting a cell with a date in it as a number)
+* The user enters a number for which the format in the cell doesn't apply (e.g. entering a number into a cell which has a date format set)
 
-Your spreadsheet should handle errors gracefully; it should never freeze or crash.
 
 Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview.
 
