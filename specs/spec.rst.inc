@@ -113,8 +113,6 @@ At a minimum, your engine should behave reasonably in the following situations. 
 * The user enters a number for which the format in the cell doesn't apply (e.g. entering a number into a cell which has a date format set)
 
 
-Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview.
-
 Your tasks
 ----------
 
@@ -124,5 +122,5 @@ Here's the order in which you should do things. Each step comes with a CSV in th
 2. Get `set_format` working and make `get_formatted` apply the given format.
 3. Make `get_formatted` follow references, e.g. `=A1`.
 
-A full featured spreadsheet would do many more things, but stick to these for this part. You won't get extra credit for implementing anything besides these three things.
+A full featured spreadsheet would do many more things, but stick to these for this part.  We'll fill out more of the functionality you might want from a spreadsheet in the next stage.  You won't get extra credit for implementing anything besides these three things now!
 
