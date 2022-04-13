@@ -1,5 +1,7 @@
 #!/bin/bash 
 
+# exit if we don't have both arguments
+set -u
 BUNDLE_FILE=$1
 INTERVIWEE_NAME=$2
 
