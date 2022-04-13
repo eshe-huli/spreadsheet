@@ -101,16 +101,14 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
-Note that for a cell with a reference, the format should be based on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
+For a cell with a reference, the format should be based on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
 
-At a minimum, your engine should behave reasonably in the following situations.  There may be multiple "reasonable" ways for the spreadsheet to behave, but it should never freeze or crash:
+Your engine should behave reasonably in any situation that you can achieve with the UI.  There may be multiple "reasonable" ways for the spreadsheet to behave, but it should never freeze or crash.  Examples of situations to think about:
 
 * The user sets a cell's format, but it cannot be applied to the cell's existing value (e.g. formatting text as a number)
 * The user enters a value into a cell, but it cannot be formatted using the cell's existing format (e.g. entering text into a number-formatted cell)
 * The user sets an empty cell's format, then enters a value
 * The user enters a value, then cycles the cell through various formats
-* The user enters an format that doesn't apply to the data in the cell cell (e.g. formatting a cell with a date in it as a number)
-* The user enters a number for which the format in the cell doesn't apply (e.g. entering a number into a cell which has a date format set)
 
 
 Your tasks
