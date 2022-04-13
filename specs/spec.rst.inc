@@ -101,6 +101,8 @@ Finally, each cell has a **format** which controls how it is displayed, which ca
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
+Note that for a cell with a reference, the format should be based on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
+
 At a minimum, your engine should behave reasonably in the following situations.  There may be multiple "reasonable" ways for the spreadsheet to behave, but it should never freeze or crash:
 
 * The user sets a cell's format, but it cannot be applied to the cell's existing value (e.g. formatting text as a number)
