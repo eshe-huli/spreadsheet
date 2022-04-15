@@ -110,6 +110,7 @@ Your engine should behave reasonably in any situation that you can achieve with 
 * The user sets an empty cell's format, then enters a value
 * The user enters a value, then cycles the cell through various formats
 
+Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview
 
 Your tasks
 ----------
