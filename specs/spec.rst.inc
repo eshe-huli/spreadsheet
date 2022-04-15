@@ -103,12 +103,10 @@ For how the format is specified at the API level, see the relevant method in the
 
 For a cell with a reference, the format should be based on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
 
-Your engine should behave reasonably in any situation that you can achieve with the UI.  There may be multiple "reasonable" ways for the spreadsheet to behave, but it should never freeze or crash.  Examples of situations to think about:
-
-* The user sets a cell's format, but it cannot be applied to the cell's existing value (e.g. formatting text as a number)
-* The user enters a value into a cell, but it cannot be formatted using the cell's existing format (e.g. entering text into a number-formatted cell)
-* The user sets an empty cell's format, then enters a value
-* The user enters a value, then cycles the cell through various formats
+Your spreadsheet should behave reasonably in any situation you can think of.  If you're not sure what it should do, think about what you would want as a user.  Some examples of situations you might want to think about:
+* What happens when you set a format on an empty cell, and then set a value in it?
+* What if the format you set on a cell doesn't apply to the value, e.g. formatting "examplestring" as a number?
+* What if you have a reference to an empty cell?
 
 Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview
 
