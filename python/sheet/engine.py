@@ -2,7 +2,12 @@ __all__ = ["Spreadsheet"]
 
 
 class Spreadsheet:
-    """The spreadsheet engine. This is your job to implement!"""
+    """The spreadsheet engine. This is your job to implement!
+    
+    These functions are called by the spreadsheet UI.  Each time a value or 
+    format is changed, `get_formatted` will be called for every cell in the 
+    spreadsheet in sequence.
+    """
 
     def get_formatted(self, index):
         """Get the evaluated and formatted value at the given cell ref.

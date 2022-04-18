@@ -29,11 +29,11 @@ How you will be evaluated
 
 Here are our criteria for evaluating the project. They're stack ranked, so please prioritize them accordingly.
 
-1. **High quality design** that makes your engine easy to work with and change. Decoupled components talking to each other via clean and well-specified interfaces.
-2. **User friendly details**--this spec is intentionally vague about many edge-cases or behavioral details. In these scenarios, it's up to you to choose the most user-friendly behavior. If you're not sure what behavior would be most user-friendly, talk it through with your interviewer.
-3. **Extensibility.** You will pair with us to implement more features in the final interview, so think about what design choices will make that easiest.  Similarly, you don't need to optimize for performance or write unit tests, but try not to make assumptions that would make high performance or testing impossible later.
+1. **High quality design** – your code should be easy to understand, debug and change. Try to create clean and well-specified components and interfaces.
+2. **Functionality** – at a minimum, your engine should implement the spec below. If you are not sure about a particular edge case, it's up to you to choose the most user-friendly behaviour. Emulating the behaviour of other spreadsheet software like Google Sheets or Microsoft Excel is a safe choice.
+3. **Extensibility** – you will pair with us to implement more features in the final interview, so think about what design choices will make that easiest. While you don't need to optimize for performance or write unit tests, try not to make assumptions that would make high performance or testing impossible later.
 
-You should prioritize *all* of these over finishing the entire spec. All we care about is being able to see the major elements of your design realized in code. If you are worried about running out of time, please *aggressively drop things* that don't seem interesting from a design/user-friendliness perspective.
+We care about being able to see the major elements of your design realized in code. If you are worried about running out of time, please *aggressively drop things* that don't seem interesting from a design/functionality perspective.
 
 Finally, **don't worry about**:
 
@@ -41,9 +41,10 @@ Finally, **don't worry about**:
 - actually writing unit tests (again, do worry about making it testable though!)
 - trivial bugs/regressions (in the real world, you'd have automated tests to prevent these)
 - actually optimizing your code, unless it takes you over 1 second to execute a simple command
+- implementing more spreadsheet functions than the spec asks for
 - security
 
-You're welcome to use libraries.  If you do, you *must* include them in `requirements-dev.txt` or `package.json` (otherwise we won't know what they are and won't be able to test your code!).
+You're welcome to use libraries. If you do, you *must* include them in `requirements-dev.txt` or `package.json` (otherwise we won't know what they are and won't be able to test your code!).
 
 Logistics
 ---------
@@ -86,32 +87,37 @@ Many spreadsheet operations act on a single cell. A cell is **referenced** by th
 
 Each cell contains a **value** which can be one of a few things:
 
-* A **number** formatted like `1`, `1.23` or `6.02e23`
-* A **datetime** formatted like `2018-01-01` or `2018-01-01T13:45:56`
-* A **string** like `purple pandas`
-* A **reference** like `=A1`, that when evaluated, displays the contents of the cell A1.  Note that if the contents of cell `A1` changes, the referring cell should reflect the new value.
-* The cell can also be **empty**.
+* a **number** formatted like `1`, `1.23` or `6.02e23`;
+* a **datetime** formatted like `2018-01-01` or `2018-01-01T13:45:56`;
+* a **string** like `purple pandas`;
+* a **reference** like `=A1`, that when evaluated, displays the contents of the cell A1 (if the contents of cell `A1` changes, the referring cell should reflect the new value);
+* or the cell can be **empty**.
 
 Finally, each cell has a **format** which controls how it is displayed, which can be either:
 
-* A **number format** (controlling e.g. the number of digits after the decimal point)
-* A **date format** (controlling e.g. whether or not the time is displayed)
-* The **default format** which displays the value however you want.
+* a **number format** (controlling e.g. the number of digits after the decimal point);
+* a **date format** (controlling e.g. whether or not the time is displayed);
+* the **default format** which displays the value however you want.
 
 For how the format is specified at the API level, see the relevant method in the section |engine| below.
 
-For a cell containing a reference, the format displayed should be the format set on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
+For a cell with a reference, the format should be based on the referring cell, and not the referred-to cell.  For example, if cell A1 contains the number `1` formatted as an integer, and cell B1 has the contents `=A1` and is formatted as money, cell A1 should display as `1` B1 should display as `$1.00`.
+
+Your spreadsheet should behave reasonably in any situation you can think of.  If you're not sure what it should do, think about what you would want as a user.  Some examples of situations you might want to think about:
+* What happens when you set a format on an empty cell, and then set a value in it?
+* What if the format you set on a cell doesn't apply to the value, e.g. formatting "examplestring" as a number?
+* What if you have a reference to an empty cell?
 
 Note that this is a small subset of what you might want from a spreadsheet!  We'll fill more of those gaps in the final interview
 
 Your tasks
 ----------
 
-Here's the order you should do things in. Each step comes with a CSV in the `examples` directory that you can load for a very basic/incomplete test of the "happy path." (Testing the unhappy path is up to you.)
+Here's the order in which you should do things. Each step comes with a CSV in the `examples` directory that you can load for a very basic/incomplete test of the "happy path." (Testing the unhappy path is up to you.)
 
 1. Get `set` and `get_raw` working.
 2. Get `set_format` working and make `get_formatted` apply the given format.
 3. Make `get_formatted` follow references, e.g. `=A1`.
 
-A full featured spreadsheet would do many more things, but stick to these for this part.  You won't get extra credit for implementing anything besides these three things.
+A full featured spreadsheet would do many more things, but stick to these for this part.  We'll fill out more of the functionality you might want from a spreadsheet in the next stage.  You won't get extra credit for implementing anything besides these three things now!
 
